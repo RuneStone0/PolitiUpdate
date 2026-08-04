@@ -23,8 +23,11 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      - name: Run tests
+      - name: Unit tests
         run: python -m pytest tests/ --ignore=tests/test_e2e.py -v --tb=short
+
+      - name: End-to-end dry-run
+        run: DRY_RUN=1 python tests/test_e2e.py
 
   docker:
     runs-on: ubuntu-latest
@@ -35,8 +38,8 @@ jobs:
       - name: Build image
         run: docker compose -f docker-compose.test.yml build
 
-      - name: Run unit tests in container
+      - name: Unit tests (container)
         run: docker compose -f docker-compose.test.yml run --rm test
 
-      - name: Run e2e test in container
+      - name: End-to-end dry-run (container)
         run: docker compose -f docker-compose.test.yml run --rm e2e
