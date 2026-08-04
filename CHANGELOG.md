@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/RuneStone0/PolitiUpdate/compare/v1.1.0...v1.1.1) (2026-08-04)
+
+
+### Bug Fixes
+
+* pass env vars from Portainer stack.env and add heartbeat logs ([0f94057](https://github.com/RuneStone0/PolitiUpdate/commit/0f940577facddf124726dc161d4e62a874daceaa))
+* pass env vars from Portainer stack.env and add startup/heartbeat logs ([5308c9c](https://github.com/RuneStone0/PolitiUpdate/commit/5308c9c9892fda93f7732e2bb573c029ceb9bd4f))
+
 ## [1.1.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.0.0...v1.1.0) (2026-08-04)
 
 
