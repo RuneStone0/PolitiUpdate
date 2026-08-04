@@ -2,6 +2,8 @@ services:
   bot:
     image: ghcr.io/runestone0/politiupdate:latest
     restart: unless-stopped
+    env_file:
+      - stack.env
     volumes:
       - ./data:/app/data
     labels:
