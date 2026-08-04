@@ -43,17 +43,34 @@ docker compose -f docker-compose.test.yml run --rm e2e
 
 ### UmbrelOS / Portainer
 
-1. Create a new stack in Portainer, paste the contents of `docker-compose.yml`
-2. Add the following environment variables to the stack (or upload your `.env`):
+**One-time setup:** make the GHCR package public so Portainer can pull it without authentication:
+
+1. Go to https://github.com/RuneStone0/PolitiUpdate/pkgs/container/politiupdate
+2. Package settings → Change visibility → **Public**
+
+Then in Portainer:
+
+1. **Stacks** → **Add stack**
+2. Name: `politiupdate`
+3. Paste the contents of `docker-compose.yml`
+4. Under **Environment variables**, add:
    ```
    X_API_KEY=...
    X_API_SECRET=...
    X_ACCESS_TOKEN=...
    X_ACCESS_SECRET=...
    ```
-3. Deploy the stack
+5. Deploy
 
-The image is automatically built and pushed to `ghcr.io/runestone0/politiupdate` on every push to `main`. Watchtower checks every 60 seconds and redeploys when a new image is available — no manual deploys needed.
+**How it works:**
+- Push to `main` → CI builds and pushes to `ghcr.io/runestone0/politiupdate:latest`
+- Watchtower checks every 60s → pulls new image → redeploys
+- No manual deploys needed
+
+**Creating a release:**
+1. Bump the version in `CHANGELOG.md`
+2. Create a [GitHub Release](https://github.com/RuneStone0/PolitiUpdate/releases/new) with a semver tag (`v1.0.0`)
+3. The publish workflow tags the image as `v1.0.0`, `v1.0`, and `v1`
 
 ### Local
 
