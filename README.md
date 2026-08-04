@@ -41,9 +41,29 @@ docker compose -f docker-compose.test.yml run --rm e2e
 
 ## Deployment
 
+### UmbrelOS / Portainer
+
+1. Create a new stack in Portainer, paste the contents of `docker-compose.yml`
+2. Add the following environment variables to the stack (or upload your `.env`):
+   ```
+   X_API_KEY=...
+   X_API_SECRET=...
+   X_ACCESS_TOKEN=...
+   X_ACCESS_SECRET=...
+   ```
+3. Deploy the stack
+
+The image is automatically built and pushed to `ghcr.io/runestone0/politiupdate` on every push to `main`. Watchtower checks every 60 seconds and redeploys when a new image is available — no manual deploys needed.
+
+### Local
+
 ```bash
 cp .env.example .env
 # Edit .env with your X API keys
+
+docker compose -f docker-compose.test.yml build
+docker compose -f docker-compose.test.yml run --rm test
+docker compose -f docker-compose.test.yml run --rm e2e
 
 docker compose up -d
 docker compose logs -f

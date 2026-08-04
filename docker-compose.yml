@@ -1,13 +1,22 @@
 services:
   bot:
-    build: .
+    image: ghcr.io/runestone0/politiupdate:latest
     restart: unless-stopped
     env_file:
       - .env
     volumes:
       - ./data:/app/data
+    labels:
+      - "watchtower.enable=true"
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+
+  watchtower:
+    image: ghcr.io/nicholas-fedor/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60 --cleanup --label-enable
