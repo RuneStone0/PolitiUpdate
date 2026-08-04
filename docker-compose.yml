@@ -18,13 +18,3 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 60 --cleanup --label-enable
-
-  prune:
-    image: docker:cli
-    restart: unless-stopped
-    entrypoint: ["/bin/sh"]
-    command:
-      - -c
-      - while true; do sleep 3600; docker image prune -a -f; done
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
