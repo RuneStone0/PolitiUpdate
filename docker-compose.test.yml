@@ -1,12 +1,14 @@
 services:
   test:
     build: .
-    command: python -m pytest tests/ --ignore=tests/test_e2e.py -v --tb=short
+    entrypoint: ["python", "-m", "pytest"]
+    command: ["tests/", "--ignore=tests/test_e2e.py", "-v", "--tb=short"]
     environment:
       - DRY_RUN=1
 
   e2e:
     build: .
-    command: python tests/test_e2e.py
+    entrypoint: ["python"]
+    command: ["tests/test_e2e.py"]
     environment:
       - DRY_RUN=1
