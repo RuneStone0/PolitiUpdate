@@ -19,6 +19,7 @@ running = True
 _retry_counter = 0
 RETRY_EVERY_POLLS = 80  # ~1 hour at 45s intervals
 RETRY_BATCH_SIZE = 3
+_HEARTBEAT_EVERY_POLLS = max(1, 300 // max(1, POLL_INTERVAL_SECONDS))  # ~5 min
 
 
 def _setup_logging() -> None:
@@ -126,6 +127,9 @@ def run() -> None:
     if HEALTH_PORT > 0:
         health.start(port=HEALTH_PORT)
 
+    logger.info("Ready — polling feed every %ds (heartbeat every ~5 min)", POLL_INTERVAL_SECONDS)
+
+    _poll_counter = 0
     while running:
         try:
             items = fetch_feed()
@@ -155,6 +159,10 @@ def run() -> None:
             logger.info("Poll complete: %d new items", new_count)
 
         health.set_last_poll()
+
+        _poll_counter += 1
+        if _poll_counter % _HEARTBEAT_EVERY_POLLS == 0:
+            logger.info("Heartbeat — still running, %d polls completed", _poll_counter)
 
         # Periodic retry of failed posts
         global _retry_counter
