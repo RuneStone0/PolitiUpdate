@@ -2,7 +2,7 @@ name: Auto-update PRs
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
 
 permissions:
   contents: write
@@ -10,12 +10,13 @@ permissions:
 
 jobs:
   update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Update out-of-date PRs
         run: |
-          gh pr list --state open --base main --json number,headRefName -q '.[].number' |
+          gh pr list --state open --json number -q '.[].number' |
           while read pr; do
             gh pr update-branch "$pr" || true
           done
