@@ -2,11 +2,6 @@ services:
   bot:
     image: ghcr.io/runestone0/politiupdate:latest
     restart: unless-stopped
-    environment:
-      - X_API_KEY=${X_API_KEY}
-      - X_API_SECRET=${X_API_SECRET}
-      - X_ACCESS_TOKEN=${X_ACCESS_TOKEN}
-      - X_ACCESS_SECRET=${X_ACCESS_SECRET}
     volumes:
       - ./data:/app/data
     labels:
@@ -18,7 +13,7 @@ services:
         max-file: "3"
 
   watchtower:
-    image: ghcr.io/nicholas-fedor/watchtower:latest
+    image: containrrr/watchtower:latest
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
