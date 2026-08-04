@@ -46,7 +46,10 @@ def _refresh_access_token(refresh_token: str) -> dict:
         redirect_uri=X_REDIRECT_URI,
         scope=SCOPES,
     )
-    new_tokens = oauth2.refresh_token(refresh_token)
+    new_tokens = oauth2.refresh_token(
+        "https://api.x.com/2/oauth2/token",
+        refresh_token=refresh_token,
+    )
     new_tokens["obtained_at"] = int(time.time())
     return new_tokens
 

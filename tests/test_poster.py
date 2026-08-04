@@ -193,7 +193,9 @@ class TestPostTweetLiveMode:
             assert result["access_token"] == "new-access"
             assert result["refresh_token"] == "new-refresh"
             assert "obtained_at" in result
-            mock_handler.refresh_token.assert_called_once_with("old-refresh")
+            mock_handler.refresh_token.assert_called_once_with(
+                "https://api.x.com/2/oauth2/token", refresh_token="old-refresh"
+            )
 
     def test_get_tokens_from_env_var(self):
         fresh_tokens = {"access_token": "env-token", "refresh_token": "env-refresh", "expires_in": 7200, "obtained_at": int(time.time())}

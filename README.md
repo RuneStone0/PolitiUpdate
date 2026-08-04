@@ -1,103 +1,135 @@
 # PolitiUpdate
 
-Automated Danish police updates (Politi Update) mirrored to X ([@PolitiUpdate](https://x.com/PolitiUpdate)). Pulls short messages from the official Danish police RSS feed (Via Ritzau) and posts them link-free within ~30 seconds of publication. Unofficial — not affiliated with the police.
+> Fast, complete mirror of Danish police updates on X.
 
-**Status:** Phase 1 implemented. Ready for deployment to UmbrelOS.
+[@PolitiUpdate](https://x.com/PolitiUpdate) pulls short messages from the official Danish police RSS feed and posts them to X within ~30 seconds of publication — beating the competition on speed and completeness. Link-free, all 14 districts, threaded updates, and optional AI summaries. Unofficial and citizen-run; not affiliated with the police.
 
 ## Features
-- **Fast** — posts within ~30s of police publication, beating the competition
-- **Complete** — all 14 Danish police districts, full message text (with X Premium)
-- **Threaded updates** — when a press release gets updated, all timestamped entries post as a single X thread
-- **Smart summaries** — optionally condenses long posts with an LLM while keeping every fact intact
-- **"Del gerne 🔁"** — auto-appends a retweet prompt when the police ask the public for help (missing persons, witness appeals)
-- **No links** — avoids X's per-post URL surcharge, saving ~$7/mo
 
-## Quick facts
-- Source: https://via.ritzau.dk/rss/short-messages/latest (all districts, Danish)
-- Official page: https://politi.dk/en/current-affairs/get-politi-update-as-an-rss-feed
+- **Fast** — posts within ~30s of publication (competitor averages ~60s)
+- **Complete** — covers all 14 Danish police districts with full message text (X Premium for >280 chars)
+- **Threaded updates** — multi-entry press releases post as X threads (newest first, older as replies)
+- **Smart summaries** — optional LLM condensation of long posts via DeepSeek, preserving key facts
+- **Del gerne 🔁** — auto-appends a retweet prompt on public appeals (missing persons, witness calls)
+- **Link-free** — avoids X's per-URL surcharge (~$7/mo saved)
+- **Failed post retry** — sweeps undelivered posts every ~1 hour
+- **Health check** — built-in HTTP `/health` endpoint for container monitoring
 
-## Docs
-- [context.md](docs/context.md) — purpose, source, competition, strategy, growth playbook
-- [PLAN.md](docs/PLAN.md) — build phases, deployment, roadmap, backlog
-- [financials.md](docs/financials.md) — costs, revenue model, odds
+## Quick start
 
-## Testing
+### 1. Clone and set up credentials
 
 ```bash
-# Unit + regression tests (146 tests)
-python -m pytest tests/ --ignore=tests/test_e2e.py
+cp .env.example .env
+```
 
-# End-to-end dry-run (fetches live RSS, tests all three modes)
-DRY_RUN=1 python tests/test_e2e.py
+Fill in `X_CLIENT_ID` and `X_CLIENT_SECRET` from the [X Developer Portal](https://developer.x.com/en/portal) (your App → Keys and tokens → OAuth 2.0 section).
 
-# E2E with X Premium mode
-DRY_RUN=1 X_PRO=1 python tests/test_e2e.py
+### 2. Authorize the bot (one-time)
 
-# Docker
-docker compose -f docker-compose.test.yml build
-docker compose -f docker-compose.test.yml run --rm test
-docker compose -f docker-compose.test.yml run --rm e2e
+```bash
+python -m src.bot.auth
+```
+
+Opens a browser for X authorization. Saves a refresh token to `data/x_tokens.json`. For Docker deployment, copy the printed `X_REFRESH_TOKEN` value.
+
+### 3. Run locally
+
+```bash
+docker compose up -d
+docker compose logs -f
+```
+
+Or without Docker:
+
+```bash
+pip install -r requirements.txt
+python -m src.bot.main
 ```
 
 ## Deployment
 
-### UmbrelOS / Portainer
+See the full deployment guide in [docs/PLAN.md](docs/PLAN.md#phase-2--run-on-umbrelos-portainer).
 
-**One-time setup:** make the GHCR package public so Portainer can pull it without authentication:
+### Portainer (UmbrelOS)
 
-1. Go to https://github.com/RuneStone0/PolitiUpdate/pkgs/container/politiupdate
-2. Package settings → Change visibility → **Public**
-
-Then in Portainer:
-
-**Step A — Run auth locally** (on your laptop, not in Portainer):
-
-```bash
-cp .env.example .env
-# Fill in X_CLIENT_ID and X_CLIENT_SECRET from the X Developer Portal
-python -m src.bot.auth
-```
-
-This will print your `X_REFRESH_TOKEN`. Copy it.
-
-**Step B — Deploy in Portainer:**
-
-1. **Stacks** → **Add stack**
-2. Name: `politiupdate`
-3. Paste the contents of `docker-compose.yml`
-4. Under **Environment variables**, add:
+1. Make the [GHCR package public](https://github.com/RuneStone0/PolitiUpdate/pkgs/container/politiupdate) (one-time)
+2. **Stacks** → **Add stack**, paste `docker-compose.yml`
+3. Add environment variables:
    ```
    X_CLIENT_ID=...
    X_CLIENT_SECRET=...
-   X_REFRESH_TOKEN=...   ← from Step A
+   X_REFRESH_TOKEN=...   # from python -m src.bot.auth
    ```
-5. Deploy
+4. Deploy — Watchtower auto-updates on new `main` pushes
 
-The bot auto-refreshes the access token using `X_REFRESH_TOKEN` — no file mounts needed.
-
-**How it works:**
-- Push to `main` → CI builds and pushes to `ghcr.io/runestone0/politiupdate:latest`
-- Watchtower checks every 60s → pulls new image → redeploys
-- No manual deploys needed
-
-**Creating a release:**
-1. Bump the version in `CHANGELOG.md`
-2. Create a [GitHub Release](https://github.com/RuneStone0/PolitiUpdate/releases/new) with a semver tag (`v1.0.0`)
-3. The publish workflow tags the image as `v1.0.0`, `v1.0`, and `v1`
-
-### Local
+### Docker Compose
 
 ```bash
+# Copy .env.example and fill in credentials
 cp .env.example .env
-# Edit .env with your X OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET)
+python -m src.bot.auth   # one-time authorization
+docker compose up -d
+```
 
-# One-time: authorize and get a refresh token (saves to data/x_tokens.json)
-python -m src.bot.auth
+The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts needed.
 
+## Testing
+
+```bash
+# Unit + regression tests (154 tests, 100% coverage)
+python -m pytest tests/ --ignore=tests/test_e2e.py
+
+# End-to-end dry-run (fetches live RSS)
+DRY_RUN=1 python tests/test_e2e.py
+
+# Docker test suite
 docker compose -f docker-compose.test.yml build
 docker compose -f docker-compose.test.yml run --rm test
 docker compose -f docker-compose.test.yml run --rm e2e
-
-docker compose up -d
-docker compose logs -f
 ```
+
+## Configuration
+
+| Env var | Default | Description |
+|---|---|---|
+| `X_CLIENT_ID` | — | OAuth 2.0 client ID (required) |
+| `X_CLIENT_SECRET` | — | OAuth 2.0 client secret (required) |
+| `X_REFRESH_TOKEN` | — | Refresh token for headless/Docker auth |
+| `X_PRO` | `0` | Enable full-length posts (needs X Premium) |
+| `LLM_ENABLED` | `0` | Enable LLM condensation (needs `LLM_API_KEY`) |
+| `DRY_RUN` | `0` | Log posts without sending to X |
+| `POLL_INTERVAL_SECONDS` | `30` | RSS polling interval |
+| `POST_MAX_CHARS` | `280` | Max post length (`25000` with `X_PRO`) |
+| `HEALTH_PORT` | `8080` | Health check HTTP port (`0` to disable) |
+| `LOG_LEVEL` | `INFO` | Logging level |
+
+See [`.env.example`](.env.example) for all options.
+
+## Project structure
+
+```
+src/bot/
+  config.py       Environment-driven settings
+  db.py           SQLite deduplication (WAL mode)
+  fetcher.py      RSS polling + press release scraper
+  formatter.py    Post formatting, truncation, LLM condense
+  poster.py       X API v2 posting (OAuth 2.0, auto-refresh)
+  summarizer.py   DeepSeek API summarization
+  health.py       HTTP /health endpoint
+  main.py         Polling loop (fetch → dedupe → format → post)
+  auth.py         One-time OAuth 2.0 PKCE authorization
+docs/             Project context, roadmap, financials
+tests/            154 tests at 100% coverage
+```
+
+## Docs
+
+- [context.md](docs/context.md) — purpose, source, competition, strategy
+- [PLAN.md](docs/PLAN.md) — build phases, deployment, roadmap
+- [financials.md](docs/financials.md) — costs, revenue model, monetization odds
+
+## Source
+
+- RSS feed: https://via.ritzau.dk/rss/short-messages/latest (all districts, Danish)
+- Official page: https://politi.dk/en/current-affairs/get-politi-update-as-an-rss-feed
