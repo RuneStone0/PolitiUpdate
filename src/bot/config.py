@@ -11,7 +11,13 @@ POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "30"))
 
 DB_PATH = os.getenv("DB_PATH", "data/politiupdate.db")
 
-# X API credentials (OAuth 2.0 PKCE)
+# X API credentials (OAuth 1.0a — required for Free tier posting)
+X_API_KEY = os.getenv("X_API_KEY", "")
+X_API_SECRET = os.getenv("X_API_SECRET", "")
+X_ACCESS_TOKEN = os.getenv("X_ACCESS_TOKEN", "")
+X_ACCESS_SECRET = os.getenv("X_ACCESS_SECRET", "")
+
+# X API credentials (OAuth 2.0 PKCE — needs Basic tier or higher)
 X_CLIENT_ID = os.getenv("X_CLIENT_ID", "")
 X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET", "")
 X_REDIRECT_URI = os.getenv("X_REDIRECT_URI", "https://localhost:5000/callback")

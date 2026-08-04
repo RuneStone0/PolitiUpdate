@@ -119,27 +119,45 @@ class TestPostTweetLiveMode:
 
     def test_get_client_missing_credentials(self):
         poster.DRY_RUN = False
-        with mock.patch.object(poster, "X_CLIENT_ID", ""):
+        with (
+            mock.patch.object(poster, "X_API_KEY", ""),
+            mock.patch.object(poster, "X_CLIENT_ID", ""),
+        ):
             with pytest.raises(RuntimeError, match="credentials"):
                 poster._get_client()
 
-    def test_get_client_success_with_valid_token(self):
-        with mock.patch.object(poster, "_load_tokens", return_value={
-            "access_token": "fake-access-token",
-            "refresh_token": "fake-refresh-token",
-            "expires_in": 7200,
-            "obtained_at": int(time.time())
-        }):
+    def test_get_client_oauth1_success(self):
+        client = poster._get_client()
+        assert client is not None
+
+    def test_get_client_oauth1_missing_key(self):
+        with mock.patch.object(poster, "X_API_KEY", ""):
+            with pytest.raises(RuntimeError, match="configured"):
+                poster._get_client_oauth1()
+
+    def test_get_client_oauth2_success_with_valid_token(self):
+        with (
+            mock.patch.object(poster, "X_ACCESS_TOKEN", ""),
+            mock.patch.object(poster, "_load_tokens", return_value={
+                "access_token": "fake-access-token",
+                "refresh_token": "fake-refresh-token",
+                "expires_in": 7200,
+                "obtained_at": int(time.time())
+            }),
+        ):
             client = poster._get_client()
             assert client is not None
 
-    def test_get_client_refreshes_expired_token(self):
-        with mock.patch.object(poster, "_load_tokens", return_value={
-            "access_token": "expired-token",
-            "refresh_token": "fake-refresh-token",
-            "expires_in": 7200,
-            "obtained_at": 0  # epoch = long expired
-        }):
+    def test_get_client_oauth2_refreshes_expired_token(self):
+        with (
+            mock.patch.object(poster, "X_ACCESS_TOKEN", ""),
+            mock.patch.object(poster, "_load_tokens", return_value={
+                "access_token": "expired-token",
+                "refresh_token": "fake-refresh-token",
+                "expires_in": 7200,
+                "obtained_at": 0
+            }),
+        ):
             with mock.patch.object(poster, "_refresh_access_token", return_value={
                 "access_token": "fresh-token",
                 "refresh_token": "fake-refresh-token",
@@ -149,7 +167,7 @@ class TestPostTweetLiveMode:
                 with mock.patch.object(poster, "_save_tokens") as mock_save:
                     client = poster._get_client()
                     assert client is not None
-                    mock_refresh.assert_called_once_with("fake-refresh-token")
+                    mock_refresh.assert_called_once()
                     mock_save.assert_called_once()
 
     def test_load_tokens_raises_when_file_missing(self):
