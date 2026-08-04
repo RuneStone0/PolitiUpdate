@@ -115,8 +115,11 @@ class TestExtractThreadItems:
 
 
 class TestFetchFeed:
+    @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
-    def test_parses_rss_entries(self, mock_feedparser):
+    def test_parses_rss_entries(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
         mock_feedparser.parse.return_value.bozo = False
         mock_feedparser.parse.return_value.entries = [
             {
@@ -140,8 +143,11 @@ class TestFetchFeed:
         assert items[0]["title"] == "Title 1"
         assert items[1]["guid"] == "guid-2"
 
+    @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
-    def test_falls_back_guid_to_link(self, mock_feedparser):
+    def test_falls_back_guid_to_link(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
         mock_feedparser.parse.return_value.bozo = False
         mock_feedparser.parse.return_value.entries = [
             {
@@ -154,16 +160,22 @@ class TestFetchFeed:
         items = fetcher.fetch_feed()
         assert items[0]["guid"] == "http://example.com/no-guid"
 
+    @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
-    def test_returns_empty_on_bozo_with_no_entries(self, mock_feedparser):
+    def test_returns_empty_on_bozo_with_no_entries(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
         mock_feedparser.parse.return_value.bozo = True
         mock_feedparser.parse.return_value.entries = []
 
         items = fetcher.fetch_feed()
         assert items == []
 
+    @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
-    def test_returns_entries_despite_bozo(self, mock_feedparser):
+    def test_returns_entries_despite_bozo(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
         mock_feedparser.parse.return_value.bozo = True
         mock_feedparser.parse.return_value.entries = [
             {"guid": "g", "title": "t", "link": "l", "published": "p"}
@@ -172,8 +184,11 @@ class TestFetchFeed:
         items = fetcher.fetch_feed()
         assert len(items) == 1
 
+    @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
-    def test_handles_empty_pub_date(self, mock_feedparser):
+    def test_handles_empty_pub_date(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
         mock_feedparser.parse.return_value.bozo = False
         mock_feedparser.parse.return_value.entries = [
             {"guid": "g", "title": "t", "link": "l"}
@@ -181,6 +196,14 @@ class TestFetchFeed:
 
         items = fetcher.fetch_feed()
         assert items[0]["pub_date"] == ""
+
+    @mock.patch("src.bot.fetcher.requests.get")
+    def test_returns_empty_on_network_error(self, mock_get):
+        import requests as r
+        mock_get.side_effect = r.ConnectionError("DNS failure")
+
+        items = fetcher.fetch_feed()
+        assert items == []
 
 
 class TestFetchPressRelease:
