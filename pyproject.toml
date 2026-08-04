@@ -1,6 +1,9 @@
 [tool]
 line-length = 100
 
+[tool.coverage.run]
+omit = ["src/bot/auth.py"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

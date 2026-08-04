@@ -50,17 +50,30 @@ docker compose -f docker-compose.test.yml run --rm e2e
 
 Then in Portainer:
 
+**Step A — Run auth locally** (on your laptop, not in Portainer):
+
+```bash
+cp .env.example .env
+# Fill in X_CLIENT_ID and X_CLIENT_SECRET from the X Developer Portal
+python -m src.bot.auth
+```
+
+This will print your `X_REFRESH_TOKEN`. Copy it.
+
+**Step B — Deploy in Portainer:**
+
 1. **Stacks** → **Add stack**
 2. Name: `politiupdate`
 3. Paste the contents of `docker-compose.yml`
 4. Under **Environment variables**, add:
    ```
-   X_API_KEY=...
-   X_API_SECRET=...
-   X_ACCESS_TOKEN=...
-   X_ACCESS_SECRET=...
+   X_CLIENT_ID=...
+   X_CLIENT_SECRET=...
+   X_REFRESH_TOKEN=...   ← from Step A
    ```
 5. Deploy
+
+The bot auto-refreshes the access token using `X_REFRESH_TOKEN` — no file mounts needed.
 
 **How it works:**
 - Push to `main` → CI builds and pushes to `ghcr.io/runestone0/politiupdate:latest`
@@ -76,7 +89,10 @@ Then in Portainer:
 
 ```bash
 cp .env.example .env
-# Edit .env with your X API keys
+# Edit .env with your X OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET)
+
+# One-time: authorize and get a refresh token (saves to data/x_tokens.json)
+python -m src.bot.auth
 
 docker compose -f docker-compose.test.yml build
 docker compose -f docker-compose.test.yml run --rm test

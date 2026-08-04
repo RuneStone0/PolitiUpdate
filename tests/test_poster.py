@@ -2,6 +2,9 @@
 
 import os
 import sys
+import json
+import tempfile
+import time
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -116,14 +119,99 @@ class TestPostTweetLiveMode:
 
     def test_get_client_missing_credentials(self):
         poster.DRY_RUN = False
-        with mock.patch.object(poster, "X_API_KEY", ""):
+        with mock.patch.object(poster, "X_CLIENT_ID", ""):
             with pytest.raises(RuntimeError, match="credentials"):
                 poster._get_client()
 
-    def test_get_client_success_with_keys(self):
-        """With fake keys set in conftest, _get_client constructs a tweepy Client."""
-        client = poster._get_client()
-        assert client is not None
+    def test_get_client_success_with_valid_token(self):
+        with mock.patch.object(poster, "_load_tokens", return_value={
+            "access_token": "fake-access-token",
+            "refresh_token": "fake-refresh-token",
+            "expires_in": 7200,
+            "obtained_at": int(time.time())
+        }):
+            client = poster._get_client()
+            assert client is not None
+
+    def test_get_client_refreshes_expired_token(self):
+        with mock.patch.object(poster, "_load_tokens", return_value={
+            "access_token": "expired-token",
+            "refresh_token": "fake-refresh-token",
+            "expires_in": 7200,
+            "obtained_at": 0  # epoch = long expired
+        }):
+            with mock.patch.object(poster, "_refresh_access_token", return_value={
+                "access_token": "fresh-token",
+                "refresh_token": "fake-refresh-token",
+                "expires_in": 7200,
+                "obtained_at": int(time.time())
+            }) as mock_refresh:
+                with mock.patch.object(poster, "_save_tokens") as mock_save:
+                    client = poster._get_client()
+                    assert client is not None
+                    mock_refresh.assert_called_once_with("fake-refresh-token")
+                    mock_save.assert_called_once()
+
+    def test_load_tokens_raises_when_file_missing(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            token_path = os.path.join(tmpdir, "nonexistent.json")
+            with mock.patch.object(poster, "X_TOKEN_FILE", token_path):
+                with pytest.raises(RuntimeError, match="token file not found"):
+                    poster._load_tokens()
+
+    def test_load_tokens_reads_valid_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            token_path = os.path.join(tmpdir, "tokens.json")
+            expected = {"access_token": "abc", "refresh_token": "xyz"}
+            with open(token_path, "w") as f:
+                json.dump(expected, f)
+            with mock.patch.object(poster, "X_TOKEN_FILE", token_path):
+                result = poster._load_tokens()
+                assert result == expected
+
+    def test_save_tokens_creates_parent_dirs_and_writes(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            token_path = os.path.join(tmpdir, "subdir", "tokens.json")
+            tokens = {"access_token": "abc", "refresh_token": "xyz"}
+            with mock.patch.object(poster, "X_TOKEN_FILE", token_path):
+                poster._save_tokens(tokens)
+            assert os.path.exists(token_path)
+            with open(token_path) as f:
+                assert json.load(f) == tokens
+
+    def test_refresh_access_token_calls_tweepy(self):
+        with mock.patch("tweepy.OAuth2UserHandler") as mock_handler_class:
+            mock_handler = mock.MagicMock()
+            mock_handler.refresh_token.return_value = {
+                "access_token": "new-access",
+                "refresh_token": "new-refresh",
+                "expires_in": 7200,
+            }
+            mock_handler_class.return_value = mock_handler
+
+            result = poster._refresh_access_token("old-refresh")
+            assert result["access_token"] == "new-access"
+            assert result["refresh_token"] == "new-refresh"
+            assert "obtained_at" in result
+            mock_handler.refresh_token.assert_called_once_with("old-refresh")
+
+    def test_get_tokens_from_env_var(self):
+        fresh_tokens = {"access_token": "env-token", "refresh_token": "env-refresh", "expires_in": 7200, "obtained_at": int(time.time())}
+        with mock.patch.object(poster, "X_REFRESH_TOKEN", "env-refresh-token"):
+            with mock.patch.object(poster, "_refresh_access_token", return_value=fresh_tokens) as mock_refresh:
+                with mock.patch.object(poster, "_save_tokens") as mock_save:
+                    result = poster._get_tokens()
+                    assert result == fresh_tokens
+                    mock_refresh.assert_called_once_with("env-refresh-token")
+                    mock_save.assert_called_once_with(fresh_tokens)
+
+    def test_get_tokens_from_file_when_no_env_var(self):
+        expected = {"access_token": "file-token", "refresh_token": "file-refresh"}
+        with mock.patch.object(poster, "X_REFRESH_TOKEN", ""):
+            with mock.patch.object(poster, "_load_tokens", return_value=expected) as mock_load:
+                result = poster._get_tokens()
+                assert result == expected
+                mock_load.assert_called_once()
 
 
 class TestPostThread:

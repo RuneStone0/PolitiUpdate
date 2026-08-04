@@ -166,9 +166,9 @@ def run() -> None:
         if running:
             time.sleep(POLL_INTERVAL_SECONDS)
 
-    health.stop()
-    logger.info("Bot stopped.")
+    health.stop()  # pragma: no cover — only reached on shutdown signal
+    logger.info("Bot stopped.")  # pragma: no cover
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     run()
