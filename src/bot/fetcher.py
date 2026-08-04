@@ -81,7 +81,14 @@ def _extract_thread_items(soup: BeautifulSoup) -> list[dict]:
 def fetch_feed() -> list[dict]:
     """Fetch and parse the RSS feed. Returns raw items with guid/title/link/pub_date."""
     logger.debug("Fetching RSS feed: %s", RSS_FEED_URL)
-    feed = feedparser.parse(RSS_FEED_URL)
+
+    try:
+        resp = requests.get(RSS_FEED_URL, timeout=15)
+        resp.raise_for_status()
+        feed = feedparser.parse(resp.content)
+    except requests.RequestException as e:
+        logger.error("Failed to fetch RSS feed: %s", e)
+        return []
 
     if feed.bozo and not feed.entries:
         logger.error("Failed to parse RSS feed: %s", feed.bozo_exception)
