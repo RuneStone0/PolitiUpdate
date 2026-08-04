@@ -11,10 +11,10 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 os.environ.setdefault("DRY_RUN", "1")
-os.environ.setdefault("X_API_KEY", "fake-key")
-os.environ.setdefault("X_API_SECRET", "fake-secret")
-os.environ.setdefault("X_ACCESS_TOKEN", "fake-token")
-os.environ.setdefault("X_ACCESS_SECRET", "fake-secret-token")
+os.environ.setdefault("X_CLIENT_ID", "fake-client-id")
+os.environ.setdefault("X_CLIENT_SECRET", "fake-client-secret")
+os.environ.setdefault("X_REDIRECT_URI", "https://localhost:5000/callback")
+os.environ.setdefault("X_TOKEN_FILE", "/tmp/test_x_tokens.json")
 
 import src.bot.config as config  # noqa: E402
 import src.bot.formatter as formatter  # noqa: E402
