@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.1.1...v1.2.0) (2026-08-04)
+
+
+### Features
+
+* switch to OAuth 2.0 PKCE for X API posting ([2e40798](https://github.com/RuneStone0/PolitiUpdate/commit/2e407989b0ebd1e62dd75fdd0e4cf5c4cfe305f4))
+* switch to OAuth 2.0 PKCE for X API posting ([a7f20b5](https://github.com/RuneStone0/PolitiUpdate/commit/a7f20b5e3f8763e172b7059cb7820e615e418435))
+
 ## [1.1.1](https://github.com/RuneStone0/PolitiUpdate/compare/v1.1.0...v1.1.1) (2026-08-04)
 
 
