@@ -14,28 +14,8 @@ import tweepy  # noqa: E402
 import src.bot.poster as poster  # noqa: E402
 
 
-class TestPostTweetDryRun:
-    def test_returns_dry_run_string(self):
-        poster.DRY_RUN = True
-        result = poster.post_tweet("Test tweet")
-        assert result == "dry-run"
-
-    def test_returns_dry_run_with_reply(self):
-        poster.DRY_RUN = True
-        result = poster.post_tweet("Reply text", reply_to="123456")
-        assert result == "dry-run"
-
-    def test_does_not_call_client(self):
-        poster.DRY_RUN = True
-        with mock.patch("src.bot.poster._get_client") as mock_client:
-            result = poster.post_tweet("Test")
-            assert result == "dry-run"
-            mock_client.assert_not_called()
-
-
 class TestPostTweetLiveMode:
     def test_posts_tweet_successfully(self):
-        poster.DRY_RUN = False
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.return_value.data = {"id": "998877"}
@@ -46,7 +26,6 @@ class TestPostTweetLiveMode:
             mock_client.create_tweet.assert_called_once_with(text="Hello world")
 
     def test_posts_reply_with_in_reply_to(self):
-        poster.DRY_RUN = False
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.return_value.data = {"id": "555"}
@@ -59,7 +38,6 @@ class TestPostTweetLiveMode:
             )
 
     def test_handles_tweepy_error(self):
-        poster.DRY_RUN = False
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.side_effect = tweepy.TweepyException(
@@ -71,7 +49,6 @@ class TestPostTweetLiveMode:
             assert result is None
 
     def test_handles_forbidden(self):
-        poster.DRY_RUN = False
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.side_effect = tweepy.Forbidden(
@@ -83,7 +60,6 @@ class TestPostTweetLiveMode:
             assert result is None
 
     def test_retries_on_rate_limit(self):
-        poster.DRY_RUN = False
         with (
             mock.patch("src.bot.poster._get_client") as mock_get_client,
             mock.patch("src.bot.poster.time.sleep") as mock_sleep,
@@ -101,7 +77,6 @@ class TestPostTweetLiveMode:
             mock_sleep.assert_called_once()
 
     def test_rate_limit_retry_fails(self):
-        poster.DRY_RUN = False
         with (
             mock.patch("src.bot.poster._get_client") as mock_get_client,
             mock.patch("src.bot.poster.time.sleep") as mock_sleep,
@@ -118,7 +93,6 @@ class TestPostTweetLiveMode:
             assert mock_client.create_tweet.call_count == 2
 
     def test_get_client_missing_credentials(self):
-        poster.DRY_RUN = False
         with (
             mock.patch.object(poster, "X_API_KEY", ""),
             mock.patch.object(poster, "X_CLIENT_ID", ""),
@@ -239,15 +213,7 @@ class TestPostThread:
         result = poster.post_thread([])
         assert result == []
 
-    def test_returns_dry_run_for_all(self):
-        poster.DRY_RUN = True
-        texts = ["Tweet 1", "Tweet 2", "Tweet 3"]
-        result = poster.post_thread(texts)
-        assert result == ["dry-run", "dry-run", "dry-run"]
-        assert len(result) == 3
-
     def test_threads_chain_replies(self):
-        poster.DRY_RUN = False
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.side_effect = [

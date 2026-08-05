@@ -19,7 +19,6 @@ from .config import (
     X_REFRESH_TOKEN,
     X_TOKEN_FILE,
     RATE_LIMIT_BACKOFF,
-    DRY_RUN,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,11 +71,11 @@ def _refresh_access_token(refresh_token: str) -> dict:
     return new_tokens
 
 
-def _get_client() -> tweepy.Client:
+def _get_client() -> tuple[tweepy.Client, str]:
     """Create an authenticated tweepy Client. Tries OAuth 1.0a first (free tier),
     falls back to OAuth 2.0 Bearer token (Basic tier+)."""
     if all([X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET]):
-        return _get_client_oauth1()
+        return _get_client_oauth1(), "oauth1"
 
     if not all([X_CLIENT_ID, X_CLIENT_SECRET]):
         raise RuntimeError(
@@ -94,7 +93,8 @@ def _get_client() -> tweepy.Client:
         tokens = _refresh_access_token(tokens["refresh_token"])
         _save_tokens(tokens)
 
-    return tweepy.Client(bearer_token=tokens["access_token"])
+    # Return client along with type so callers can select the correct auth mode
+    return tweepy.Client(bearer_token=tokens["access_token"]), "oauth2"
 
 
 def _get_tokens() -> dict:
@@ -110,25 +110,29 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
     """Post a tweet and return its ID, or None on failure.
 
     Handles X rate limits by sleeping and retrying once.
-    In dry-run mode, logs the post without sending it.
 
     Args:
         text: The tweet text.
         reply_to: If set, post as a reply to this tweet ID.
     """
-    if DRY_RUN:
-        label = f"REPLY to {reply_to}" if reply_to else "MAIN"
-        logger.info("DRY-RUN would post %s (%d chars): %s", label, len(text), text[:200])
-        return "dry-run"
-
-    client = _get_client()
+    result = _get_client()
+    # Backwards-compat: _get_client may return either a client or (client, type)
+    if isinstance(result, tuple):
+        client, client_type = result
+    else:
+        client = result
+        client_type = None
 
     kwargs = {"text": text}
     if reply_to:
         kwargs["in_reply_to_tweet_id"] = reply_to
 
     try:
-        response = client.create_tweet(**kwargs)
+        if client_type == "oauth2":
+            response = client.create_tweet(user_auth=False, **kwargs)
+        else:
+            response = client.create_tweet(**kwargs)
+
         tweet_id = response.data["id"]
         label = f"reply to {reply_to}" if reply_to else ""
         logger.info("Posted tweet %s %s (%d chars)", tweet_id, label, len(text))

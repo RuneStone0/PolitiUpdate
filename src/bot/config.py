@@ -47,8 +47,5 @@ RATE_LIMIT_BACKOFF = int(os.getenv("RATE_LIMIT_BACKOFF", "900"))
 # Max items to process per poll (safety valve)
 MAX_NEW_ITEMS_PER_POLL = int(os.getenv("MAX_NEW_ITEMS_PER_POLL", "5"))
 
-# Dry-run mode: skip X posting, log what would be posted
-DRY_RUN = os.getenv("DRY_RUN", "").lower() in ("1", "true", "yes")
-
 # Health check HTTP server port (0 = disabled)
 HEALTH_PORT = int(os.getenv("HEALTH_PORT", "8080"))
