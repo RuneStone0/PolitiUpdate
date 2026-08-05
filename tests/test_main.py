@@ -6,8 +6,6 @@ from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-os.environ["DRY_RUN"] = "1"
-
 import pytest  # noqa: E402
 import src.bot.main as main  # noqa: E402
 import src.bot.db as db  # noqa: E402

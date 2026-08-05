@@ -6,7 +6,7 @@ Ship a bot that mirrors Danish police short messages to @PolitiUpdate faster and
 ## Project structure
 ```
 src/bot/           Application code
-  config.py          Environment-driven settings (X_PRO, LLM, DRY_RUN toggles)
+  config.py          Environment-driven settings (X_PRO, LLM toggles)
   db.py              SQLite deduplication and post tracking (WAL mode)
   fetcher.py         RSS polling + press release scraping (thread-item parser)
   formatter.py       Post formatting (district prefix, truncation, LLM condense)
@@ -40,7 +40,6 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
   - **Default**: clean sentence-boundary truncation at 280 chars with `…`
 - **Retweet prompt** — auto-appends `Del gerne 🔁` to public-help posts (efterlysning, savnet, kontakt politiet, har du set, etc.). Space is reserved before truncation so prompt never pushes post past 280 chars.
 - Failed post retry — sweeps failed posts every ~1 hour and re-attempts
-- DRY_RUN mode for testing without hitting X API
 - Structured JSON logging
 - Docker packaging (Dockerfile + compose) for UmbrelOS/Portainer
 - Docker `/health` endpoint (checks DB, RSS reachability, uptime, last poll)
@@ -48,7 +47,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - 146 tests at 99% coverage, regression tests against known press releases
 - `--cov-fail-under=95` enforcement
 
-**Pending:** X API credentials for live run. Code verified with DRY_RUN + live RSS feed.
+**Pending:** X API credentials for live run.
 
 ## Phase 2 — Run on UmbrelOS (Portainer)
 - Docker Compose stack: app service + SQLite volume

@@ -6,10 +6,10 @@ Tests ALL mode combinations in a single run — no env var dependency.
 
 Usage:
     source venv/bin/activate
-    DRY_RUN=1 python tests/test_e2e.py
+    python tests/test_e2e.py
 
     # To also test LLM summarization:
-    DRY_RUN=1 LLM_API_KEY=sk-... LLM_ENABLED=1 python tests/test_e2e.py
+    LLM_API_KEY=sk-... LLM_ENABLED=1 python tests/test_e2e.py
 """
 
 import os
@@ -19,7 +19,6 @@ import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-os.environ.setdefault("DRY_RUN", "1")
 os.environ.setdefault("MAX_NEW_ITEMS_PER_POLL", "3")
 
 tmpdir = tempfile.mkdtemp(prefix="pu_test_")

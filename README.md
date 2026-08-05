@@ -81,7 +81,7 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 python -m pytest tests/ --ignore=tests/test_e2e.py
 
 # End-to-end dry-run (fetches live RSS)
-DRY_RUN=1 python tests/test_e2e.py
+python tests/test_e2e.py
 
 # Docker test suite
 docker compose -f docker-compose.test.yml build
@@ -98,7 +98,6 @@ docker compose -f docker-compose.test.yml run --rm e2e
 | `X_REFRESH_TOKEN` | — | Refresh token for headless/Docker auth |
 | `X_PRO` | `0` | Enable full-length posts (needs X Premium) |
 | `LLM_ENABLED` | `0` | Enable LLM condensation (needs `LLM_API_KEY`) |
-| `DRY_RUN` | `0` | Log posts without sending to X |
 | `POLL_INTERVAL_SECONDS` | `30` | RSS polling interval |
 | `POST_MAX_CHARS` | `280` | Max post length (`25000` with `X_PRO`) |
 | `HEALTH_PORT` | `8080` | Health check HTTP port (`0` to disable) |

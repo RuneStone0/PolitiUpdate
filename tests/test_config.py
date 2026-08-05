@@ -26,9 +26,6 @@ class TestDefaults:
     def test_max_new_items_per_poll_default(self):
         assert config.MAX_NEW_ITEMS_PER_POLL == 5
 
-    def test_dry_run_default(self):
-        assert config.DRY_RUN is True  # conftest sets DRY_RUN=1
-
     def test_x_pro_default(self):
         assert config.X_PRO is False  # conftest doesn't set X_PRO
 
@@ -46,11 +43,6 @@ class TestDefaults:
 
 
 class TestEnvOverrides:
-    def test_dry_run_from_env(self):
-        with mock.patch.dict(os.environ, {"DRY_RUN": "true"}):
-            importlib.reload(config)
-            assert config.DRY_RUN is True
-
     def test_x_pro_from_env(self):
         with mock.patch.dict(os.environ, {"X_PRO": "1"}):
             importlib.reload(config)
