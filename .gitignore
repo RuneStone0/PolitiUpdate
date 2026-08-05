@@ -22,3 +22,7 @@ htmlcov/
 .vscode/
 *.swp
 .DS_Store
+
+# Environment files: ignore all env variants but keep the example
+.env*
+!.env.example
