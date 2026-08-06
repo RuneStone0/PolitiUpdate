@@ -224,6 +224,28 @@ class TestCondenseOrTruncate:
             assert "Kort kondenseret tekst." in result
             assert "…" not in result
 
+    def test_llm_result_never_exceeds_limit(self):
+        """Full result (header + condensed) must never exceed the limit, even if LLM goes slightly over max_body_chars."""
+        formatter.POST_MAX_CHARS = 280
+        formatter.LLM_ENABLED = True
+        header = "København: Vi savner Abdelilah"
+        body = "A" * 500
+
+        from unittest import mock
+
+        # LLM returns condensed body that is 5 chars over max_body_chars —
+        # old code accepted this (+10 slack) and returned an over-limit post.
+        header_overhead = len(header) + 2
+        max_body_chars = 280 - header_overhead
+        slightly_over = "B" * (max_body_chars + 5)
+
+        with mock.patch("src.bot.summarizer.summarize") as mock_sum:
+            mock_sum.return_value = slightly_over
+            result = formatter._condense_or_truncate(
+                f"{header}\n\n{body}", header, body
+            )
+            assert len(result) <= 280, f"result is {len(result)} chars, must be <= 280"
+
 
 class TestRetweetPromptDetection:
     def test_detects_efterlysning(self):
@@ -234,6 +256,21 @@ class TestRetweetPromptDetection:
     def test_detects_savnet(self):
         assert formatter._should_retweet_prompt(
             "78-årig mand savnet i Korsør-området."
+        )
+
+    def test_detects_savner(self):
+        assert formatter._should_retweet_prompt(
+            "Vi savner Abdelilah som forsvandt fra en bustur."
+        )
+
+    def test_detects_ring_114(self):
+        assert formatter._should_retweet_prompt(
+            "Ring 114, hvis han træffes eller hvis man har oplysninger om, hvor han kan være."
+        )
+
+    def test_detects_man_har_oplysninger(self):
+        assert formatter._should_retweet_prompt(
+            "Kontakt politiet hvis man har oplysninger om hans færden."
         )
 
     def test_detects_eftersogning(self):
