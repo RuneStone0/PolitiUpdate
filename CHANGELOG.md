@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.2.0...v1.3.0) (2026-08-06)
+
+
+### Features
+
+* add website URL to X profile for future updates ([6c8696e](https://github.com/RuneStone0/PolitiUpdate/commit/6c8696ea9885bf230ff91947f966a4842e885988))
+* support both OAuth 1.0a (free tier) and OAuth 2.0 (basic tier+) ([5d037b9](https://github.com/RuneStone0/PolitiUpdate/commit/5d037b90a70b6aa93418615d3c82be7e38b2dc5d))
+* **website:** add PolitiUpdate landing page with live X stats ([18955eb](https://github.com/RuneStone0/PolitiUpdate/commit/18955ebd65028a5b246b938d68da8feb774a4407))
+
+
+### Bug Fixes
+
+* update .gitignore to ignore all env variants except the example ([19a667d](https://github.com/RuneStone0/PolitiUpdate/commit/19a667d47520146a35c4c94b5e1989f36af7aab6))
+* update publish workflow to trigger on successful completion of Test workflow ([7f21373](https://github.com/RuneStone0/PolitiUpdate/commit/7f21373f42a672aa2c4673870a253456347ff0a7))
+
 ## [1.2.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.1.1...v1.2.0) (2026-08-04)
 
 
