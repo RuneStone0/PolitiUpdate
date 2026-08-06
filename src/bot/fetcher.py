@@ -47,6 +47,8 @@ def _extract_thread_items(soup: BeautifulSoup) -> list[dict]:
 
     items = []
     for ti in thread_items:
+        sm_id = ti.get("id", "")
+
         meta_p = ti.find("p", class_=re.compile(r"sc-gEvEer"))
         timestamp = ""
         item_district = ""
@@ -73,6 +75,7 @@ def _extract_thread_items(soup: BeautifulSoup) -> list[dict]:
             "body": body,
             "timestamp": timestamp,
             "district": item_district,
+            "sm_id": sm_id,
         })
 
     return items

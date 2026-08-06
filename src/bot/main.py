@@ -5,6 +5,7 @@ import os
 import signal
 import sys
 import time
+from urllib.parse import urlparse
 
 from . import db
 from .config import POLL_INTERVAL_SECONDS, MAX_NEW_ITEMS_PER_POLL, HEALTH_PORT
@@ -55,11 +56,16 @@ def _process_item(raw: dict) -> None:
         db.save_post(guid, title, "", status="failed")
         return
 
-    # Format all messages (latest first → main tweet, rest → replies)
-    formatted = [
-        format_post(title, district, item["body"])
-        for item in thread_items
-    ]
+    # Only post the specific update referenced by the guid's #sm-XXXXX fragment.
+    # Each RSS entry targets one update; posting all items would re-post history
+    # every time a press release is updated.
+    fragment = urlparse(guid).fragment  # e.g. "sm-15078471", or "" if absent
+    if fragment:
+        matched = [item for item in thread_items if item.get("sm_id") == fragment]
+        if matched:
+            thread_items = matched
+
+    formatted = [format_post(title, district, item["body"]) for item in thread_items]
 
     # Store latest body for DB
     latest_body = thread_items[0]["body"]
