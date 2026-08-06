@@ -14,6 +14,26 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  x-stats:
+    image: ghcr.io/runestone0/politiupdate:latest
+    restart: "no"
+    env_file:
+      - stack.env
+    volumes:
+      - ./data:/app/data
+      - ./website:/app/website
+    # Override the bot's default ENTRYPOINT so this service runs the stats
+    # fetcher/publisher instead of the posting bot.
+    entrypoint: ["python", "-m", "src.x_stats"]
+    command: ["--refresh"]
+    labels:
+      - "watchtower.enable=false"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   watchtower:
     image: ghcr.io/nicholas-fedor/watchtower:latest
     restart: unless-stopped

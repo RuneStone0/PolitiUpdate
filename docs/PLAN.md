@@ -60,10 +60,12 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - Generate weekly digest of the week's items with an LLM
 - Post as original content, disclosed as AI-generated, format varied weekly
 
-## Phase 4 — Website (future)
-- Simple site listing all updates, filterable by district
-- Per-district RSS feeds
-- Consistent district tags in X posts so users can filter updates on X
+## Phase 4 — Website ✅
+- Landing page explaining what PolitiUpdate is and how to use it
+- Live X stats (post count, followers) pulled from GitHub Gist
+- District filtering instructions using X search (`from:PolitiUpdate Nordjylland`, etc.)
+- Notification setup guide for followers
+- Responsive dark-themed design, favicon
  - Add the website URL to the X profile once the site is live.
 
 ## Phase 5 — Multi-channel replication (future)
@@ -72,7 +74,6 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 ## Future improvements / backlog
 - **User feedback collection** — request feedback via X posts/polls, website. Understand what followers value most (speed, completeness, district filtering, English summaries).
 - **Reply-listening bot** — monitor @PolitiUpdate's X mentions/replies, auto-collect feature requests and sentiment, triaged by LLM.
-- Website + per-district filtering (Phase 4)
 - Multi-channel (Phase 5)
 - English summaries for international audience (biggest revenue lever per financials.md)
 - Analytics: track which posts drive profile visits/follows
