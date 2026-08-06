@@ -284,6 +284,23 @@ body {
   font-size: 0.95rem;
 }
 
+.panel-keyboard {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-stats {
+  padding-bottom: 16px;
+}
+
+.panel .stats-updated {
+  margin: 56px 0 0;
+  font-size: 0.75rem;
+  color: #4a6a8c;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .panel-feed {
   display: flex;
   flex-direction: column;
