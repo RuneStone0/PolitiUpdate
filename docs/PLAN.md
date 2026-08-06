@@ -49,7 +49,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 
 **Pending:** X API credentials for live run.
 
-## Phase 2 — Run on UmbrelOS (Portainer)
+## Phase 2 — Run on UmbrelOS (Portainer) ✅
 - Docker Compose stack: app service + SQLite volume
 - Secrets via env file (`.env` with X API keys), restart policy
 - HEALTHCHECK via `/health` endpoint (60s interval, 3 retries)
@@ -64,6 +64,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - Simple site listing all updates, filterable by district
 - Per-district RSS feeds
 - Consistent district tags in X posts so users can filter updates on X
+ - Add the website URL to the X profile once the site is live.
 
 ## Phase 5 — Multi-channel replication (future)
 - Mirror posts to Instagram, Facebook, etc.

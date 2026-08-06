@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolitiUpdate — Danmarks hurtigste politi-feed</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <div>
+        <h1 class="site-title">PolitiUpdate</h1>
+        <h2 class="page-subtitle">Danmarks hurtigste opdateringer fra politiet</h2>
+      </div>
+    </header>
+
+    <main class="page-grid">
+      <section class="content">
+        <article class="hero-card">
+          <h2 class="hero-subtitle">OM POLITI UPDATE</h2>
+          <p>PolitiUpdate er skabt for at holde dialogen åben. Politiet lukkede deres X-opslag, bl.a. fordi kommentarerne nogle gange gav dem problemer. Vi tror på fri information og åben debat, så vi spejler officielle RSS-opdateringer til X og gør dem nemmere for alle at få adgang til.</p>
+        </article>
+
+        <section id="how-it-works" class="section-card">
+          <h3>Fordele</h3>
+          <p>Brug PolitiUpdate for at se officielle opdateringer samlet på X, få notifikationer og holde dig orienteret om vigtige hændelser. Del vigtige nyheder, så flere kan sætte sig ind i sagen, og vær med til at holde debatten civil og åben.</p>
+          <ul>
+            <li>Få opdateringer direkte fra politiets officielle RSS-kilde på X.</li>
+            <li>Se brugernes kommentarer og debat under hvert opslag.</li>
+            <li>Få real-time notifikationer, så du hurtigere kan reagere.</li>
+            <li>Del vigtige meddelelser for at sprede nyheden og holde andre informeret.</li>
+            <li>Følg ugentlige resuméer af de vigtigste begivenheder i ugen.</li>
+          </ul>
+        </section>
+
+        <section id="notifications" class="section-card">
+          <h3>Slå notifikationer til</h3>
+          <p>Følg disse enkle trin for at få hurtige opdateringer fra @PolitiUpdate på X:</p>
+          <ol class="steps-row">
+            <li><span class="step-number">1</span> Følg <strong>@PolitiUpdate</strong> på X.</li>
+            <li><span class="step-number">2</span> Tryk på klokken og vælg <strong>Alle tweets</strong> eller <strong>Nye tweets</strong>.</li>
+            <li><span class="step-number">3</span> Tilpas notifikationerne i Xs indstillinger.</li>
+          </ol>
+
+          <p>Hvis du vil have færre push-alerts, skal du bruge Xs notifikationsindstillinger og eventuelt mute ord eller konti.</p>
+        </section>
+
+        <section id="filtering" class="section-card">
+          <h3>Filtrer</h3>
+          <p>Brug søgning i X for kun at se opdateringer fra denne konto og dit eget distrikt. De mest effektive søgninger er:</p>
+          <div class="code-block">
+            <code>from:PolitiUpdate Nordjylland</code>
+            <code>from:PolitiUpdate København</code>
+            <code>from:PolitiUpdate "Sydsjælland/L-F:"</code>
+            <code>from:PolitiUpdate "Kbh Vestegn"</code>
+          </div>
+          <p>Gem søgningen som et bogmærke i din browser eller i X, så du hurtigt kan åbne lokal politidækning.</p>
+        </section>
+
+      </section>
+
+      <aside class="sidebar">
+        <div class="panel panel-feed">
+          <div class="feed-card-header">
+            <div class="live-heading">
+              <p class="eyebrow">Seneste Nyt</p>
+              <span class="live-dot" aria-label="Live"></span>
+            </div>
+          </div>
+          <div class="feed-embed">
+            <div class="feed-fallback static-fallback" aria-live="polite">
+              <p>X-embed'et er rate-limited og kan ikke vises her i øjeblikket. Besøg <strong>@PolitiUpdate</strong> direkte for de seneste opdateringer.</p>
+              <a class="button" href="https://x.com/PolitiUpdate" target="_blank" rel="noopener">Åbn @PolitiUpdate</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-keyboard">
+          <h3>Data</h3>
+          <div class="stats-grid">
+            <div>
+              <strong>14</strong>
+              <p>distrikter dækket</p>
+            </div>
+            <div>
+              <strong id="x-posts-count">0</strong>
+              <p>totale opslag</p>
+            </div>
+            <div>
+              <strong id="x-followers-count">0</strong>
+              <p>følgere på X</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-keyboard">
+          <h3>Kontakt</h3>
+          <p>Har du forslag til, hvordan vi kan forbedre PolitiUpdate? Send os gerne en kommentar eller DM på X.</p>
+        </div>
+
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <p>Data fra <a href="https://via.ritzau.dk/rss/short-messages/latest" target="_blank" rel="noopener">Ritzau</a>.</p>
+    </footer>
+  </div>
+  <script>
+    // Stats are published to a GitHub Gist by the server-side x-stats container.
+    // This is the stable raw URL (no commit SHA) so it stays valid as content changes.
+    const X_STATS_GIST_URL = 'https://gist.githubusercontent.com/RuneStone0/11b5b5d08b90cb3bdaca11a2cd0ba695/raw/x-stats.json';
+
+    async function loadXStats() {
+      const sources = [X_STATS_GIST_URL, 'x-stats.json?cache=' + Date.now()];
+      for (const url of sources) {
+        try {
+          const resp = await fetch(url, { cache: 'no-store' });
+          if (!resp.ok) {
+            throw new Error('Failed to fetch ' + url + ': ' + resp.status);
+          }
+          const data = await resp.json();
+          document.getElementById('x-posts-count').textContent = data.tweet_count ?? '0';
+          document.getElementById('x-followers-count').textContent = data.followers_count ?? '0';
+          const updatedAt = data.updated_at
+            ? new Date(data.updated_at).toLocaleString('da-DK')
+            : 'ukendt';
+          return; // first source that worked wins
+        } catch (error) {
+          console.warn('Could not load X stats from ' + url, error);
+        }
+      }
+    }
+    loadXStats();
+  </script>
+</body>
+</html>
