@@ -77,7 +77,7 @@
           </div>
         </div>
 
-        <div class="panel panel-keyboard">
+        <div class="panel panel-keyboard panel-stats">
           <h3>Data</h3>
           <div class="stats-grid">
             <div>
@@ -86,13 +86,14 @@
             </div>
             <div>
               <strong id="x-posts-count">0</strong>
-              <p>totale opslag</p>
+              <p>X Posts</p>
             </div>
             <div>
               <strong id="x-followers-count">0</strong>
-              <p>følgere på X</p>
+              <p>X følgere</p>
             </div>
           </div>
+          <p class="stats-updated">Opdateret <time id="x-stats-updated">—</time></p>
         </div>
 
         <div class="panel panel-keyboard">
@@ -113,24 +114,35 @@
     const X_STATS_GIST_URL = 'https://gist.githubusercontent.com/RuneStone0/11b5b5d08b90cb3bdaca11a2cd0ba695/raw/x-stats.json';
 
     async function loadXStats() {
-      const sources = [X_STATS_GIST_URL, 'x-stats.json?cache=' + Date.now()];
-      for (const url of sources) {
-        try {
-          const resp = await fetch(url, { cache: 'no-store' });
-          if (!resp.ok) {
-            throw new Error('Failed to fetch ' + url + ': ' + resp.status);
-          }
-          const data = await resp.json();
-          document.getElementById('x-posts-count').textContent = data.tweet_count ?? '0';
-          document.getElementById('x-followers-count').textContent = data.followers_count ?? '0';
-          const updatedAt = data.updated_at
-            ? new Date(data.updated_at).toLocaleString('da-DK')
-            : 'ukendt';
-          return; // first source that worked wins
-        } catch (error) {
-          console.warn('Could not load X stats from ' + url, error);
+      try {
+        const resp = await fetch(X_STATS_GIST_URL, { cache: 'no-store' });
+        if (!resp.ok) {
+          throw new Error('Failed to fetch ' + X_STATS_GIST_URL + ': ' + resp.status);
         }
+        const data = await resp.json();
+        document.getElementById('x-posts-count').textContent = data.tweet_count ?? '0';
+        document.getElementById('x-followers-count').textContent = data.followers_count ?? '0';
+        const timeEl = document.getElementById('x-stats-updated');
+        timeEl.textContent = relativeTime(data.updated_at);
+        timeEl.dateTime = data.updated_at ?? '';
+      } catch (error) {
+        console.warn('Could not load X stats from gist:', error);
       }
+    }
+
+    function relativeTime(iso) {
+      if (!iso) return 'ukendt';
+      const diffMs = Math.max(0, Date.now() - new Date(iso).getTime());
+      const minutes = Math.floor(diffMs / 60000);
+      if (minutes < 1) return 'lige nu';
+      if (minutes < 60) return minutes === 1 ? '1 minut siden' : minutes + ' minutter siden';
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return hours === 1 ? '1 time siden' : hours + ' timer siden';
+      const days = Math.floor(hours / 24);
+      if (days < 7) return days === 1 ? '1 dag siden' : days + ' dage siden';
+      const weeks = Math.floor(days / 7);
+      if (weeks < 5) return weeks === 1 ? '1 uge siden' : weeks + ' uger siden';
+      return new Date(iso).toLocaleDateString('da-DK');
     }
     loadXStats();
   </script>
