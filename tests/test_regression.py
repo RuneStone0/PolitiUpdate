@@ -31,6 +31,13 @@ REGRESSION_CASES = [
         ["grundlovsforhør", "Randers", "varetægtsfængslet", "terrorisme"],
         "Court hearing (Randers) — three updates, complex body",
     ),
+    (
+        "https://via.ritzau.dk/pressemeddelelse/15079728/vi-savner-abdelilah?lang=da",
+        "Københavns Politi",
+        1,
+        ["Abdelilah", "autist", "114"],
+        "Missing person (Abdelilah) — single update, condensation required",
+    ),
 ]
 
 
@@ -114,6 +121,6 @@ class TestRegressionFetch:
                 assert post, f"LLM mock produced empty post in {desc}"
                 # Either the mock was used (no …) or truncation kicked in
                 # Either way, post should be non-empty and fit
-                assert len(post) <= 285, (
+                assert len(post) <= 280, (
                     f"LLM post exceeds limit in {desc}: {len(post)} chars"
                 )

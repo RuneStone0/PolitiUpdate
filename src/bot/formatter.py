@@ -8,8 +8,9 @@ logger = logging.getLogger(__name__)
 
 RETWEET_PROMPT_SUFFIX = "\n\nDel gerne 🔁"
 RETWEET_PROMPT_KEYWORDS = [
-    "efterlysning", "savnet", "eftersøgning",
+    "efterlysning", "savnet", "savner", "eftersøgning",
     "kontakt politiet", "har du set", "har du oplysninger",
+    "man har oplysninger", "ring 114",
     "bedes du kontakte",
 ]
 
@@ -101,19 +102,19 @@ def _condense_or_truncate(text: str, header: str, body: str, limit: int | None =
             max_body_chars = limit - header_overhead
             if max_body_chars > 40:
                 condensed = summarizer.summarize(body, max_body_chars)
-                if condensed and len(condensed) <= max_body_chars + 10:
+                if condensed:
                     result = f"{header}\n\n{condensed}"
-                    if len(result) + 3 <= limit:
-                        result += "\n✨"
-                    logger.info(
-                        "LLM condensed body %d → %d chars",
-                        len(body), len(condensed),
-                    )
-                    return result
-                elif condensed:
+                    if len(result) <= limit:
+                        if len(result) + 3 <= limit:
+                            result += "\n✨"
+                        logger.info(
+                            "LLM condensed body %d → %d chars",
+                            len(body), len(condensed),
+                        )
+                        return result
                     logger.warning(
-                        "LLM condensed body exceeds limit (%d > %d), truncating",
-                        len(condensed), max_body_chars,
+                        "LLM condensed body exceeds limit (%d chars > limit %d), truncating",
+                        len(result), limit,
                     )
         except Exception:
             logger.exception("LLM summarization failed, falling back to truncation")
