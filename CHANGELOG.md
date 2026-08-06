@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.3.0...v1.4.0) (2026-08-06)
+
+
+### Features
+
+* add SVG logo variants ([3aa0103](https://github.com/RuneStone0/PolitiUpdate/commit/3aa01030283f5a67fa12d3fe72358a768dfef13d))
+* add SVG logo variants for multi-context use ([b33a077](https://github.com/RuneStone0/PolitiUpdate/commit/b33a077d987bff0cdc9fb3ff6d4b4d0f7c6ab12c))
+
+
+### Bug Fixes
+
+* condense over-limit check and missing-person retweet keywords ([#16](https://github.com/RuneStone0/PolitiUpdate/issues/16)) ([507c73f](https://github.com/RuneStone0/PolitiUpdate/commit/507c73fe11a13dbbb58a55883572cedd5e9ff925))
+
 ## [1.3.0](https://github.com/RuneStone0/PolitiUpdate/compare/v1.2.0...v1.3.0) (2026-08-06)
 
 
