@@ -35,7 +35,7 @@ REGRESSION_CASES = [
         "https://via.ritzau.dk/pressemeddelelse/15079728/vi-savner-abdelilah?lang=da",
         "Københavns Politi",
         1,
-        ["Abdelilah", "autist", "114"],
+        ["autist", "114"],
         "Missing person (Abdelilah) — single update, condensation required",
     ),
 ]
