@@ -158,22 +158,21 @@
     (function () {
       const fallback = document.getElementById('feed-fallback');
       const wrapper = document.getElementById('twitter-embed-wrapper');
+      let rendered = false;
+
+      function onRendered() {
+        rendered = true;
+        clearTimeout(timeout);
+        // Ensure the wrapper is visible in case showFallback raced ahead
+        wrapper.style.display = '';
+        fallback.style.display = 'none';
+      }
 
       function showFallback() {
-        // Don't cover a widget that already rendered an iframe
-        if (wrapper.querySelector('iframe')) return;
+        if (rendered) return;
         wrapper.style.display = 'none';
         fallback.style.display = 'grid';
       }
-
-      // Cancel the timeout as soon as the widget injects its iframe
-      const observer = new MutationObserver(function () {
-        if (wrapper.querySelector('iframe')) {
-          clearTimeout(timeout);
-          observer.disconnect();
-        }
-      });
-      observer.observe(wrapper, { childList: true, subtree: true });
 
       const timeout = setTimeout(showFallback, 15000);
 
@@ -182,9 +181,18 @@
       script.async = true;
       script.charset = 'utf-8';
 
+      script.onload = function () {
+        if (!window.twttr) { clearTimeout(timeout); showFallback(); return; }
+        window.twttr.ready(function (twttr) {
+          // Bind rendered event for future renders
+          twttr.events.bind('rendered', onRendered);
+          // Handle race: widget may have already rendered before we bound
+          if (wrapper.querySelector('.twitter-timeline-rendered')) onRendered();
+        });
+      };
+
       script.onerror = function () {
         clearTimeout(timeout);
-        observer.disconnect();
         showFallback();
       };
 
