@@ -160,30 +160,31 @@
       const wrapper = document.getElementById('twitter-embed-wrapper');
 
       function showFallback() {
+        // Don't cover a widget that already rendered an iframe
+        if (wrapper.querySelector('iframe')) return;
         wrapper.style.display = 'none';
         fallback.style.display = 'grid';
       }
 
-      const timeout = setTimeout(showFallback, 10000);
+      // Cancel the timeout as soon as the widget injects its iframe
+      const observer = new MutationObserver(function () {
+        if (wrapper.querySelector('iframe')) {
+          clearTimeout(timeout);
+          observer.disconnect();
+        }
+      });
+      observer.observe(wrapper, { childList: true, subtree: true });
+
+      const timeout = setTimeout(showFallback, 15000);
 
       const script = document.createElement('script');
       script.src = 'https://platform.twitter.com/widgets.js';
       script.async = true;
       script.charset = 'utf-8';
 
-      script.onload = function () {
-        if (window.twttr && window.twttr.events) {
-          window.twttr.events.bind('rendered', function () {
-            clearTimeout(timeout);
-          });
-        } else {
-          clearTimeout(timeout);
-          showFallback();
-        }
-      };
-
       script.onerror = function () {
         clearTimeout(timeout);
+        observer.disconnect();
         showFallback();
       };
 
