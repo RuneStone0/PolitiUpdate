@@ -199,6 +199,26 @@ class TestRetryFailed:
                     assert result == 0
                     mock_save.assert_not_called()
 
+    def test_retry_filters_by_sm_id_fragment(self):
+        """Retry must not re-post all thread items — only the one matching the guid fragment."""
+        failed = [{"guid": "http://example.com/pr#sm-42", "title": "T"}]
+        items = [
+            {"body": "Update sm-42", "sm_id": "sm-42"},
+            {"body": "Update sm-41", "sm_id": "sm-41"},
+        ]
+
+        with mock.patch.object(db, "get_failed_posts", return_value=failed):
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post",
+                                return_value="P") as mock_fmt:
+                    with mock.patch("src.bot.main.post_thread",
+                                    return_value=["1"]):
+                        with mock.patch.object(db, "save_post"):
+                            main._retry_failed()
+                            assert mock_fmt.call_count == 1
+                            assert mock_fmt.call_args[0][2] == "Update sm-42"
+
     def test_retry_handles_exception_gracefully(self):
         failed = [{"guid": "f5", "title": "Fail 5"}]
 
