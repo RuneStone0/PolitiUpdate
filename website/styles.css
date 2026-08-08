@@ -151,24 +151,33 @@ body {
   margin-bottom: 10px;
 }
 
-.code-block {
-  display: grid;
-  gap: 10px;
-  padding: 18px;
-  background: rgba(15, 23, 42, 0.95);
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.12);
+.filter-list {
+  margin: 0 0 18px;
+  padding-left: 1.2rem;
 }
 
-.code-block code {
-  display: block;
+.filter-list li {
+  margin-bottom: 10px;
+}
+
+.filter-list a {
+  text-decoration: none;
+}
+
+.filter-list a:hover code {
+  border-color: rgba(125, 211, 252, 0.4);
+  color: #7dd3fc;
+}
+
+.filter-list code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
   background: #111827;
   border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 8px;
+  padding: 4px 10px;
   color: #e2e8f0;
-  white-space: pre-wrap;
+  transition: border-color 0.15s, color 0.15s;
 }
 
 .info-grid {
@@ -188,10 +197,18 @@ body {
 .steps-row li {
   display: flex;
   gap: 14px;
-  align-items: flex-start;
+  align-items: center;
   margin: 0 0 18px;
   color: #cbd5e1;
   line-height: 1.7;
+}
+
+.inline-icon {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
+  fill: currentColor;
+  display: inline;
 }
 
 .step-number {
@@ -264,18 +281,16 @@ body {
   padding: 18px;
   border-radius: 16px;
   text-align: center;
-  min-height: 120px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 170px;
 }
 
 .stats-grid strong {
   display: block;
   font-size: 1.4rem;
   color: #e2e8f0;
-  white-space: nowrap;
 }
 
 .stats-grid p {
@@ -294,11 +309,10 @@ body {
 }
 
 .panel .stats-updated {
-  margin: 56px 0 0;
+  margin: 20px 0 0;
   font-size: 0.75rem;
   color: #4a6a8c;
   text-align: center;
-  white-space: nowrap;
 }
 
 .panel-feed {
@@ -434,9 +448,24 @@ body {
   text-decoration: none;
 }
 
+.footer-version {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  color: #374e6b;
+}
+
+.footer-version a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-version a:hover {
+  color: #93c5fd;
+}
+
 @media (max-width: 1080px) {
   .page-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
