@@ -39,9 +39,8 @@
           <h3>Slå notifikationer til</h3>
           <p>Følg disse enkle trin for at få hurtige opdateringer fra @PolitiUpdate på X:</p>
           <ol class="steps-row">
-            <li><span class="step-number">1</span> Følg <strong>@PolitiUpdate</strong> på X.</li>
-            <li><span class="step-number">2</span> Tryk på klokken og vælg <strong>Alle tweets</strong> eller <strong>Nye tweets</strong>.</li>
-            <li><span class="step-number">3</span> Tilpas notifikationerne i Xs indstillinger.</li>
+            <li><span class="step-number">1</span><span> Følg <strong>@PolitiUpdate</strong> på X.</span></li>
+            <li><span class="step-number">2</span><span> Tryk på <svg class="inline-icon" viewBox="0 0 24 24" width="20" height="20" aria-label="klokke"><path d="M22 5v2h-3v3h-2V7h-3V5h3V2h2v3h3zm-.86 13h-4.241c-.464 2.281-2.482 4-4.899 4s-4.435-1.719-4.899-4H2.87L4 9.05C4.51 5.02 7.93 2 12 2v2C8.94 4 6.36 6.27 5.98 9.3L5.13 16h13.73l-.38-3h2.02l.64 5zm-6.323 0H9.183c.412 1.164 1.51 2 2.817 2s2.405-.836 2.817-2z"/></svg> for at få notifikationer.</span></li>
           </ol>
 
           <p>Hvis du vil have færre push-alerts, skal du bruge Xs notifikationsindstillinger og eventuelt mute ord eller konti.</p>
@@ -49,14 +48,13 @@
 
         <section id="filtering" class="section-card">
           <h3>Filtrer</h3>
-          <p>Brug søgning i X for kun at se opdateringer fra denne konto og dit eget distrikt. De mest effektive søgninger er:</p>
-          <div class="code-block">
-            <code>from:PolitiUpdate Nordjylland</code>
-            <code>from:PolitiUpdate København</code>
-            <code>from:PolitiUpdate "Sydsjælland/L-F:"</code>
-            <code>from:PolitiUpdate "Kbh Vestegn"</code>
-          </div>
-          <p>Gem søgningen som et bogmærke i din browser eller i X, så du hurtigt kan åbne lokal politidækning.</p>
+          <p>Brug søgning i X for kun at se opdateringer fra dit distrikt. Klik for at åbne direkte:</p>
+          <ul class="filter-list">
+            <li><a href="https://x.com/search?q=from%3APolitiUpdate%20Nordjylland&f=live" target="_blank" rel="noopener"><code>from:PolitiUpdate Nordjylland</code></a></li>
+            <li><a href="https://x.com/search?q=from%3APolitiUpdate%20K%C3%B8benhavn&f=live" target="_blank" rel="noopener"><code>from:PolitiUpdate København</code></a></li>
+            <li><a href="https://x.com/search?q=from%3APolitiUpdate%20%22Kbh%20Vestegn%22&f=live" target="_blank" rel="noopener"><code>from:PolitiUpdate "Kbh Vestegn"</code></a></li>
+          </ul>
+          <p>Gem søgningen som et bogmærke i X, så du hurtigt kan åbne lokal politidækning.</p>
         </section>
 
       </section>
@@ -114,6 +112,7 @@
 
     <footer class="site-footer">
       <p>Data fra <a href="https://via.ritzau.dk/rss/short-messages/latest" target="_blank" rel="noopener">Ritzau</a>.</p>
+      <p class="footer-version"><a id="footer-version" href="https://github.com/RuneStone0/PolitiUpdate/releases" target="_blank" rel="noopener">—</a></p>
     </footer>
   </div>
   <script>
@@ -152,7 +151,21 @@
       if (weeks < 5) return weeks === 1 ? '1 uge siden' : weeks + ' uger siden';
       return new Date(iso).toLocaleDateString('da-DK');
     }
+    async function loadVersion() {
+      try {
+        const resp = await fetch('https://api.github.com/repos/RuneStone0/PolitiUpdate/releases/latest');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (data.tag_name) {
+          document.getElementById('footer-version').textContent = data.tag_name;
+        }
+      } catch {
+        // silently ignore — the link still works
+      }
+    }
+
     loadXStats();
+    loadVersion();
 
     // Load the X/Twitter timeline embed widget and fall back gracefully on failure.
     (function () {
@@ -198,6 +211,7 @@
 
       document.head.appendChild(script);
     })();
+
   </script>
 </body>
 </html>
