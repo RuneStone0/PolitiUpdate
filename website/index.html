@@ -158,13 +158,23 @@
     (function () {
       const fallback = document.getElementById('feed-fallback');
       const wrapper = document.getElementById('twitter-embed-wrapper');
+      let rendered = false;
+
+      function onRendered() {
+        rendered = true;
+        clearTimeout(timeout);
+        // Ensure the wrapper is visible in case showFallback raced ahead
+        wrapper.style.display = '';
+        fallback.style.display = 'none';
+      }
 
       function showFallback() {
+        if (rendered) return;
         wrapper.style.display = 'none';
         fallback.style.display = 'grid';
       }
 
-      const timeout = setTimeout(showFallback, 10000);
+      const timeout = setTimeout(showFallback, 15000);
 
       const script = document.createElement('script');
       script.src = 'https://platform.twitter.com/widgets.js';
@@ -172,14 +182,13 @@
       script.charset = 'utf-8';
 
       script.onload = function () {
-        if (window.twttr && window.twttr.events) {
-          window.twttr.events.bind('rendered', function () {
-            clearTimeout(timeout);
-          });
-        } else {
-          clearTimeout(timeout);
-          showFallback();
-        }
+        if (!window.twttr) { clearTimeout(timeout); showFallback(); return; }
+        window.twttr.ready(function (twttr) {
+          // Bind rendered event for future renders
+          twttr.events.bind('rendered', onRendered);
+          // Handle race: widget may have already rendered before we bound
+          if (wrapper.querySelector('.twitter-timeline-rendered')) onRendered();
+        });
       };
 
       script.onerror = function () {
