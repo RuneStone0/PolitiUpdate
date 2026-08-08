@@ -44,7 +44,7 @@ class TestProcessItem:
 
     def test_posts_thread_and_saves_posted(self):
         with mock.patch.object(db, "is_known", return_value=False):
-            items = [{"body": "Latest"}, {"body": "Older"}]
+            items = [{"body": "Latest", "sm_id": ""}, {"body": "Older", "sm_id": ""}]
             with mock.patch("src.bot.main.fetch_press_release",
                             return_value=("D", items)):
                 formatted = ["Post 1", "Post 2"]
@@ -64,6 +64,51 @@ class TestProcessItem:
                             assert kw0["status"] == "fetching"
                             assert kw1["status"] == "posted"
                             assert kw1["x_post_id"] == "111"
+
+    def test_filters_to_matching_sm_id(self):
+        """When guid has an #sm-XXXXX fragment, only that thread item is posted."""
+        with mock.patch.object(db, "is_known", return_value=False):
+            items = [
+                {"body": "Update 2", "sm_id": "sm-999"},
+                {"body": "Update 1", "sm_id": "sm-888"},
+            ]
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post",
+                                return_value="P") as mock_fmt:
+                    with mock.patch("src.bot.main.post_thread",
+                                    return_value=["111"]):
+                        with mock.patch.object(db, "save_post"):
+                            main._process_item({
+                                "guid": "http://example.com/pr#sm-888",
+                                "title": "T",
+                                "link": "http://example.com/pr#sm-888",
+                            })
+                            # format_post should have been called only once, for sm-888
+                            assert mock_fmt.call_count == 1
+                            assert mock_fmt.call_args[0][2] == "Update 1"
+
+    def test_falls_back_to_first_item_when_no_sm_match(self):
+        """When fragment doesn't match any sm_id, fall back to thread_items[0]."""
+        with mock.patch.object(db, "is_known", return_value=False):
+            items = [
+                {"body": "Latest", "sm_id": "sm-999"},
+                {"body": "Older", "sm_id": "sm-888"},
+            ]
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post",
+                                return_value="P") as mock_fmt:
+                    with mock.patch("src.bot.main.post_thread",
+                                    return_value=["111"]):
+                        with mock.patch.object(db, "save_post"):
+                            main._process_item({
+                                "guid": "http://example.com/pr#sm-unknown",
+                                "title": "T",
+                                "link": "http://example.com/pr#sm-unknown",
+                            })
+                            # Falls back: posts all items (no match found)
+                            assert mock_fmt.call_count == 2
 
     def test_saves_failed_when_posting_returns_none(self):
         with mock.patch.object(db, "is_known", return_value=False):

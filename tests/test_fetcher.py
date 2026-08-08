@@ -37,6 +37,8 @@ class TestExtractThreadItems:
         assert items[0]["body"] == "Seneste opdatering: personen er fundet."
         assert items[0]["timestamp"] == "3.8.2026 23:50:26 CEST"
         assert items[0]["district"] == "Sydsjællands og Lolland-Falsters Politi"
+        assert items[0]["sm_id"] == "sm-12346"
+        assert items[1]["sm_id"] == "sm-12345"
 
     def test_second_item_has_merged_paragraphs(self, sample_html_with_thread):
         soup = BeautifulSoup(sample_html_with_thread, "html.parser")
@@ -78,6 +80,7 @@ class TestExtractThreadItems:
         assert len(items) == 1
         assert items[0]["body"] == "Body without timestamp paragraph."
         assert items[0]["timestamp"] == ""
+        assert items[0]["sm_id"] == ""
 
     def test_handles_missing_body_div(self):
         html = """

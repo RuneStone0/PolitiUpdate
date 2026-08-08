@@ -60,11 +60,13 @@ def sample_thread_items():
             "body": "Seneste opdatering: personen er fundet.",
             "timestamp": "3.8.2026 23:50:26 CEST",
             "district": "Sydsjællands og Lolland-Falsters Politi",
+            "sm_id": "sm-12346",
         },
         {
             "body": "Vi leder efter en 78-årig mand. Kontakt politiet på 114.",
             "timestamp": "3.8.2026 21:28:59 CEST",
             "district": "Sydsjællands og Lolland-Falsters Politi",
+            "sm_id": "sm-12345",
         },
     ]
 
@@ -79,13 +81,13 @@ def sample_html_with_thread():
       <div class="short-message-thread">
         <div class="sc-gmPhUn cpoevv">
           <h1>Test Update</h1>
-          <div class="thread-item">
+          <div id="sm-12346" class="thread-item">
             <p class="sc-gEvEer tGNaa">3.8.2026 23:50:26 CEST | Sydsjællands og Lolland-Falsters Politi</p>
             <div class="sc-aXZVg jdSwMh">
               <div><p>Seneste opdatering: personen er fundet.</p></div>
             </div>
           </div>
-          <div class="thread-item">
+          <div id="sm-12345" class="thread-item">
             <p class="sc-gEvEer tGNaa">3.8.2026 21:28:59 CEST | Sydsjællands og Lolland-Falsters Politi</p>
             <div class="sc-aXZVg jdSwMh">
               <div><p>Vi leder efter en 78-årig mand.</p><p>Kontakt politiet på 114.</p></div>
