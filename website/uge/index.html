@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ugens overblik — PolitiUpdate</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/uge/digest.css">
+</head>
+<body>
+  <div class="digest-shell">
+    <header class="digest-header">
+      <a class="back-link" href="/">PolitiUpdate</a>
+      <h1 id="digest-heading">Ugeoverblik</h1>
+      <p class="digest-meta" id="digest-meta">Henter data…</p>
+    </header>
+
+    <main class="digest-main" id="digest-main">
+      <p class="digest-loading">Henter ugens overblik…</p>
+    </main>
+
+    <footer class="digest-footer">
+      <p>Genereret med AI &middot; Ikke tilknyttet politiet &middot; Data fra <a href="https://via.ritzau.dk" target="_blank" rel="noopener">Ritzau</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // This URL is the stable raw Gist URL — updated each Sunday by the digest container.
+    // Replace this with your actual Gist URL after first run.
+    const DIGEST_GIST_URL = 'https://gist.githubusercontent.com/RuneStone0/b9d8b2d9e42229749148b3b82ae4c003/raw/digest.json';
+
+    const CAT_LABELS = {
+      missing_person: 'Efterlysninger/savnede',
+      witness_appeal: 'Vidneappeller',
+      arrest: 'Anholdelser/sigtelser',
+      other: 'Øvrige meddelelser',
+    };
+
+    async function loadDigest() {
+      const main = document.getElementById('digest-main');
+      try {
+        const resp = await fetch(DIGEST_GIST_URL, { cache: 'no-store' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+
+        document.getElementById('digest-heading').textContent = `Uge ${data.week}, ${data.year}`;
+        document.getElementById('digest-meta').textContent = `${data.total_posts} politimeddelelser`;
+
+        const cats = data.categories || {};
+        const catRows = Object.entries(CAT_LABELS)
+          .filter(([key]) => cats[key] > 0)
+          .map(([key, label]) =>
+            `<li><span class="cat-label">${label}</span><span class="cat-count">${cats[key]}</span></li>`
+          ).join('\n');
+
+        main.innerHTML = `
+          <article class="digest-narrative">
+            <p>${escHtml(data.narrative || '')}</p>
+          </article>
+          <section class="digest-breakdown">
+            <h2>Fordeling</h2>
+            <ul class="cat-list">${catRows}</ul>
+          </section>
+        `;
+      } catch (err) {
+        main.innerHTML = `<p class="digest-error">Kunne ikke hente ugens overblik. Prøv igen senere.</p>`;
+        console.error('Digest fetch failed:', err);
+      }
+    }
+
+    function escHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    loadDigest();
+  </script>
+</body>
+</html>

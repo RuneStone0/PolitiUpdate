@@ -34,6 +34,22 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  digest:
+    image: ghcr.io/runestone0/politiupdate:latest
+    restart: "no"
+    env_file:
+      - stack.env
+    volumes:
+      - ./data:/app/data
+    entrypoint: ["python", "-m", "src.digest"]
+    labels:
+      - "watchtower.enable=false"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   watchtower:
     image: ghcr.io/nicholas-fedor/watchtower:latest
     restart: unless-stopped

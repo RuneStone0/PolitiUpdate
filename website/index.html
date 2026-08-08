@@ -6,6 +6,7 @@
   <title>PolitiUpdate — Danmarks hurtigste politi-feed</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="uge/digest.css">
 </head>
 <body>
   <div class="page-shell">
@@ -22,6 +23,16 @@
           <h2 class="hero-subtitle">OM POLITI UPDATE</h2>
           <p>PolitiUpdate er skabt for at holde dialogen åben. Politiet lukkede deres X-opslag, bl.a. fordi kommentarerne nogle gange gav dem problemer. Vi tror på fri information og åben debat, så vi spejler officielle RSS-opdateringer til X og gør dem nemmere for alle at få adgang til.</p>
         </article>
+
+        <!-- Digest widget: visible only on mobile (hidden on desktop via CSS) -->
+        <div class="panel panel-digest digest-mobile">
+          <p class="eyebrow digest-eyebrow">Ugeoverblik</p>
+          <h3 class="digest-week-heading" style="margin-top:10px;">Henter…</h3>
+          <div class="digest-widget-body">
+            <p style="color:#4a6a8c;font-size:0.95rem;margin:0;">Henter ugens overblik…</p>
+          </div>
+          <a class="button digest-cta" href="uge/" style="display:none;margin-top:16px;">Læs hele overblikket</a>
+        </div>
 
         <section id="how-it-works" class="section-card">
           <h3>Fordele</h3>
@@ -42,7 +53,6 @@
             <li><span class="step-number">1</span><span> Følg <strong>@PolitiUpdate</strong> på X.</span></li>
             <li><span class="step-number">2</span><span> Tryk på <svg class="inline-icon" viewBox="0 0 24 24" width="20" height="20" aria-label="klokke"><path d="M22 5v2h-3v3h-2V7h-3V5h3V2h2v3h3zm-.86 13h-4.241c-.464 2.281-2.482 4-4.899 4s-4.435-1.719-4.899-4H2.87L4 9.05C4.51 5.02 7.93 2 12 2v2C8.94 4 6.36 6.27 5.98 9.3L5.13 16h13.73l-.38-3h2.02l.64 5zm-6.323 0H9.183c.412 1.164 1.51 2 2.817 2s2.405-.836 2.817-2z"/></svg> for at få notifikationer.</span></li>
           </ol>
-
           <p>Hvis du vil have færre push-alerts, skal du bruge Xs notifikationsindstillinger og eventuelt mute ord eller konti.</p>
         </section>
 
@@ -56,31 +66,17 @@
           </ul>
           <p>Gem søgningen som et bogmærke i X, så du hurtigt kan åbne lokal politidækning.</p>
         </section>
-
       </section>
 
       <aside class="sidebar">
-        <div class="panel panel-feed">
-          <div class="feed-card-header">
-            <div class="live-heading">
-              <p class="eyebrow">Seneste Nyt</p>
-              <span class="live-dot" aria-label="Live"></span>
-            </div>
+        <!-- Digest widget: visible only on desktop (hidden on mobile via CSS) -->
+        <div class="panel panel-digest digest-desktop">
+          <p class="eyebrow digest-eyebrow">Ugeoverblik</p>
+          <h3 class="digest-week-heading" style="margin-top:10px;">Henter…</h3>
+          <div class="digest-widget-body">
+            <p style="color:#4a6a8c;font-size:0.95rem;margin:0;">Henter ugens overblik…</p>
           </div>
-          <div class="feed-embed">
-            <div class="embed-wrapper" id="twitter-embed-wrapper">
-              <a class="twitter-timeline"
-                 data-theme="dark"
-                 data-chrome="noheader nofooter noborders"
-                 href="https://twitter.com/PolitiUpdate">
-                Tweets by PolitiUpdate
-              </a>
-            </div>
-            <div class="feed-fallback" id="feed-fallback" aria-live="polite" style="display:none">
-              <p>X-embed'et kunne ikke indlæses. Besøg <strong>@PolitiUpdate</strong> direkte for de seneste opdateringer.</p>
-              <a class="button" href="https://x.com/PolitiUpdate" target="_blank" rel="noopener">Åbn @PolitiUpdate</a>
-            </div>
-          </div>
+          <a class="button digest-cta" href="uge/" style="display:none;margin-top:16px;">Læs hele overblikket</a>
         </div>
 
         <div class="panel panel-keyboard panel-stats">
@@ -106,7 +102,6 @@
           <h3>Kontakt</h3>
           <p>Har du forslag til, hvordan vi kan forbedre PolitiUpdate? Send os gerne en kommentar eller DM på X.</p>
         </div>
-
       </aside>
     </main>
 
@@ -116,24 +111,20 @@
     </footer>
   </div>
   <script>
-    // Stats are published to a GitHub Gist by the server-side x-stats container.
-    // This is the stable raw URL (no commit SHA) so it stays valid as content changes.
     const X_STATS_GIST_URL = 'https://gist.githubusercontent.com/RuneStone0/11b5b5d08b90cb3bdaca11a2cd0ba695/raw/x-stats.json';
 
     async function loadXStats() {
       try {
         const resp = await fetch(X_STATS_GIST_URL, { cache: 'no-store' });
-        if (!resp.ok) {
-          throw new Error('Failed to fetch ' + X_STATS_GIST_URL + ': ' + resp.status);
-        }
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
         document.getElementById('x-posts-count').textContent = data.tweet_count ?? '0';
         document.getElementById('x-followers-count').textContent = data.followers_count ?? '0';
         const timeEl = document.getElementById('x-stats-updated');
         timeEl.textContent = relativeTime(data.updated_at);
         timeEl.dateTime = data.updated_at ?? '';
-      } catch (error) {
-        console.warn('Could not load X stats from gist:', error);
+      } catch (err) {
+        console.warn('Could not load X stats:', err);
       }
     }
 
@@ -151,14 +142,13 @@
       if (weeks < 5) return weeks === 1 ? '1 uge siden' : weeks + ' uger siden';
       return new Date(iso).toLocaleDateString('da-DK');
     }
+
     async function loadVersion() {
       try {
         const resp = await fetch('https://api.github.com/repos/RuneStone0/PolitiUpdate/releases/latest');
         if (!resp.ok) return;
         const data = await resp.json();
-        if (data.tag_name) {
-          document.getElementById('footer-version').textContent = data.tag_name;
-        }
+        if (data.tag_name) document.getElementById('footer-version').textContent = data.tag_name;
       } catch {
         // silently ignore — the link still works
       }
@@ -167,51 +157,45 @@
     loadXStats();
     loadVersion();
 
-    // Load the X/Twitter timeline embed widget and fall back gracefully on failure.
-    (function () {
-      const fallback = document.getElementById('feed-fallback');
-      const wrapper = document.getElementById('twitter-embed-wrapper');
-      let rendered = false;
+    const DIGEST_GIST_URL = 'https://gist.githubusercontent.com/RuneStone0/b9d8b2d9e42229749148b3b82ae4c003/raw/digest.json';
 
-      function onRendered() {
-        rendered = true;
-        clearTimeout(timeout);
-        // Ensure the wrapper is visible in case showFallback raced ahead
-        wrapper.style.display = '';
-        fallback.style.display = 'none';
-      }
+    async function loadDigestWidget() {
+      try {
+        const resp = await fetch(DIGEST_GIST_URL, { cache: 'no-store' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
 
-      function showFallback() {
-        if (rendered) return;
-        wrapper.style.display = 'none';
-        fallback.style.display = 'grid';
-      }
+        const narrative = data.narrative || '';
+        const shortened = narrative.length > 220
+          ? narrative.slice(0, 220).replace(/\s+\S*$/, '') + '…'
+          : narrative;
 
-      const timeout = setTimeout(showFallback, 15000);
-
-      const script = document.createElement('script');
-      script.src = 'https://platform.twitter.com/widgets.js';
-      script.async = true;
-      script.charset = 'utf-8';
-
-      script.onload = function () {
-        if (!window.twttr) { clearTimeout(timeout); showFallback(); return; }
-        window.twttr.ready(function (twttr) {
-          // Bind rendered event for future renders
-          twttr.events.bind('rendered', onRendered);
-          // Handle race: widget may have already rendered before we bound
-          if (wrapper.querySelector('.twitter-timeline-rendered')) onRendered();
+        document.querySelectorAll('.digest-eyebrow').forEach(el => {
+          el.textContent = `${data.total_posts} meddelelser denne uge`;
         });
-      };
+        document.querySelectorAll('.digest-week-heading').forEach(el => {
+          el.textContent = `Uge ${data.week}, ${data.year}`;
+        });
+        document.querySelectorAll('.digest-widget-body').forEach(el => {
+          el.innerHTML = `<p style="color:#cbd5e1;font-size:0.97rem;line-height:1.65;margin:0;">${escHtml(shortened)}</p>`;
+        });
+        document.querySelectorAll('.digest-cta').forEach(el => {
+          el.href = 'uge/';
+          el.style.display = '';
+        });
+      } catch (err) {
+        document.querySelectorAll('.digest-widget-body').forEach(el => {
+          el.innerHTML = `<p style="color:#4a6a8c;font-size:0.9rem;margin:0;">Overblik ikke tilgængeligt.</p>`;
+        });
+        console.warn('Could not load digest:', err);
+      }
+    }
 
-      script.onerror = function () {
-        clearTimeout(timeout);
-        showFallback();
-      };
+    function escHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-      document.head.appendChild(script);
-    })();
-
+    loadDigestWidget();
   </script>
 </body>
 </html>
