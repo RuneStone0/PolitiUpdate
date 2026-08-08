@@ -99,6 +99,12 @@ def _retry_failed() -> int:
             if not thread_items:
                 continue
 
+            fragment = urlparse(guid).fragment
+            if fragment:
+                matched = [item for item in thread_items if item.get("sm_id") == fragment]
+                if matched:
+                    thread_items = matched
+
             formatted = [
                 format_post(title, district, item["body"])
                 for item in thread_items
