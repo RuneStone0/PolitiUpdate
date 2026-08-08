@@ -70,8 +70,16 @@
             </div>
           </div>
           <div class="feed-embed">
-            <div class="feed-fallback static-fallback" aria-live="polite">
-              <p>X-embed'et er rate-limited og kan ikke vises her i øjeblikket. Besøg <strong>@PolitiUpdate</strong> direkte for de seneste opdateringer.</p>
+            <div class="embed-wrapper" id="twitter-embed-wrapper">
+              <a class="twitter-timeline"
+                 data-theme="dark"
+                 data-chrome="noheader nofooter noborders"
+                 href="https://twitter.com/PolitiUpdate">
+                Tweets by PolitiUpdate
+              </a>
+            </div>
+            <div class="feed-fallback" id="feed-fallback" aria-live="polite" style="display:none">
+              <p>X-embed'et kunne ikke indlæses. Besøg <strong>@PolitiUpdate</strong> direkte for de seneste opdateringer.</p>
               <a class="button" href="https://x.com/PolitiUpdate" target="_blank" rel="noopener">Åbn @PolitiUpdate</a>
             </div>
           </div>
@@ -145,6 +153,42 @@
       return new Date(iso).toLocaleDateString('da-DK');
     }
     loadXStats();
+
+    // Load the X/Twitter timeline embed widget and fall back gracefully on failure.
+    (function () {
+      const fallback = document.getElementById('feed-fallback');
+      const wrapper = document.getElementById('twitter-embed-wrapper');
+
+      function showFallback() {
+        wrapper.style.display = 'none';
+        fallback.style.display = 'grid';
+      }
+
+      const timeout = setTimeout(showFallback, 10000);
+
+      const script = document.createElement('script');
+      script.src = 'https://platform.twitter.com/widgets.js';
+      script.async = true;
+      script.charset = 'utf-8';
+
+      script.onload = function () {
+        if (window.twttr && window.twttr.events) {
+          window.twttr.events.bind('rendered', function () {
+            clearTimeout(timeout);
+          });
+        } else {
+          clearTimeout(timeout);
+          showFallback();
+        }
+      };
+
+      script.onerror = function () {
+        clearTimeout(timeout);
+        showFallback();
+      };
+
+      document.head.appendChild(script);
+    })();
   </script>
 </body>
 </html>
