@@ -54,7 +54,7 @@ services:
     image: ghcr.io/nicholas-fedor/watchtower:latest
     restart: unless-stopped
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/docker.sock:/var/run/docker.sock
     group_add:
-      - "987"
+      - "2375"
     command: --interval 60 --cleanup --label-enable
