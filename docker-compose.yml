@@ -55,4 +55,6 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "987"
     command: --interval 60 --cleanup --label-enable
