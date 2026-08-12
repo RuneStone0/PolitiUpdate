@@ -61,7 +61,7 @@ See the full deployment guide in [docs/PLAN.md](docs/PLAN.md#phase-2--run-on-umb
    X_CLIENT_SECRET=...
    X_REFRESH_TOKEN=...   # from python -m src.bot.auth
    ```
-4. Deploy — Watchtower auto-updates on new `main` pushes
+4. Deploy — re-pull and redeploy the stack manually when a new image is pushed to `main`
 
 ### Docker Compose
 
