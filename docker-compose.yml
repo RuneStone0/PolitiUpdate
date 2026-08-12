@@ -5,7 +5,7 @@ services:
     env_file:
       - stack.env
     volumes:
-      - ./data:/app/data
+      - /mnt/data/politiupdate:/app/data
     labels:
       - "watchtower.enable=true"
     logging:
@@ -20,7 +20,7 @@ services:
     env_file:
       - stack.env
     volumes:
-      - ./data:/app/data
+      - /mnt/data/politiupdate:/app/data
       - ./website:/app/website
     # Override the bot's default ENTRYPOINT so this service runs the stats
     # fetcher/publisher instead of the posting bot.
@@ -34,13 +34,14 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  digest:
+  weekly-post:
     image: ghcr.io/runestone0/politiupdate:latest
+    container_name: weekly-post
     restart: "no"
     env_file:
       - stack.env
     volumes:
-      - ./data:/app/data
+      - /mnt/data/politiupdate:/app/data
     entrypoint: ["python", "-m", "src.digest"]
     labels:
       - "watchtower.enable=false"
