@@ -6,8 +6,6 @@ services:
       - stack.env
     volumes:
       - /mnt/data/politiupdate:/app/data
-    labels:
-      - "watchtower.enable=true"
     logging:
       driver: json-file
       options:
@@ -26,8 +24,6 @@ services:
     # fetcher/publisher instead of the posting bot.
     entrypoint: ["python", "-m", "src.x_stats"]
     command: ["--refresh"]
-    labels:
-      - "watchtower.enable=false"
     logging:
       driver: json-file
       options:
@@ -43,19 +39,8 @@ services:
     volumes:
       - /mnt/data/politiupdate:/app/data
     entrypoint: ["python", "-m", "src.digest"]
-    labels:
-      - "watchtower.enable=false"
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-
-  watchtower:
-    image: ghcr.io/nicholas-fedor/watchtower:latest
-    restart: unless-stopped
-    volumes:
-      - /data/docker.sock:/var/run/docker.sock
-    group_add:
-      - "2375"
-    command: --interval 60 --cleanup --label-enable

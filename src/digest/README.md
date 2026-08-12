@@ -4,8 +4,8 @@ Generates and publishes the weekly PolitiUpdate digest: a Danish-language
 narrative summary of the past ISO week's police posts, categorized and
 distributed to the website, a GitHub Gist, and X.
 
-Runs as a one-shot container (`watchtower.enable=false`, `restart: "no"`),
-invoked on a schedule rather than staying up like `bot`.
+Runs as a one-shot container (`restart: "no"`), invoked on a schedule rather
+than staying up like `bot`.
 
 ## Pipeline
 
