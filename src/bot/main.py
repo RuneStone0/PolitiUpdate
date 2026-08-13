@@ -5,10 +5,16 @@ import os
 import signal
 import sys
 import time
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from . import db
-from .config import POLL_INTERVAL_SECONDS, MAX_NEW_ITEMS_PER_POLL, HEALTH_PORT
+from .config import (
+    POLL_INTERVAL_SECONDS,
+    MAX_NEW_ITEMS_PER_POLL,
+    MAX_ARTICLE_AGE_HOURS,
+    HEALTH_PORT,
+)
 from .fetcher import fetch_feed, fetch_press_release
 from .formatter import format_post
 from .poster import post_thread
@@ -38,11 +44,19 @@ def _handle_signal(signum: int, frame: object) -> None:
     running = False
 
 
+def _article_age_hours(pub_dt: datetime) -> float:
+    """Return how many hours old an article is relative to now (UTC)."""
+    return (datetime.now(timezone.utc) - pub_dt).total_seconds() / 3600
+
+
 def _process_item(raw: dict) -> None:
     """Process a single RSS item: fetch body, save to DB, post to X."""
     guid = raw["guid"]
     title = raw["title"]
     link = raw["link"]
+
+    pub_dt: datetime | None = raw.get("pub_dt")
+    pub_date_iso: str | None = pub_dt.isoformat() if pub_dt else None
 
     if db.is_known(guid):
         return
@@ -53,7 +67,7 @@ def _process_item(raw: dict) -> None:
 
     if not thread_items:
         logger.warning("No thread items extracted from %s", link)
-        db.save_post(guid, title, "", status="failed")
+        db.save_post(guid, title, "", status="failed", pub_date=pub_date_iso)
         return
 
     # Only post the specific update referenced by the guid's #sm-XXXXX fragment.
@@ -70,14 +84,15 @@ def _process_item(raw: dict) -> None:
     # Store latest body for DB
     latest_body = thread_items[0]["body"]
 
-    db.save_post(guid, title, latest_body, status="fetching")
+    db.save_post(guid, title, latest_body, status="fetching", pub_date=pub_date_iso)
 
     x_post_ids = post_thread(formatted)
 
     if x_post_ids and x_post_ids[0]:
-        db.save_post(guid, title, latest_body, status="posted", x_post_id=x_post_ids[0])
+        db.save_post(guid, title, latest_body, status="posted",
+                     x_post_id=x_post_ids[0], pub_date=pub_date_iso)
     else:
-        db.save_post(guid, title, latest_body, status="failed")
+        db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso)
 
 
 def _retry_failed() -> int:
@@ -93,6 +108,22 @@ def _retry_failed() -> int:
         guid = post["guid"]
         title = post["title"]
         link = guid  # guid is the press release URL in the Ritzau feed
+
+        # Skip retrying articles that are too old to be worth posting.
+        pub_date_iso = post.get("pub_date")
+        if pub_date_iso:
+            try:
+                pub_dt = datetime.fromisoformat(pub_date_iso)
+                age_hours = _article_age_hours(pub_dt)
+                if age_hours > MAX_ARTICLE_AGE_HOURS:
+                    db.save_post(guid, title, "", status="skipped")
+                    logger.info(
+                        "Skipping stale failed post (%.1fh old): %s", age_hours, title
+                    )
+                    retried += 1
+                    continue
+            except ValueError:
+                pass  # malformed pub_date — fall through to retry
 
         try:
             district, thread_items = fetch_press_release(link)
@@ -150,10 +181,30 @@ def run() -> None:
             time.sleep(POLL_INTERVAL_SECONDS)
             continue
 
+        # Process newest items first so fresh news is never blocked by a backlog.
+        _epoch = datetime.min.replace(tzinfo=timezone.utc)
+        items.sort(key=lambda r: r.get("pub_dt") or _epoch, reverse=True)
+
         new_count = 0
         for raw in items:
             if new_count >= MAX_NEW_ITEMS_PER_POLL:
                 break
+
+            # Skip articles that are too old — prevents burst-posting a stale backlog.
+            pub_dt: datetime | None = raw.get("pub_dt")
+            if pub_dt:
+                age_hours = _article_age_hours(pub_dt)
+                if age_hours > MAX_ARTICLE_AGE_HOURS:
+                    if not db.is_known(raw["guid"]):
+                        db.save_post(
+                            raw["guid"], raw["title"], "",
+                            status="skipped",
+                            pub_date=pub_dt.isoformat(),
+                        )
+                        logger.info(
+                            "Skipping old item (%.1fh): %s", age_hours, raw["title"]
+                        )
+                    continue
 
             try:
                 if not db.is_known(raw["guid"]):
@@ -163,7 +214,8 @@ def run() -> None:
                 logger.exception("Error processing item: %s", raw.get("title", "?"))
                 # Save as failed so we don't retry indefinitely
                 try:
-                    db.save_post(raw["guid"], raw["title"], "", status="failed")
+                    db.save_post(raw["guid"], raw["title"], "", status="failed",
+                                 pub_date=pub_dt.isoformat() if pub_dt else None)
                 except Exception:
                     pass
 

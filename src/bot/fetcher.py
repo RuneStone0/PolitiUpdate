@@ -2,6 +2,7 @@
 
 import logging
 import re
+from datetime import datetime, timezone
 
 import feedparser
 import requests
@@ -99,11 +100,14 @@ def fetch_feed() -> list[dict]:
 
     items = []
     for entry in feed.entries:
+        pub_parsed = entry.get("published_parsed")  # time.struct_time in UTC, or None
+        pub_dt = datetime(*pub_parsed[:6], tzinfo=timezone.utc) if pub_parsed else None
         items.append({
             "guid": entry.get("guid") or entry.get("link", ""),
             "title": entry.get("title", ""),
             "link": entry.get("link", ""),
             "pub_date": entry.get("published", ""),
+            "pub_dt": pub_dt,
         })
 
     logger.debug("Fetched %d items from RSS", len(items))

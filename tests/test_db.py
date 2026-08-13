@@ -77,6 +77,26 @@ class TestSavePost:
         assert row[2] == "posted"
         assert row[3] == "123"
 
+    def test_stores_pub_date(self, db_path):
+        db.save_post("g_pd", "Title", "Body", pub_date="2026-08-03T14:00:00+00:00")
+        conn = db.get_conn()
+        row = conn.execute(
+            "SELECT pub_date FROM posts WHERE guid = ?", ("g_pd",)
+        ).fetchone()
+        conn.close()
+        assert row[0] == "2026-08-03T14:00:00+00:00"
+
+    def test_preserves_pub_date_on_update(self, db_path):
+        db.save_post("g_pu", "Title", "Body", pub_date="2026-08-03T14:00:00+00:00")
+        # Update without supplying pub_date — existing value must be kept
+        db.save_post("g_pu", "Title", "Body", status="posted")
+        conn = db.get_conn()
+        row = conn.execute(
+            "SELECT pub_date FROM posts WHERE guid = ?", ("g_pu",)
+        ).fetchone()
+        conn.close()
+        assert row[0] == "2026-08-03T14:00:00+00:00"
+
     def test_updates_existing_post(self, db_path):
         db.save_post("g2", "Old Title", "Old Body", status="fetching")
         db.save_post("g2", "Old Title", "Old Body", status="posted", x_post_id="456")
@@ -125,7 +145,8 @@ class TestGetFailedPosts:
         assert len(posts) == 0
 
     def test_returns_failed_posts(self, db_path):
-        db.save_post("f1", "Fail 1", "", status="failed")
+        db.save_post("f1", "Fail 1", "", status="failed",
+                     pub_date="2026-08-03T14:00:00+00:00")
         db.save_post("f2", "Fail 2", "", status="failed")
         db.save_post("p1", "Posted", "", status="posted", x_post_id="123")
 
@@ -133,6 +154,8 @@ class TestGetFailedPosts:
         assert len(posts) == 2
         guids = {p["guid"] for p in posts}
         assert guids == {"f1", "f2"}
+        f1 = next(p for p in posts if p["guid"] == "f1")
+        assert f1["pub_date"] == "2026-08-03T14:00:00+00:00"
 
     def test_respects_limit(self, db_path):
         for i in range(5):

@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import shutil
+from datetime import datetime, timezone
 from unittest import mock
 
 import pytest
@@ -44,11 +45,13 @@ def temp_db():
 @pytest.fixture
 def sample_rss_entry():
     """Return a dict matching what fetch_feed returns."""
+    pub_dt = datetime(2026, 8, 3, 14, 0, 0, tzinfo=timezone.utc)
     return {
         "guid": "https://via.ritzau.dk/pressemeddelelse/12345/test",
         "title": "Test politi update",
         "link": "https://via.ritzau.dk/pressemeddelelse/12345/test",
         "pub_date": "Mon, 03 Aug 2026 14:00:00 GMT",
+        "pub_dt": pub_dt,
     }
 
 

@@ -1,5 +1,7 @@
 """Tests for fetcher.py — RSS parsing and press release scraping."""
 
+import time
+from datetime import datetime, timezone
 from unittest import mock
 
 import requests
@@ -145,6 +147,28 @@ class TestFetchFeed:
         assert items[0]["guid"] == "guid-1"
         assert items[0]["title"] == "Title 1"
         assert items[1]["guid"] == "guid-2"
+        assert "pub_dt" in items[0]
+
+    @mock.patch("src.bot.fetcher.requests.get")
+    @mock.patch("src.bot.fetcher.feedparser")
+    def test_parses_pub_dt_from_published_parsed(self, mock_feedparser, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.content = b"<rss></rss>"
+        mock_feedparser.parse.return_value.bozo = False
+        # feedparser returns time.struct_time as a 9-tuple in UTC
+        pub_struct = time.gmtime(1754222400)  # 2025-08-03 12:00:00 UTC
+        mock_feedparser.parse.return_value.entries = [
+            {
+                "guid": "g",
+                "title": "t",
+                "link": "l",
+                "published": "Sun, 03 Aug 2025 12:00:00 +0000",
+                "published_parsed": pub_struct,
+            }
+        ]
+
+        items = fetcher.fetch_feed()
+        assert items[0]["pub_dt"] == datetime(2025, 8, 3, 12, 0, 0, tzinfo=timezone.utc)
 
     @mock.patch("src.bot.fetcher.requests.get")
     @mock.patch("src.bot.fetcher.feedparser")
@@ -199,6 +223,7 @@ class TestFetchFeed:
 
         items = fetcher.fetch_feed()
         assert items[0]["pub_date"] == ""
+        assert items[0]["pub_dt"] is None
 
     @mock.patch("src.bot.fetcher.requests.get")
     def test_returns_empty_on_network_error(self, mock_get):

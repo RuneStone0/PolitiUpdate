@@ -47,5 +47,8 @@ RATE_LIMIT_BACKOFF = int(os.getenv("RATE_LIMIT_BACKOFF", "900"))
 # Max items to process per poll (safety valve)
 MAX_NEW_ITEMS_PER_POLL = int(os.getenv("MAX_NEW_ITEMS_PER_POLL", "5"))
 
+# Skip articles older than this many hours (prevents burst-posting stale backlog)
+MAX_ARTICLE_AGE_HOURS = int(os.getenv("MAX_ARTICLE_AGE_HOURS", "1"))
+
 # Health check HTTP server port (0 = disabled)
 HEALTH_PORT = int(os.getenv("HEALTH_PORT", "8080"))

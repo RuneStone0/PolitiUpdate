@@ -2,6 +2,7 @@
 
 import os
 import sys
+from datetime import datetime, timezone
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -147,6 +148,103 @@ class TestProcessItem:
                             assert kw["status"] == "failed"
 
 
+class TestAgeGate:
+    """Verify that stale items are skipped rather than posted."""
+
+    def test_old_item_is_skipped_in_run_loop(self):
+        old_pub_dt = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        items = [{"guid": "old-1", "title": "Old", "link": "http://x", "pub_dt": old_pub_dt}]
+
+        with mock.patch("src.bot.main.db.init_db"):
+            with mock.patch("src.bot.main.health.start"):
+                with mock.patch("src.bot.main.health.stop"):
+                    with mock.patch("src.bot.main.health.set_last_poll"):
+                        with mock.patch("src.bot.main.fetch_feed", return_value=items):
+                            with mock.patch.object(db, "is_known", return_value=False):
+                                with mock.patch.object(db, "save_post") as mock_save:
+                                    with mock.patch(
+                                        "src.bot.main.fetch_press_release"
+                                    ) as mock_fetch_pr:
+                                        with mock.patch(
+                                            "src.bot.main.time.sleep",
+                                            side_effect=SystemExit,
+                                        ):
+                                            main._setup_logging()
+                                            main.running = True
+                                            try:
+                                                main.run()
+                                            except SystemExit:
+                                                pass
+                                            # Should be marked skipped, not fetched
+                                            mock_fetch_pr.assert_not_called()
+                                            mock_save.assert_called_once()
+                                            assert mock_save.call_args[1]["status"] == "skipped"
+
+    def test_fresh_item_is_processed(self):
+        fresh_pub_dt = datetime.now(timezone.utc)
+        items = [{"guid": "new-1", "title": "Fresh", "link": "http://x",
+                  "pub_dt": fresh_pub_dt}]
+
+        with mock.patch("src.bot.main.db.init_db"):
+            with mock.patch("src.bot.main.health.start"):
+                with mock.patch("src.bot.main.health.stop"):
+                    with mock.patch("src.bot.main.health.set_last_poll"):
+                        with mock.patch("src.bot.main.fetch_feed", return_value=items):
+                            with mock.patch.object(db, "is_known", return_value=False):
+                                ti = [{"body": "B", "sm_id": ""}]
+                                with mock.patch(
+                                    "src.bot.main.fetch_press_release",
+                                    return_value=("D", ti),
+                                ):
+                                    with mock.patch(
+                                        "src.bot.main.format_post", return_value="P"
+                                    ):
+                                        with mock.patch(
+                                            "src.bot.main.post_thread",
+                                            return_value=["111"],
+                                        ):
+                                            with mock.patch.object(db, "save_post") as mock_save:
+                                                with mock.patch(
+                                                    "src.bot.main.time.sleep",
+                                                    side_effect=SystemExit,
+                                                ):
+                                                    main._setup_logging()
+                                                    main.running = True
+                                                    try:
+                                                        main.run()
+                                                    except SystemExit:
+                                                        pass
+                                                    statuses = [
+                                                        c[1]["status"]
+                                                        for c in mock_save.call_args_list
+                                                    ]
+                                                    assert "posted" in statuses
+
+    def test_already_known_old_item_is_not_re_saved(self):
+        old_pub_dt = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        items = [{"guid": "old-known", "title": "Old Known", "link": "http://x",
+                  "pub_dt": old_pub_dt}]
+
+        with mock.patch("src.bot.main.db.init_db"):
+            with mock.patch("src.bot.main.health.start"):
+                with mock.patch("src.bot.main.health.stop"):
+                    with mock.patch("src.bot.main.health.set_last_poll"):
+                        with mock.patch("src.bot.main.fetch_feed", return_value=items):
+                            with mock.patch.object(db, "is_known", return_value=True):
+                                with mock.patch.object(db, "save_post") as mock_save:
+                                    with mock.patch(
+                                        "src.bot.main.time.sleep",
+                                        side_effect=SystemExit,
+                                    ):
+                                        main._setup_logging()
+                                        main.running = True
+                                        try:
+                                            main.run()
+                                        except SystemExit:
+                                            pass
+                                        mock_save.assert_not_called()
+
+
 class TestRetryFailed:
     def test_returns_zero_when_no_failed_posts(self):
         with mock.patch.object(db, "get_failed_posts", return_value=[]):
@@ -154,7 +252,8 @@ class TestRetryFailed:
             assert result == 0
 
     def test_retries_failed_posts(self):
-        failed = [{"guid": "f1", "title": "Fail 1"}, {"guid": "f2", "title": "Fail 2"}]
+        failed = [{"guid": "f1", "title": "Fail 1", "pub_date": None},
+                  {"guid": "f2", "title": "Fail 2", "pub_date": None}]
         items = [{"body": "B"}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
@@ -172,7 +271,7 @@ class TestRetryFailed:
                                 assert call[1]["status"] == "posted"
 
     def test_retry_keeps_failed_on_posting_error(self):
-        failed = [{"guid": "f3", "title": "Fail 3"}]
+        failed = [{"guid": "f3", "title": "Fail 3", "pub_date": None}]
         items = [{"body": "B"}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
@@ -189,7 +288,7 @@ class TestRetryFailed:
                             assert kw["status"] == "failed"
 
     def test_retry_skips_when_no_thread_items(self):
-        failed = [{"guid": "f4", "title": "Fail 4"}]
+        failed = [{"guid": "f4", "title": "Fail 4", "pub_date": None}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
             with mock.patch("src.bot.main.fetch_press_release",
@@ -199,9 +298,22 @@ class TestRetryFailed:
                     assert result == 0
                     mock_save.assert_not_called()
 
+    def test_retry_skips_stale_failed_post(self):
+        """Failed posts whose pub_date is too old should be marked skipped, not retried."""
+        old_iso = datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat()
+        failed = [{"guid": "f-old", "title": "Old Fail", "pub_date": old_iso}]
+
+        with mock.patch.object(db, "get_failed_posts", return_value=failed):
+            with mock.patch("src.bot.main.fetch_press_release") as mock_fetch_pr:
+                with mock.patch.object(db, "save_post") as mock_save:
+                    result = main._retry_failed()
+                    assert result == 1
+                    mock_fetch_pr.assert_not_called()
+                    assert mock_save.call_args[1]["status"] == "skipped"
+
     def test_retry_filters_by_sm_id_fragment(self):
         """Retry must not re-post all thread items — only the one matching the guid fragment."""
-        failed = [{"guid": "http://example.com/pr#sm-42", "title": "T"}]
+        failed = [{"guid": "http://example.com/pr#sm-42", "title": "T", "pub_date": None}]
         items = [
             {"body": "Update sm-42", "sm_id": "sm-42"},
             {"body": "Update sm-41", "sm_id": "sm-41"},
@@ -220,7 +332,7 @@ class TestRetryFailed:
                             assert mock_fmt.call_args[0][2] == "Update sm-42"
 
     def test_retry_handles_exception_gracefully(self):
-        failed = [{"guid": "f5", "title": "Fail 5"}]
+        failed = [{"guid": "f5", "title": "Fail 5", "pub_date": None}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
             with mock.patch("src.bot.main.fetch_press_release",

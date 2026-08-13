@@ -26,7 +26,8 @@ def init_db() -> None:
             body        TEXT NOT NULL,
             posted_at   TEXT,
             status      TEXT NOT NULL DEFAULT 'pending',
-            x_post_id   TEXT
+            x_post_id   TEXT,
+            pub_date    TEXT
         )
         """
     )
@@ -36,6 +37,11 @@ def init_db() -> None:
         ON posts (status)
         """
     )
+    # Migrate existing databases that pre-date the pub_date column.
+    try:
+        conn.execute("ALTER TABLE posts ADD COLUMN pub_date TEXT")
+    except sqlite3.OperationalError:
+        pass  # column already exists
     conn.commit()
     conn.close()
 
@@ -56,20 +62,22 @@ def save_post(
     body: str,
     status: str = "pending",
     x_post_id: str | None = None,
+    pub_date: str | None = None,
 ) -> None:
     """Insert or update a post record."""
     conn = get_conn()
     now = datetime.now(timezone.utc).isoformat()
     conn.execute(
         """
-        INSERT INTO posts (guid, title, body, posted_at, status, x_post_id)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO posts (guid, title, body, posted_at, status, x_post_id, pub_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(guid) DO UPDATE SET
             status = excluded.status,
             x_post_id = excluded.x_post_id,
-            posted_at = excluded.posted_at
+            posted_at = excluded.posted_at,
+            pub_date = COALESCE(excluded.pub_date, pub_date)
         """,
-        (guid, title, body, now, status, x_post_id),
+        (guid, title, body, now, status, x_post_id, pub_date),
     )
     conn.commit()
     conn.close()
@@ -79,8 +87,8 @@ def get_failed_posts(limit: int = 5) -> list[dict]:
     """Return up to `limit` oldest failed posts for retry."""
     conn = get_conn()
     rows = conn.execute(
-        "SELECT guid, title FROM posts WHERE status = 'failed' ORDER BY posted_at ASC LIMIT ?",
+        "SELECT guid, title, pub_date FROM posts WHERE status = 'failed' ORDER BY posted_at ASC LIMIT ?",
         (limit,),
     ).fetchall()
     conn.close()
-    return [{"guid": r[0], "title": r[1]} for r in rows]
+    return [{"guid": r[0], "title": r[1], "pub_date": r[2]} for r in rows]
