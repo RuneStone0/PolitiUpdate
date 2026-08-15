@@ -23,7 +23,12 @@ from .config import (
 
 logger = logging.getLogger(__name__)
 
-SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access"]
+# Must match src/bot/auth.py's SCOPES exactly — oauthlib's refresh_token()
+# compares this list against what the token actually carries and raises if
+# they differ (even on an otherwise-successful refresh), so this needs to
+# track whatever scopes the token was minted with, not just what this module
+# itself needs.
+SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access", "follows.read", "follows.write"]
 
 
 def _raw_response_detail(e: tweepy.TweepyException) -> str:

@@ -57,11 +57,12 @@ class TestGetClientErrors:
 
 
 class TestGetClientOAuth2:
-    def test_uses_refresh_token_from_env(self, monkeypatch):
+    def test_uses_refresh_token_from_env_when_no_file_exists(self, monkeypatch, tmp_path):
         with mock_all(
             client,
             X_API_KEY="", X_API_SECRET="", X_ACCESS_TOKEN="", X_ACCESS_SECRET="",
             X_CLIENT_ID="cid", X_CLIENT_SECRET="csec", X_REFRESH_TOKEN="rtok",
+            X_TOKEN_FILE=str(tmp_path / "does-not-exist.json"),
         ):
             monkeypatch.setattr(
                 client,
@@ -75,6 +76,33 @@ class TestGetClientOAuth2:
 
         assert client_type == "oauth2"
         assert saved["access_token"] == "newtok"
+
+    def test_prefers_existing_file_over_stale_env_refresh_token(self, tmp_path):
+        """A static X_REFRESH_TOKEN is single-use (X rotates on every refresh) —
+        once a token file exists, it must win, or every run after the first
+        would try to reuse an already-consumed refresh token."""
+        import json
+
+        token_file = tmp_path / "tokens.json"
+        token_file.write_text(
+            json.dumps(
+                {
+                    "access_token": "from-file",
+                    "refresh_token": "file-rtok",
+                    "expires_in": 7200,
+                    "obtained_at": int(time.time()),
+                }
+            )
+        )
+        with mock_all(
+            client,
+            X_API_KEY="", X_API_SECRET="", X_ACCESS_TOKEN="", X_ACCESS_SECRET="",
+            X_CLIENT_ID="cid", X_CLIENT_SECRET="csec", X_REFRESH_TOKEN="stale-env-rtok",
+            X_TOKEN_FILE=str(token_file),
+        ):
+            c, client_type = client.get_client()
+
+        assert client_type == "oauth2"
 
     def test_loads_and_refreshes_expired_file_token(self, monkeypatch, tmp_path):
         token_file = tmp_path / "tokens.json"
