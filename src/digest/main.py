@@ -101,8 +101,11 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         run(week, year, dry_run=args.dry_run, skip_tweet=args.skip_tweet)
-    except Exception:
+    except Exception as exc:
         logger.exception("Digest generation failed")
+        from src.notify.prowl import send as notify_send
+
+        notify_send(f"PolitiUpdate weekly-post job failed: {exc}")
         sys.exit(1)
 
 

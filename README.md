@@ -14,6 +14,7 @@
 - **Link-free** — avoids X's per-URL surcharge (~$7/mo saved)
 - **Failed post retry** — sweeps undelivered posts every ~1 hour
 - **Health check** — built-in HTTP `/health` endpoint for container monitoring
+- **Notifications** — daily service health check and weekly follower-count summary, delivered via a Prowl webhook
 
 ## Quick start
 
@@ -74,6 +75,18 @@ docker compose up -d
 
 The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts needed.
 
+### Scheduling batch jobs
+
+`x-stats`, `weekly-post`, `notify-daily`, and `notify-weekly` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.). Example host crontab:
+
+```cron
+# Daily service health check (Prowl alert only if something's wrong)
+0 9 * * * cd /path/to/politiupdate && docker compose run --rm notify-daily
+
+# Weekly follower-count summary, Sundays
+0 10 * * 0 cd /path/to/politiupdate && docker compose run --rm notify-weekly
+```
+
 ## Testing
 
 ```bash
@@ -102,6 +115,10 @@ docker compose -f docker-compose.test.yml run --rm e2e
 | `POST_MAX_CHARS` | `280` | Max post length (`25000` with `X_PRO`) |
 | `HEALTH_PORT` | `8080` | Health check HTTP port (`0` to disable) |
 | `LOG_LEVEL` | `INFO` | Logging level |
+| `PROWL_WEBHOOK_URL` | — | Webhook that receives `{"message": "..."}` POSTs for notifications (required; unauthenticated URL — keep it out of version control) |
+| `BOT_HEALTH_URL` | `http://bot:8080/health` | Where `notify-daily` checks bot health (compose service name) |
+| `NOTIFY_FAILED_POSTS_THRESHOLD` | `3` | Alert when this many posts are stuck as `failed` |
+| `NOTIFY_ON_ERROR` | `1` | Forward the bot's ERROR-level logs to Prowl in real time (`0` to disable) |
 
 See [`.env.example`](.env.example) for all options.
 
@@ -118,6 +135,11 @@ src/bot/
   health.py       HTTP /health endpoint
   main.py         Polling loop (fetch → dedupe → format → post)
   auth.py         One-time OAuth 2.0 PKCE authorization
+src/notify/
+  prowl.py        Prowl webhook client
+  health.py        Daily check: bot /health + failed-post backlog
+  followers.py    Weekly check: X follower-count delta
+  main.py         CLI entrypoint (`daily` | `weekly`)
 docs/             Project context, roadmap, financials
 tests/            154 tests at 100% coverage
 ```

@@ -37,6 +37,10 @@ def _setup_logging() -> None:
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
+    from src.notify.log_handler import install as install_error_alerts
+
+    install_error_alerts()
+
 
 def _handle_signal(signum: int, frame: object) -> None:
     global running
