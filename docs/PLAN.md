@@ -36,7 +36,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - X API v2 posting via tweepy (OAuth 1.0a) with rate-limit backoff and retry
 - Three-tier post formatting:
   - **X_PRO=1**: full-length posts up to 25,000 chars (Premium)
-  - **LLM_ENABLED=1**: DeepSeek condenses posts exceeding `POST_MAX_CHARS`, preserving key facts, appends `✨` label
+  - **LLM_ENABLED=1**: DeepSeek condenses posts exceeding `POST_MAX_CHARS`, preserving key facts, retrying with a tighter target if the first attempt still overshoots
   - **Default**: clean sentence-boundary truncation at 280 chars with `…`
 - **Retweet prompt** — auto-appends `Del gerne 🔁` to public-help posts (efterlysning, savnet, kontakt politiet, har du set, etc.). Space is reserved before truncation so prompt never pushes post past 280 chars.
 - Failed post retry — sweeps failed posts every ~1 hour and re-attempts

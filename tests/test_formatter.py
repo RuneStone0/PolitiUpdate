@@ -224,6 +224,63 @@ class TestCondenseOrTruncate:
             assert "Kort kondenseret tekst." in result
             assert "…" not in result
 
+    def test_llm_retries_with_tighter_target_until_it_fits(self):
+        """First condense attempt overshoots; retry with a tighter target
+        should be tried before giving up and truncating."""
+        formatter.POST_MAX_CHARS = 100
+        formatter.LLM_ENABLED = True
+        header = "X: Test"
+        body = "F" * 500
+
+        from unittest import mock
+
+        with mock.patch("src.bot.summarizer.summarize") as mock_sum:
+            mock_sum.side_effect = ["G" * 95, "Short fit."]
+            result = formatter._condense_or_truncate(
+                f"{header}\n\n{body}", header, body
+            )
+            assert result == f"{header}\n\nShort fit."
+            assert mock_sum.call_count == 2
+            # second call must ask for a tighter target than the first
+            first_target = mock_sum.call_args_list[0][0][1]
+            second_target = mock_sum.call_args_list[1][0][1]
+            assert second_target < first_target
+
+    def test_llm_gives_up_after_max_attempts_and_truncates(self):
+        """If the LLM keeps overshooting past MAX_CONDENSE_ATTEMPTS, fall
+        back to truncation rather than retrying forever."""
+        formatter.POST_MAX_CHARS = 60
+        formatter.LLM_ENABLED = True
+        header = "X: Test"
+        body = "H" * 500
+
+        from unittest import mock
+
+        with mock.patch("src.bot.summarizer.summarize") as mock_sum:
+            mock_sum.return_value = "I" * 80  # always too long
+            result = formatter._condense_or_truncate(
+                f"{header}\n\n{body}", header, body
+            )
+            assert mock_sum.call_count == formatter.MAX_CONDENSE_ATTEMPTS
+            assert result.endswith("…")
+            assert len(result) <= formatter.POST_MAX_CHARS
+
+    def test_llm_success_never_appends_sparkle(self):
+        """Condensed posts must not get a trailing sparkle marker."""
+        formatter.POST_MAX_CHARS = 280
+        formatter.LLM_ENABLED = True
+        header = "Prefix: T"
+        body = "E" * 500
+
+        from unittest import mock
+
+        with mock.patch("src.bot.summarizer.summarize") as mock_sum:
+            mock_sum.return_value = "Kort kondenseret tekst."
+            result = formatter._condense_or_truncate(
+                f"{header}\n\n{body}", header, body
+            )
+            assert "✨" not in result
+
     def test_llm_result_never_exceeds_limit(self):
         """Full result (header + condensed) must never exceed the limit, even if LLM goes slightly over max_body_chars."""
         formatter.POST_MAX_CHARS = 280
