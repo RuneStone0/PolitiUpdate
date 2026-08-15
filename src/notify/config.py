@@ -17,12 +17,10 @@ PROWL_WEBHOOK_URL = os.getenv("PROWL_WEBHOOK_URL", "")
 BOT_HEALTH_URL = os.getenv("BOT_HEALTH_URL", "http://bot:8080/health")
 
 # Shared SQLite DB (same volume as the bot service) — used to check for a
-# backlog of posts stuck in 'failed' status.
+# backlog of posts stuck in 'failed' status. notify-daily only — the weekly
+# follower check (see followers.py / state_gist.py) has no local dependency.
 DB_PATH = os.getenv("DB_PATH", "data/politiupdate.db")
 FAILED_POSTS_THRESHOLD = int(os.getenv("NOTIFY_FAILED_POSTS_THRESHOLD", "3"))
-
-# Where the weekly follower check persists the last known count.
-FOLLOWERS_STATE_PATH = os.getenv("NOTIFY_FOLLOWERS_STATE", "data/notify_followers.json")
 
 REQUEST_TIMEOUT = int(os.getenv("NOTIFY_TIMEOUT", "15"))
 

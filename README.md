@@ -77,15 +77,21 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 
 ### Scheduling batch jobs
 
-`x-stats`, `weekly-post`, `notify-daily`, and `notify-weekly` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.). Example host crontab:
+`x-stats`, `weekly-post`, and `notify-daily` are one-shot jobs (`restart: "no"`) that need local network access (to `bot`) and/or the shared DB volume — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.). Example host crontab:
 
 ```cron
 # Daily service health check (Prowl alert only if something's wrong)
 0 9 * * * cd /path/to/politiupdate && docker compose run --rm notify-daily
-
-# Weekly follower-count summary, Sundays
-0 10 * * 0 cd /path/to/politiupdate && docker compose run --rm notify-weekly
 ```
+
+`notify-weekly` has no local dependency — it's triggered by
+[`.github/workflows/notify-weekly.yml`](.github/workflows/notify-weekly.yml) on a
+GitHub Actions cron schedule (Sundays) instead, with state persisted to a
+private Gist. Requires these repo secrets: `X_API_KEY`, `X_API_SECRET`,
+`X_ACCESS_TOKEN`, `X_ACCESS_SECRET`, `GIST_TOKEN` (a PAT with `gist` scope —
+named `GIST_TOKEN` since GitHub reserves the `GITHUB_` prefix for secret
+names), `PROWL_WEBHOOK_URL`. The `docker compose run --rm notify-weekly`
+entry still works for local/manual runs.
 
 ## Testing
 

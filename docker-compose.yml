@@ -66,7 +66,11 @@ services:
         max-file: "3"
 
   # Weekly (Sunday) notification with the change in X follower count since
-  # the last run. Trigger e.g. `docker compose run --rm notify-weekly` on Sundays.
+  # the last run. Normally triggered by .github/workflows/notify-weekly.yml
+  # (GitHub Actions cron) rather than this service — it has no local
+  # dependency (state lives in a gist, see src/notify/state_gist.py), so it
+  # doesn't need to run on this host. This entry is kept for local/manual
+  # runs, e.g. `docker compose run --rm notify-weekly`.
   notify-weekly:
     image: ghcr.io/runestone0/politiupdate:latest
     container_name: notify-weekly

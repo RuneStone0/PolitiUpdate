@@ -1,42 +1,27 @@
 """Weekly follower-count notification.
 
 Fetches the current X follower count (reusing the x_stats app's API client)
-and reports the change since the last run via Prowl.
+and reports the change since the last run via Prowl. State is persisted to a
+private GitHub Gist (see state_gist.py) rather than local disk, so this can
+run entirely on GitHub Actions with no local volume.
 """
 
-import json
 import logging
-import os
 
 from src.x_stats.main import fetch_stats
 
-from . import config
+from . import state_gist
 from .prowl import send
 
 logger = logging.getLogger(__name__)
-
-
-def _read_previous() -> dict | None:
-    if not os.path.exists(config.FOLLOWERS_STATE_PATH):
-        return None
-    with open(config.FOLLOWERS_STATE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _write_state(stats: dict) -> None:
-    parent = os.path.dirname(config.FOLLOWERS_STATE_PATH)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
-    with open(config.FOLLOWERS_STATE_PATH, "w", encoding="utf-8") as f:
-        json.dump(stats, f, indent=2)
 
 
 def run() -> None:
     stats = fetch_stats(force_refresh=True)
     followers = stats["followers_count"]
 
-    previous = _read_previous()
-    _write_state(stats)
+    previous = state_gist.read()
+    state_gist.write(stats)
 
     if previous is None:
         message = f"PolitiUpdate weekly update: tracking followers from a baseline of {followers}."

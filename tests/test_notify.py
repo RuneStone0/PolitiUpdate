@@ -16,6 +16,7 @@ import src.notify.health as health  # noqa: E402
 import src.notify.log_handler as log_handler  # noqa: E402
 import src.notify.main as notify_main  # noqa: E402
 import src.notify.prowl as prowl  # noqa: E402
+import src.notify.state_gist as state_gist  # noqa: E402
 
 
 def _record(name="src.bot.main", msg="RSS fetch failed", exc_info=None, level=logging.ERROR):
@@ -142,35 +143,88 @@ class TestHealthRun:
 
 
 class TestFollowersRun:
-    def test_first_run_reports_baseline(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
+    def test_first_run_reports_baseline(self):
         with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
+            with mock.patch.object(followers.state_gist, "read", return_value=None):
+                with mock.patch.object(followers.state_gist, "write") as mock_write:
+                    with mock.patch.object(followers, "send") as mock_send:
+                        followers.run()
         assert "baseline of 100" in mock_send.call_args[0][0]
-        assert json.loads(state_path.read_text())["followers_count"] == 100
+        mock_write.assert_called_once_with({"followers_count": 100})
 
-    def test_reports_positive_delta(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
-        state_path.write_text(json.dumps({"followers_count": 90}))
+    def test_reports_positive_delta(self):
         with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
+            with mock.patch.object(followers.state_gist, "read", return_value={"followers_count": 90}):
+                with mock.patch.object(followers.state_gist, "write"):
+                    with mock.patch.object(followers, "send") as mock_send:
+                        followers.run()
         message = mock_send.call_args[0][0]
         assert "+10 new followers" in message
         assert "100 total" in message
 
-    def test_reports_negative_delta(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
-        state_path.write_text(json.dumps({"followers_count": 110}))
+    def test_reports_negative_delta(self):
         with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
+            with mock.patch.object(followers.state_gist, "read", return_value={"followers_count": 110}):
+                with mock.patch.object(followers.state_gist, "write"):
+                    with mock.patch.object(followers, "send") as mock_send:
+                        followers.run()
         message = mock_send.call_args[0][0]
         assert "-10 new followers" in message
+
+
+class TestStateGist:
+    def test_read_raises_without_token(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(RuntimeError, match="GITHUB_GIST_TOKEN"):
+                state_gist.read()
+
+    def test_read_returns_none_when_no_gist_found(self):
+        with mock.patch.dict(os.environ, {"GITHUB_GIST_TOKEN": "tok"}):
+            with mock.patch.object(state_gist, "GIST_ID", ""):
+                with mock.patch.object(state_gist, "_find_gist_id", return_value=None):
+                    assert state_gist.read() is None
+
+    def test_read_returns_parsed_state(self):
+        resp = mock.MagicMock()
+        resp.json.return_value = {
+            "files": {"notify-state.json": {"content": json.dumps({"followers_count": 42})}}
+        }
+        with mock.patch.dict(os.environ, {"GITHUB_GIST_TOKEN": "tok"}):
+            with mock.patch.object(state_gist, "GIST_ID", "abc123"):
+                with mock.patch.object(state_gist.requests, "get", return_value=resp):
+                    state = state_gist.read()
+        assert state == {"followers_count": 42}
+
+    def test_read_returns_none_on_request_error(self):
+        with mock.patch.dict(os.environ, {"GITHUB_GIST_TOKEN": "tok"}):
+            with mock.patch.object(state_gist, "GIST_ID", "abc123"):
+                with mock.patch.object(
+                    state_gist.requests, "get", side_effect=requests.RequestException("boom")
+                ):
+                    assert state_gist.read() is None
+
+    def test_write_raises_without_token(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(RuntimeError, match="GITHUB_GIST_TOKEN"):
+                state_gist.write({"followers_count": 1})
+
+    def test_write_creates_gist_when_no_id(self):
+        resp = mock.MagicMock()
+        with mock.patch.dict(os.environ, {"GITHUB_GIST_TOKEN": "tok"}):
+            with mock.patch.object(state_gist, "GIST_ID", ""):
+                with mock.patch.object(state_gist, "_find_gist_id", return_value=None):
+                    with mock.patch.object(state_gist.requests, "post", return_value=resp) as mock_post:
+                        state_gist.write({"followers_count": 1})
+        mock_post.assert_called_once()
+        assert mock_post.call_args[1]["json"]["public"] is False
+
+    def test_write_updates_existing_gist(self):
+        resp = mock.MagicMock()
+        with mock.patch.dict(os.environ, {"GITHUB_GIST_TOKEN": "tok"}):
+            with mock.patch.object(state_gist, "GIST_ID", "abc123"):
+                with mock.patch.object(state_gist.requests, "patch", return_value=resp) as mock_patch:
+                    state_gist.write({"followers_count": 1})
+        mock_patch.assert_called_once()
 
 
 class TestProwlErrorHandler:
