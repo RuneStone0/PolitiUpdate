@@ -154,6 +154,9 @@ def main(argv: list[str] | None = None) -> None:
             print("Published stats to gist. Raw URL:", raw_url)
     except Exception as exc:
         print("ERROR:", exc)
+        from src.notify.prowl import send as notify_send
+
+        notify_send(f"PolitiUpdate x-stats job failed: {exc}")
         raise SystemExit(1)
 
 

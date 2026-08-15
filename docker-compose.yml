@@ -63,3 +63,41 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  # Daily health check across the other services (bot reachability/health,
+  # failed-post backlog). Sends a Prowl notification only when something
+  # looks wrong. Trigger on a daily schedule the same way weekly-post/x-stats
+  # are triggered (host cron or Portainer), e.g. `docker compose run --rm notify-daily`.
+  notify-daily:
+    image: ghcr.io/runestone0/politiupdate:latest
+    container_name: notify-daily
+    restart: "no"
+    env_file:
+      - stack.env
+    volumes:
+      - /mnt/data/politiupdate:/app/data
+    entrypoint: ["python", "-m", "src.notify"]
+    command: ["daily"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Weekly (Sunday) notification with the change in X follower count since
+  # the last run. Trigger e.g. `docker compose run --rm notify-weekly` on Sundays.
+  notify-weekly:
+    image: ghcr.io/runestone0/politiupdate:latest
+    container_name: notify-weekly
+    restart: "no"
+    env_file:
+      - stack.env
+    volumes:
+      - /mnt/data/politiupdate:/app/data
+    entrypoint: ["python", "-m", "src.notify"]
+    command: ["weekly"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
