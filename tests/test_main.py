@@ -252,8 +252,9 @@ class TestRetryFailed:
             assert result == 0
 
     def test_retries_failed_posts(self):
-        failed = [{"guid": "f1", "title": "Fail 1", "pub_date": None},
-                  {"guid": "f2", "title": "Fail 2", "pub_date": None}]
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f1", "title": "Fail 1", "pub_date": fresh_iso},
+                  {"guid": "f2", "title": "Fail 2", "pub_date": fresh_iso}]
         items = [{"body": "B"}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
@@ -271,7 +272,8 @@ class TestRetryFailed:
                                 assert call[1]["status"] == "posted"
 
     def test_retry_keeps_failed_on_posting_error(self):
-        failed = [{"guid": "f3", "title": "Fail 3", "pub_date": None}]
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f3", "title": "Fail 3", "pub_date": fresh_iso}]
         items = [{"body": "B"}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
@@ -288,7 +290,8 @@ class TestRetryFailed:
                             assert kw["status"] == "failed"
 
     def test_retry_skips_when_no_thread_items(self):
-        failed = [{"guid": "f4", "title": "Fail 4", "pub_date": None}]
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f4", "title": "Fail 4", "pub_date": fresh_iso}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
             with mock.patch("src.bot.main.fetch_press_release",
@@ -311,9 +314,23 @@ class TestRetryFailed:
                     mock_fetch_pr.assert_not_called()
                     assert mock_save.call_args[1]["status"] == "skipped"
 
+    def test_retry_skips_failed_post_with_missing_pub_date(self):
+        """A row with no recorded pub_date (e.g. pre-dating the age-gate migration)
+        must be treated as stale, not silently retried regardless of age."""
+        failed = [{"guid": "f-nulldate", "title": "No Date Fail", "pub_date": None}]
+
+        with mock.patch.object(db, "get_failed_posts", return_value=failed):
+            with mock.patch("src.bot.main.fetch_press_release") as mock_fetch_pr:
+                with mock.patch.object(db, "save_post") as mock_save:
+                    result = main._retry_failed()
+                    assert result == 1
+                    mock_fetch_pr.assert_not_called()
+                    assert mock_save.call_args[1]["status"] == "skipped"
+
     def test_retry_filters_by_sm_id_fragment(self):
         """Retry must not re-post all thread items — only the one matching the guid fragment."""
-        failed = [{"guid": "http://example.com/pr#sm-42", "title": "T", "pub_date": None}]
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "http://example.com/pr#sm-42", "title": "T", "pub_date": fresh_iso}]
         items = [
             {"body": "Update sm-42", "sm_id": "sm-42"},
             {"body": "Update sm-41", "sm_id": "sm-41"},
@@ -332,7 +349,8 @@ class TestRetryFailed:
                             assert mock_fmt.call_args[0][2] == "Update sm-42"
 
     def test_retry_handles_exception_gracefully(self):
-        failed = [{"guid": "f5", "title": "Fail 5", "pub_date": None}]
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f5", "title": "Fail 5", "pub_date": fresh_iso}]
 
         with mock.patch.object(db, "get_failed_posts", return_value=failed):
             with mock.patch("src.bot.main.fetch_press_release",
