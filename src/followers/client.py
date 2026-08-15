@@ -1,8 +1,15 @@
 """Authenticated X API v2 client for the followers app.
 
-Mirrors src/bot/poster.py's auth strategy (OAuth 1.0a first, OAuth 2.0
-user-context fallback) but kept independent per the pattern in
-src/x_stats/main.py — each standalone app owns its own auth.
+Unlike src/bot/poster.py (which prefers OAuth 1.0a), this app prefers
+OAuth 2.0: X API v2's GET /2/users/:id/followers only accepts OAuth 2.0
+(App-only or user-context) — OAuth 1.0a is rejected with a 401 regardless
+of API access tier. OAuth 2.0 user-context also covers follow/unfollow, so
+one token can drive the whole app. Falls back to OAuth 1.0a only for
+follow/unfollow if no OAuth 2.0 credentials are configured — that path
+can act on followers but can't discover them, so `sync()` requires OAuth 2.0.
+
+Kept independent per the pattern in src/x_stats/main.py — each standalone
+app owns its own auth.
 """
 
 import json
@@ -24,10 +31,10 @@ from .config import (
     X_TOKEN_FILE,
 )
 
-# follows.read/follows.write are required for OAuth 2.0 user-context follow
-# calls. Tokens minted by `python -m src.bot.auth` (which only requests
-# tweet.read/tweet.write/users.read/offline.access) will 403 on follow
-# endpoints — prefer OAuth 1.0a, or re-authorize with these scopes.
+# follows.read is required to list followers; follows.write to follow/unfollow
+# over OAuth 2.0. A token minted by the *unpatched* `python -m src.bot.auth`
+# (tweet.read/tweet.write/users.read/offline.access only) lacks both and will
+# 401/403 here — re-run it after these scopes were added to src/bot/auth.py.
 SCOPES = ["tweet.read", "users.read", "follows.read", "follows.write", "offline.access"]
 
 
@@ -35,8 +42,8 @@ def _load_tokens() -> dict:
     if not os.path.exists(X_TOKEN_FILE):
         raise RuntimeError(
             f"X token file not found at {X_TOKEN_FILE}. "
-            "Run 'python -m src.bot.auth' first to authorize (with follows.read/"
-            "follows.write scopes), or configure OAuth 1.0a credentials instead."
+            "Run 'python -m src.bot.auth' first to authorize (it requests "
+            "follows.read/follows.write scopes, needed for this app)."
         )
     with open(X_TOKEN_FILE) as f:
         return json.load(f)
@@ -72,7 +79,23 @@ def _get_tokens() -> dict:
 
 
 def get_client() -> tuple[tweepy.Client, str]:
-    """Return an authenticated tweepy Client and its auth type ("oauth1"/"oauth2")."""
+    """Return an authenticated tweepy Client and its auth type ("oauth2"/"oauth1").
+
+    Prefers OAuth 2.0 (required for the followers-list read); falls back to
+    OAuth 1.0a only if no OAuth 2.0 credentials are configured, in which case
+    callers that need the followers list (i.e. `sync()`) will fail with a
+    clear 401 from X rather than silently degrading.
+    """
+    if all([X_CLIENT_ID, X_CLIENT_SECRET]):
+        tokens = _get_tokens()
+        now = int(time.time())
+        expires_at = tokens.get("obtained_at", 0) + tokens.get("expires_in", 7200)
+        if now > expires_at - 60:
+            tokens = _refresh_access_token(tokens["refresh_token"])
+            _save_tokens(tokens)
+
+        return tweepy.Client(bearer_token=tokens["access_token"]), "oauth2"
+
     if all([X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET]):
         return (
             tweepy.Client(
@@ -84,18 +107,10 @@ def get_client() -> tuple[tweepy.Client, str]:
             "oauth1",
         )
 
-    if not all([X_CLIENT_ID, X_CLIENT_SECRET]):
-        raise RuntimeError(
-            "X API credentials not configured. "
-            "Set OAuth 1.0a credentials (X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET) "
-            "or OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET)."
-        )
-
-    tokens = _get_tokens()
-    now = int(time.time())
-    expires_at = tokens.get("obtained_at", 0) + tokens.get("expires_in", 7200)
-    if now > expires_at - 60:
-        tokens = _refresh_access_token(tokens["refresh_token"])
-        _save_tokens(tokens)
-
-    return tweepy.Client(bearer_token=tokens["access_token"]), "oauth2"
+    raise RuntimeError(
+        "X API credentials not configured. "
+        "Set OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET, and a token from "
+        "'python -m src.bot.auth' or X_REFRESH_TOKEN) — required to list followers — "
+        "or OAuth 1.0a credentials (X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET) "
+        "for follow/unfollow-only use."
+    )

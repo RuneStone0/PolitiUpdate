@@ -136,6 +136,8 @@ python -m src.followers --dry-run  # log intended actions only, no API calls
 
 Run it on a schedule (e.g. hourly cron via Portainer) using the `followers` service in `docker-compose.yml`. State (who we've followed back) is tracked in a local SQLite DB (`FOLLOWERS_DB_PATH`, default `data/followers.db`) so a failed follow/unfollow (e.g. rate limit) is retried on the next run instead of being dropped. See [`.env.example`](.env.example) for `FOLLOWERS_*` options.
 
+**Requires OAuth 2.0.** X API v2's `GET /2/users/:id/followers` only accepts OAuth 2.0 (App-only or user-context) — OAuth 1.0a is rejected with a 401 regardless of paid tier, even though it works fine for posting and even for follow/unfollow. Re-run `python -m src.bot.auth` to mint a token with the `follows.read`/`follows.write` scopes (added alongside this feature) before using `src/followers`, and configure it with `X_CLIENT_ID`/`X_CLIENT_SECRET` + `X_REFRESH_TOKEN` (or `X_TOKEN_FILE`) rather than the OAuth 1.0a `X_API_KEY`/etc. vars.
+
 ## Docs
 
 - [context.md](docs/context.md) — purpose, source, competition, strategy

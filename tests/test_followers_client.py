@@ -11,11 +11,38 @@ import src.followers.client as client  # noqa: E402
 
 
 class TestGetClientOAuth1:
-    def test_uses_oauth1_when_all_creds_present(self):
-        with mock_all(client, X_API_KEY="k", X_API_SECRET="s", X_ACCESS_TOKEN="t", X_ACCESS_SECRET="a"):
+    def test_uses_oauth1_when_only_oauth1_creds_present(self):
+        with mock_all(
+            client,
+            X_API_KEY="k", X_API_SECRET="s", X_ACCESS_TOKEN="t", X_ACCESS_SECRET="a",
+            X_CLIENT_ID="", X_CLIENT_SECRET="",
+        ):
             c, client_type = client.get_client()
         assert client_type == "oauth1"
         assert c is not None
+
+    def test_prefers_oauth2_when_both_configured(self, tmp_path):
+        import json
+
+        token_file = tmp_path / "tokens.json"
+        token_file.write_text(
+            json.dumps(
+                {
+                    "access_token": "still-good",
+                    "refresh_token": "rtok",
+                    "expires_in": 7200,
+                    "obtained_at": int(time.time()),
+                }
+            )
+        )
+        with mock_all(
+            client,
+            X_API_KEY="k", X_API_SECRET="s", X_ACCESS_TOKEN="t", X_ACCESS_SECRET="a",
+            X_CLIENT_ID="cid", X_CLIENT_SECRET="csec", X_REFRESH_TOKEN="",
+            X_TOKEN_FILE=str(token_file),
+        ):
+            c, client_type = client.get_client()
+        assert client_type == "oauth2"
 
 
 class TestGetClientErrors:
