@@ -89,8 +89,12 @@ def _district_prefix(full_name: str) -> str:
     return short
 
 
+MAX_CONDENSE_ATTEMPTS = 3
+
+
 def _condense_or_truncate(text: str, header: str, body: str, limit: int | None = None) -> str:
-    """Try LLM summarization first; fall back to truncation."""
+    """Try LLM summarization first, retrying with a tighter target if the
+    condensed result still overshoots the limit; fall back to truncation."""
     if limit is None:
         limit = POST_MAX_CHARS
 
@@ -99,23 +103,26 @@ def _condense_or_truncate(text: str, header: str, body: str, limit: int | None =
             from . import summarizer
 
             header_overhead = len(header) + 2  # +2 for \n\n
-            max_body_chars = limit - header_overhead
-            if max_body_chars > 40:
-                condensed = summarizer.summarize(body, max_body_chars)
-                if condensed:
+            target = limit - header_overhead
+            if target > 40:
+                for attempt in range(1, MAX_CONDENSE_ATTEMPTS + 1):
+                    condensed = summarizer.summarize(body, target)
+                    if not condensed:
+                        break
                     result = f"{header}\n\n{condensed}"
                     if len(result) <= limit:
-                        if len(result) + 3 <= limit:
-                            result += "\n✨"
                         logger.info(
-                            "LLM condensed body %d → %d chars",
-                            len(body), len(condensed),
+                            "LLM condensed body %d → %d chars (attempt %d)",
+                            len(body), len(condensed), attempt,
                         )
                         return result
+                    overflow = len(result) - limit
                     logger.warning(
-                        "LLM condensed body exceeds limit (%d chars > limit %d), truncating",
-                        len(result), limit,
+                        "LLM condensed body exceeds limit (attempt %d/%d): "
+                        "%d chars > limit %d, retrying tighter",
+                        attempt, MAX_CONDENSE_ATTEMPTS, len(result), limit,
                     )
+                    target = max(20, target - overflow - 10)
         except Exception:
             logger.exception("LLM summarization failed, falling back to truncation")
 
