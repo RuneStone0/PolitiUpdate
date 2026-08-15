@@ -14,6 +14,7 @@
 - **Link-free** — avoids X's per-URL surcharge (~$7/mo saved)
 - **Failed post retry** — sweeps undelivered posts every ~1 hour
 - **Health check** — built-in HTTP `/health` endpoint for container monitoring
+- **Follower automation** — follows back new followers, unfollows anyone who unfollows (`src/followers`, run periodically)
 
 ## Quick start
 
@@ -118,9 +119,22 @@ src/bot/
   health.py       HTTP /health endpoint
   main.py         Polling loop (fetch → dedupe → format → post)
   auth.py         One-time OAuth 2.0 PKCE authorization
+src/followers/    Follow-back / unfollow automation (standalone, run periodically)
 docs/             Project context, roadmap, financials
 tests/            154 tests at 100% coverage
 ```
+
+### Follower automation
+
+`src/followers` reconciles the account's following list against its current followers: follows back anyone new, unfollows anyone who unfollowed. It's a standalone one-shot app (like `x-stats`) meant to run periodically — the X API v2 follow/followers endpoints are tightly rate-limited, so continuous polling isn't practical.
+
+```bash
+python -m src.followers            # sync against the live X API
+python -m src.followers --dry-run  # log intended actions only, no API calls
+./scripts/run-followers.sh         # same, loading creds from .env.ProdPolitiUpdateBot
+```
+
+Run it on a schedule (e.g. hourly cron via Portainer) using the `followers` service in `docker-compose.yml`. State (who we've followed back) is tracked in a local SQLite DB (`FOLLOWERS_DB_PATH`, default `data/followers.db`) so a failed follow/unfollow (e.g. rate limit) is retried on the next run instead of being dropped. See [`.env.example`](.env.example) for `FOLLOWERS_*` options.
 
 ## Docs
 
