@@ -109,21 +109,33 @@ def _retry_failed() -> int:
         title = post["title"]
         link = guid  # guid is the press release URL in the Ritzau feed
 
-        # Skip retrying articles that are too old to be worth posting.
+        # Skip retrying articles that are too old to be worth posting. A missing
+        # pub_date means this row predates the age-gate migration (or otherwise
+        # never recorded one) — treat it as stale rather than silently bypassing
+        # the gate and retrying it unconditionally.
         pub_date_iso = post.get("pub_date")
+        is_stale = True
+        age_hours = None
         if pub_date_iso:
             try:
                 pub_dt = datetime.fromisoformat(pub_date_iso)
                 age_hours = _article_age_hours(pub_dt)
-                if age_hours > MAX_ARTICLE_AGE_HOURS:
-                    db.save_post(guid, title, "", status="skipped")
-                    logger.info(
-                        "Skipping stale failed post (%.1fh old): %s", age_hours, title
-                    )
-                    retried += 1
-                    continue
+                is_stale = age_hours > MAX_ARTICLE_AGE_HOURS
             except ValueError:
-                pass  # malformed pub_date — fall through to retry
+                is_stale = False  # malformed pub_date — fall through to retry
+
+        if is_stale:
+            db.save_post(guid, title, "", status="skipped")
+            if age_hours is not None:
+                logger.info(
+                    "Skipping stale failed post (%.1fh old): %s", age_hours, title
+                )
+            else:
+                logger.info(
+                    "Skipping failed post with no recorded pub_date: %s", title
+                )
+            retried += 1
+            continue
 
         try:
             district, thread_items = fetch_press_release(link)
