@@ -18,6 +18,10 @@ os.environ.setdefault("X_ACCESS_SECRET", "fake-secret-token")
 os.environ.setdefault("X_CLIENT_ID", "fake-client-id")
 os.environ.setdefault("X_CLIENT_SECRET", "fake-client-secret")
 os.environ.setdefault("X_REDIRECT_URI", "https://localhost:5000/callback")
+# NOTIFY_ON_ERROR defaults to on in production; keep it off in tests so
+# _setup_logging() doesn't attach a real ProwlErrorHandler to the shared
+# root logger and start intercepting ERROR logs from unrelated test modules.
+os.environ.setdefault("NOTIFY_ON_ERROR", "0")
 os.environ.setdefault("X_TOKEN_FILE", "/tmp/test_x_tokens.json")
 
 import src.bot.config as config  # noqa: E402
