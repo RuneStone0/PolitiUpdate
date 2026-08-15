@@ -26,6 +26,20 @@ logger = logging.getLogger(__name__)
 SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access"]
 
 
+def _raw_response_detail(e: tweepy.TweepyException) -> str:
+    """Best-effort extraction of the raw response body from a tweepy
+    exception. Tweepy's own message only surfaces `errors[]`/`detail`;
+    the raw body may carry extra fields (e.g. a `type` doc link) that
+    explain the failure more precisely."""
+    response = getattr(e, "response", None)
+    if response is None:
+        return ""
+    try:
+        return response.text
+    except Exception:
+        return ""
+
+
 def _get_client_oauth1() -> tweepy.Client:
     if not all([X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET]):
         raise RuntimeError(
@@ -154,11 +168,16 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
             return None
 
     except tweepy.Forbidden as e:
-        logger.error("X API forbidden (check app permissions): %s", e)
+        logger.error(
+            "X API forbidden (check app permissions): %s | raw response: %s",
+            e, _raw_response_detail(e),
+        )
         return None
 
     except tweepy.TweepyException as e:
-        logger.error("X API error: %s", e)
+        logger.error(
+            "X API error: %s | raw response: %s", e, _raw_response_detail(e)
+        )
         return None
 
 
