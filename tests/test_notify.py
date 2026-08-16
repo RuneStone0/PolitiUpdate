@@ -1,9 +1,9 @@
-"""Tests for src.notify — Prowl webhook, daily health check, weekly followers."""
+"""Tests for src.notify — Prowl webhook, daily health check, weekly stats/followers, loop."""
 
-import json
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -11,11 +11,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest  # noqa: E402
 import requests  # noqa: E402
 
-import src.notify.followers as followers  # noqa: E402
 import src.notify.health as health  # noqa: E402
 import src.notify.log_handler as log_handler  # noqa: E402
+import src.notify.loop as loop  # noqa: E402
 import src.notify.main as notify_main  # noqa: E402
 import src.notify.prowl as prowl  # noqa: E402
+import src.notify.state as state  # noqa: E402
+import src.notify.weekly as weekly  # noqa: E402
 
 
 def _record(name="src.bot.main", msg="RSS fetch failed", exc_info=None, level=logging.ERROR):
@@ -141,36 +143,135 @@ class TestHealthRun:
         mock_send.assert_not_called()
 
 
-class TestFollowersRun:
-    def test_first_run_reports_baseline(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
-        with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
-        assert "baseline of 100" in mock_send.call_args[0][0]
-        assert json.loads(state_path.read_text())["followers_count"] == 100
+class TestState:
+    def test_read_returns_empty_dict_when_missing(self, tmp_path):
+        with mock.patch.object(state.config, "STATE_PATH", str(tmp_path / "missing.json")):
+            assert state.read() == {}
 
-    def test_reports_positive_delta(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
-        state_path.write_text(json.dumps({"followers_count": 90}))
-        with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
+    def test_write_then_read_roundtrips(self, tmp_path):
+        state_path = tmp_path / "sub" / "notify_state.json"
+        with mock.patch.object(state.config, "STATE_PATH", str(state_path)):
+            state.write({"followers_count": 100})
+            assert state.read() == {"followers_count": 100}
+
+    def test_write_merges_rather_than_overwrites(self, tmp_path):
+        state_path = tmp_path / "notify_state.json"
+        with mock.patch.object(state.config, "STATE_PATH", str(state_path)):
+            state.write({"followers_count": 100})
+            state.write({"last_daily_run": "2026-08-15"})
+            assert state.read() == {"followers_count": 100, "last_daily_run": "2026-08-15"}
+
+
+class TestWeeklyRun:
+    def test_first_run_reports_baseline(self):
+        with mock.patch.object(weekly, "fetch_stats", return_value={"followers_count": 100}):
+            with mock.patch.object(weekly, "publish_stats") as mock_publish:
+                with mock.patch.object(weekly.state, "read", return_value={}):
+                    with mock.patch.object(weekly.state, "write") as mock_write:
+                        with mock.patch.object(weekly, "send") as mock_send:
+                            weekly.run()
+        assert "baseline of 100" in mock_send.call_args[0][0]
+        mock_publish.assert_called_once_with({"followers_count": 100})
+        mock_write.assert_called_once_with({"followers_count": 100})
+
+    def test_reports_positive_delta(self):
+        with mock.patch.object(weekly, "fetch_stats", return_value={"followers_count": 100}):
+            with mock.patch.object(weekly, "publish_stats"):
+                with mock.patch.object(weekly.state, "read", return_value={"followers_count": 90}):
+                    with mock.patch.object(weekly.state, "write"):
+                        with mock.patch.object(weekly, "send") as mock_send:
+                            weekly.run()
         message = mock_send.call_args[0][0]
         assert "+10 new followers" in message
         assert "100 total" in message
 
-    def test_reports_negative_delta(self, tmp_path):
-        state_path = tmp_path / "notify_followers.json"
-        state_path.write_text(json.dumps({"followers_count": 110}))
-        with mock.patch.object(followers, "fetch_stats", return_value={"followers_count": 100}):
-            with mock.patch.object(followers.config, "FOLLOWERS_STATE_PATH", str(state_path)):
-                with mock.patch.object(followers, "send") as mock_send:
-                    followers.run()
+    def test_reports_negative_delta(self):
+        with mock.patch.object(weekly, "fetch_stats", return_value={"followers_count": 100}):
+            with mock.patch.object(weekly, "publish_stats"):
+                with mock.patch.object(weekly.state, "read", return_value={"followers_count": 110}):
+                    with mock.patch.object(weekly.state, "write"):
+                        with mock.patch.object(weekly, "send") as mock_send:
+                            weekly.run()
         message = mock_send.call_args[0][0]
         assert "-10 new followers" in message
+
+    def test_gist_publish_failure_is_non_fatal(self):
+        with mock.patch.object(weekly, "fetch_stats", return_value={"followers_count": 100}):
+            with mock.patch.object(weekly, "publish_stats", side_effect=RuntimeError("no token")):
+                with mock.patch.object(weekly.state, "read", return_value={}):
+                    with mock.patch.object(weekly.state, "write"):
+                        with mock.patch.object(weekly, "send") as mock_send:
+                            weekly.run()  # must not raise
+        mock_send.assert_called_once()
+
+
+class TestLoop:
+    def test_daily_runs_once_hour_reached_and_not_already_run(self):
+        now = datetime(2026, 8, 15, 9, 30, tzinfo=timezone.utc)  # Saturday
+        with mock.patch.object(loop.config, "DAILY_HOUR_UTC", 9):
+            with mock.patch.object(loop.state, "read", return_value={}):
+                with mock.patch.object(loop.state, "write") as mock_write:
+                    with mock.patch.object(loop.health, "run") as mock_health:
+                        loop._maybe_run_daily(now)
+        mock_health.assert_called_once()
+        mock_write.assert_called_once_with({"last_daily_run": "2026-08-15"})
+
+    def test_daily_skips_before_configured_hour(self):
+        now = datetime(2026, 8, 15, 8, 0, tzinfo=timezone.utc)
+        with mock.patch.object(loop.config, "DAILY_HOUR_UTC", 9):
+            with mock.patch.object(loop.state, "read", return_value={}):
+                with mock.patch.object(loop.health, "run") as mock_health:
+                    loop._maybe_run_daily(now)
+        mock_health.assert_not_called()
+
+    def test_daily_skips_if_already_run_today(self):
+        now = datetime(2026, 8, 15, 12, 0, tzinfo=timezone.utc)
+        with mock.patch.object(loop.config, "DAILY_HOUR_UTC", 9):
+            with mock.patch.object(loop.state, "read", return_value={"last_daily_run": "2026-08-15"}):
+                with mock.patch.object(loop.health, "run") as mock_health:
+                    loop._maybe_run_daily(now)
+        mock_health.assert_not_called()
+
+    def test_weekly_runs_on_configured_weekday_and_hour(self):
+        now = datetime(2026, 8, 16, 10, 30, tzinfo=timezone.utc)  # Sunday
+        with mock.patch.object(loop.config, "WEEKLY_WEEKDAY", 6):
+            with mock.patch.object(loop.config, "WEEKLY_HOUR_UTC", 10):
+                with mock.patch.object(loop.state, "read", return_value={}):
+                    with mock.patch.object(loop.state, "write") as mock_write:
+                        with mock.patch.object(loop.weekly, "run") as mock_weekly:
+                            loop._maybe_run_weekly(now)
+        mock_weekly.assert_called_once()
+        assert mock_write.call_args[0][0]["last_weekly_run"] == "2026-W33"
+
+    def test_weekly_skips_on_wrong_weekday(self):
+        now = datetime(2026, 8, 15, 12, 0, tzinfo=timezone.utc)  # Saturday
+        with mock.patch.object(loop.config, "WEEKLY_WEEKDAY", 6):
+            with mock.patch.object(loop.state, "read", return_value={}):
+                with mock.patch.object(loop.weekly, "run") as mock_weekly:
+                    loop._maybe_run_weekly(now)
+        mock_weekly.assert_not_called()
+
+    def test_weekly_skips_if_already_run_this_week(self):
+        now = datetime(2026, 8, 16, 12, 0, tzinfo=timezone.utc)  # Sunday
+        with mock.patch.object(loop.config, "WEEKLY_WEEKDAY", 6):
+            with mock.patch.object(loop.config, "WEEKLY_HOUR_UTC", 10):
+                with mock.patch.object(loop.state, "read", return_value={"last_weekly_run": "2026-W33"}):
+                    with mock.patch.object(loop.weekly, "run") as mock_weekly:
+                        loop._maybe_run_weekly(now)
+        mock_weekly.assert_not_called()
+
+    def test_run_loop_stops_on_signal_and_survives_job_errors(self):
+        with mock.patch.object(loop, "_maybe_run_daily", side_effect=RuntimeError("boom")):
+            with mock.patch.object(loop, "_maybe_run_weekly"):
+                with mock.patch.object(loop.time, "sleep") as mock_sleep:
+
+                    def _stop(*args, **kwargs):
+                        loop.running = False
+
+                    mock_sleep.side_effect = _stop
+                    loop.running = True
+                    loop.run()  # must not raise despite _maybe_run_daily blowing up
+        mock_sleep.assert_called_once()
 
 
 class TestProwlErrorHandler:
@@ -241,9 +342,14 @@ class TestMain:
             notify_main.main(["daily"])
         mock_run.assert_called_once()
 
-    def test_weekly_dispatches_to_followers(self):
-        with mock.patch.object(notify_main.followers, "run") as mock_run:
+    def test_weekly_dispatches_to_weekly_module(self):
+        with mock.patch.object(notify_main.weekly, "run") as mock_run:
             notify_main.main(["weekly"])
+        mock_run.assert_called_once()
+
+    def test_no_args_dispatches_to_loop(self):
+        with mock.patch.object(notify_main.loop, "run") as mock_run:
+            notify_main.main([])
         mock_run.assert_called_once()
 
     def test_exits_nonzero_on_error(self):

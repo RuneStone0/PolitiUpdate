@@ -21,10 +21,20 @@ BOT_HEALTH_URL = os.getenv("BOT_HEALTH_URL", "http://bot:8080/health")
 DB_PATH = os.getenv("DB_PATH", "data/politiupdate.db")
 FAILED_POSTS_THRESHOLD = int(os.getenv("NOTIFY_FAILED_POSTS_THRESHOLD", "3"))
 
-# Where the weekly follower check persists the last known count.
-FOLLOWERS_STATE_PATH = os.getenv("NOTIFY_FOLLOWERS_STATE", "data/notify_followers.json")
-
 REQUEST_TIMEOUT = int(os.getenv("NOTIFY_TIMEOUT", "15"))
+
+# Local state file (shared data volume) — last known follower count, and
+# which daily/weekly runs have already fired. See state.py / loop.py.
+STATE_PATH = os.getenv("NOTIFY_STATE_PATH", "data/notify_state.json")
+
+# When the persistent notify loop runs its daily/weekly checks, in UTC.
+# Weekday follows datetime.weekday(): Monday=0 .. Sunday=6.
+DAILY_HOUR_UTC = int(os.getenv("NOTIFY_DAILY_HOUR_UTC", "9"))
+WEEKLY_WEEKDAY = int(os.getenv("NOTIFY_WEEKLY_WEEKDAY", "6"))
+WEEKLY_HOUR_UTC = int(os.getenv("NOTIFY_WEEKLY_HOUR_UTC", "10"))
+
+# How often the loop wakes up to check whether it's time to run a job.
+LOOP_CHECK_INTERVAL_SECONDS = int(os.getenv("NOTIFY_LOOP_CHECK_INTERVAL_SECONDS", "300"))
 
 # Real-time error alerting: when enabled, a logging handler is attached to the
 # bot's root logger that forwards ERROR+ log records (RSS fetch failures,

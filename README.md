@@ -78,15 +78,14 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 
 ### Scheduling batch jobs
 
-`x-stats`, `weekly-post`, `notify-daily`, and `notify-weekly` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.). Example host crontab:
+`x-stats` and `weekly-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
 
 ```cron
-# Daily service health check (Prowl alert only if something's wrong)
-0 9 * * * cd /path/to/politiupdate && docker compose run --rm notify-daily
-
-# Weekly follower-count summary, Sundays
-0 10 * * 0 cd /path/to/politiupdate && docker compose run --rm notify-weekly
+# Weekly digest, Sundays
+0 8 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
 ```
+
+`notify` is **not** a batch job — it's a persistent service (`restart: unless-stopped`, like `bot`) that self-schedules its own daily health check and weekly X-stats refresh + follower notification internally (see [src/notify/loop.py](src/notify/loop.py)). No cron, Portainer scheduling, or GitHub Actions needed for it — `docker compose up -d` is enough. `x-stats`'s own periodic refresh is redundant with notify's weekly job (same X API call); the `x-stats` compose entry is kept only for on-demand manual refreshes.
 
 ## Testing
 
@@ -117,9 +116,11 @@ docker compose -f docker-compose.test.yml run --rm e2e
 | `HEALTH_PORT` | `8080` | Health check HTTP port (`0` to disable) |
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `PROWL_WEBHOOK_URL` | — | Webhook that receives `{"message": "..."}` POSTs for notifications (required; unauthenticated URL — keep it out of version control) |
-| `BOT_HEALTH_URL` | `http://bot:8080/health` | Where `notify-daily` checks bot health (compose service name) |
+| `BOT_HEALTH_URL` | `http://bot:8080/health` | Where `notify` checks bot health (compose service name) |
 | `NOTIFY_FAILED_POSTS_THRESHOLD` | `3` | Alert when this many posts are stuck as `failed` |
 | `NOTIFY_ON_ERROR` | `1` | Forward the bot's ERROR-level logs to Prowl in real time (`0` to disable) |
+| `NOTIFY_DAILY_HOUR_UTC` | `9` | Hour (UTC) the persistent `notify` service runs its daily health check |
+| `NOTIFY_WEEKLY_WEEKDAY` / `NOTIFY_WEEKLY_HOUR_UTC` | `6` (Sunday) / `10` | When `notify` runs its weekly stats + follower check |
 
 See [`.env.example`](.env.example) for all options.
 
@@ -139,9 +140,10 @@ src/bot/
 src/followers/    Follow-back / unfollow automation (standalone, run periodically)
 src/notify/
   prowl.py        Prowl webhook client
-  health.py        Daily check: bot /health + failed-post backlog
-  followers.py    Weekly check: X follower-count delta
-  main.py         CLI entrypoint (`daily` | `weekly`)
+  health.py       Daily check: bot /health + failed-post backlog
+  weekly.py       Weekly check: X-stats refresh + follower-count delta
+  loop.py         Persistent self-scheduling loop (like bot/main.py)
+  main.py         CLI entrypoint (no args = loop; `daily` | `weekly` = one-shot)
 docs/             Project context, roadmap, financials
 tests/            154 tests at 100% coverage
 ```
