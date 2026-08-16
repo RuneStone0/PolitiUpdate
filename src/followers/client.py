@@ -31,11 +31,14 @@ from .config import (
     X_TOKEN_FILE,
 )
 
-# follows.read is required to list followers; follows.write to follow/unfollow
-# over OAuth 2.0. A token minted by the *unpatched* `python -m src.bot.auth`
-# (tweet.read/tweet.write/users.read/offline.access only) lacks both and will
-# 401/403 here — re-run it after these scopes were added to src/bot/auth.py.
-SCOPES = ["tweet.read", "users.read", "follows.read", "follows.write", "offline.access"]
+# Must match src/bot/auth.py's SCOPES exactly: refresh_token() compares this
+# list against the scope X actually returns (which reflects what was granted
+# at mint time) and raises if they differ — even though the refresh itself
+# succeeded. follows.read is required to list followers; follows.write to
+# follow/unfollow over OAuth 2.0. A token minted by the *unpatched*
+# `python -m src.bot.auth` (missing follows.read/follows.write) will 401/403
+# here — re-run it after these scopes were added to src/bot/auth.py.
+SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access", "follows.read", "follows.write"]
 
 
 def _load_tokens() -> dict:
@@ -71,6 +74,17 @@ def _refresh_access_token(refresh_token: str) -> dict:
 
 
 def _get_tokens() -> dict:
+    """Load the current token, preferring the persisted file over X_REFRESH_TOKEN.
+
+    X rotates the refresh token on every use (confirmed empirically), so a
+    static X_REFRESH_TOKEN env var is only good for bootstrapping the first
+    run against a fresh/empty data volume — every refresh after that updates
+    X_TOKEN_FILE with a new refresh_token, which must then be the source of
+    truth, or the second run onward would try to reuse an already-consumed
+    (and now invalid) refresh token from the static env var.
+    """
+    if os.path.exists(X_TOKEN_FILE):
+        return _load_tokens()
     if X_REFRESH_TOKEN:
         tokens = _refresh_access_token(X_REFRESH_TOKEN)
         _save_tokens(tokens)
