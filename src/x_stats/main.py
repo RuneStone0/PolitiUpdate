@@ -82,7 +82,11 @@ def _refresh_access_token(refresh_token: str) -> dict:
         client_id=X_CLIENT_ID,
         client_secret=X_CLIENT_SECRET,
         redirect_uri=X_REDIRECT_URI,
-        scope=["tweet.read", "users.read", "offline.access"],
+        # Must match src/bot/auth.py's SCOPES exactly — oauthlib's
+        # refresh_token() compares this against the token's actual granted
+        # scope and raises if they differ, even on an otherwise-successful
+        # refresh.
+        scope=["tweet.read", "tweet.write", "users.read", "offline.access", "follows.read", "follows.write"],
     )
     tokens = oauth2.refresh_token(
         "https://api.x.com/2/oauth2/token",
