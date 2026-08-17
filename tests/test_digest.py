@@ -122,6 +122,21 @@ class TestLinkify:
         assert "<a " not in html_out
 
 
+class TestBuildTweet:
+    def test_output_is_one_of_the_templates_with_week_substituted(self):
+        digest = {"week": 33, "year": 2026, "total_posts": 105, "categories": {}}
+        text = poster._build_tweet(digest, "https://politiupdate.dk/uge/2026/33")
+        headline, _, url = text.partition("\n\n")
+        assert url == "https://politiupdate.dk/uge/2026/33"
+        assert headline in [t.format(week=33) for t in poster._HEADLINE_TEMPLATES]
+
+    def test_picks_a_specific_template_when_random_choice_is_mocked(self):
+        digest = {"week": 33, "year": 2026, "total_posts": 105, "categories": {}}
+        with mock.patch.object(poster.random, "choice", return_value=poster._HEADLINE_TEMPLATES[0]):
+            text = poster._build_tweet(digest, "https://politiupdate.dk/uge/2026/33")
+        assert text == "Se ugens opdateringer fra Politiet - Uge 33:\n\nhttps://politiupdate.dk/uge/2026/33"
+
+
 class TestPostTweetDuplicateContent:
     @staticmethod
     def _forbidden(message: str) -> tweepy.errors.Forbidden:
