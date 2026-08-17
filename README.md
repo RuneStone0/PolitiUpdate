@@ -78,12 +78,12 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 
 ### Scheduling batch jobs
 
-`x-stats`, `weekly-post`, and `feedback-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
+`x-stats`, `weekly-post`, and `feedback-post` are one-shot jobs (`restart: "no"`, `profiles: [manual]`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. The `manual` profile keeps them out of the default `docker compose up -d` set — without it, anything that re-runs `up -d` (e.g. Portainer's GitOps polling) restarts these exited containers on every poll; that caused a real incident where `x-stats` got re-triggered every 5 minutes for hours and hammered the GitHub Gist API into a 503 (see git history). Pass `--profile manual` explicitly to run them. Example host crontab:
 
 ```cron
 # Weekly digest, Sundays 18:00 Danish time (CRON_TZ keeps it DST-safe)
 CRON_TZ=Europe/Copenhagen
-0 18 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
+0 18 * * 0 cd /path/to/politiupdate && docker compose --profile manual run --rm weekly-post
 
 # Monthly feedback request — trigger every Saturday at 17:00 UTC (18:00/19:00
 # Danish time depending on DST); the app itself only posts on the first
@@ -93,7 +93,7 @@ CRON_TZ=Europe/Copenhagen
 # invoked more often than it actually posts). Reset CRON_TZ to UTC here —
 # it persists to all following lines otherwise, which would shift this one.
 CRON_TZ=UTC
-0 17 * * 6 cd /path/to/politiupdate && docker compose run --rm feedback-post
+0 17 * * 6 cd /path/to/politiupdate && docker compose --profile manual run --rm feedback-post
 ```
 
 `notify` is **not** a batch job — it's a persistent service (`restart: unless-stopped`, like `bot`) that self-schedules its own daily health check and weekly X-stats refresh + follower notification internally (see [src/notify/loop.py](src/notify/loop.py)). No cron, Portainer scheduling, or GitHub Actions needed for it — `docker compose up -d` is enough. `x-stats`'s own periodic refresh is redundant with notify's weekly job (same X API call); the `x-stats` compose entry is kept only for on-demand manual refreshes.
