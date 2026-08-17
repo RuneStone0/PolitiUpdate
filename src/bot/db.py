@@ -2,6 +2,7 @@
 
 import os
 import sqlite3
+from collections.abc import Iterable
 from datetime import datetime, timezone
 
 from . import config
@@ -35,6 +36,21 @@ def init_db() -> None:
         """
         CREATE INDEX IF NOT EXISTS idx_posts_status
         ON posts (status)
+        """
+    )
+    # Tracks the exact text of every tweet we've successfully posted, so we
+    # can recognize — before ever calling X — when a new item (possibly
+    # under a different guid, e.g. a press release the feed re-published)
+    # would duplicate one we already posted, instead of finding out via a
+    # 403 from X after the fact.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS posted_texts (
+            text        TEXT PRIMARY KEY,
+            guid        TEXT NOT NULL,
+            x_post_id   TEXT NOT NULL,
+            posted_at   TEXT NOT NULL
+        )
         """
     )
     # Migrate existing databases that pre-date the pub_date column.
@@ -79,6 +95,37 @@ def save_post(
         """,
         (guid, title, body, now, status, x_post_id, pub_date),
     )
+    conn.commit()
+    conn.close()
+
+
+def find_posted_guid(text: str) -> str | None:
+    """Return the guid this exact tweet text was already posted under, or
+    None if it's never been posted."""
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT guid FROM posted_texts WHERE text = ?", (text,)
+    ).fetchone()
+    conn.close()
+    return row[0] if row else None
+
+
+def record_posted_texts(guid: str, pairs: Iterable[tuple[str, str | None]]) -> None:
+    """Record the text of each successfully posted tweet in a thread, paired
+    with its X post ID. Pairs with no id (a later item in the thread that
+    failed to post) are skipped."""
+    conn = get_conn()
+    now = datetime.now(timezone.utc).isoformat()
+    for text, x_post_id in pairs:
+        if not x_post_id or x_post_id == "dry-run":
+            continue
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO posted_texts (text, guid, x_post_id, posted_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (text, guid, x_post_id, now),
+        )
     conn.commit()
     conn.close()
 

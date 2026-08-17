@@ -88,6 +88,15 @@ def _process_item(raw: dict) -> None:
     # Store latest body for DB
     latest_body = thread_items[0]["body"]
 
+    dup_guid = db.find_posted_guid(formatted[0])
+    if dup_guid:
+        # This exact text was already posted under a different guid — the
+        # feed re-published the same update. Posting it again would just
+        # get rejected by X as duplicate content.
+        db.save_post(guid, title, latest_body, status="skipped", pub_date=pub_date_iso)
+        logger.info("Skipping %r — already posted as %s", title, dup_guid)
+        return
+
     db.save_post(guid, title, latest_body, status="fetching", pub_date=pub_date_iso)
 
     x_post_ids = post_thread(formatted)
@@ -95,6 +104,7 @@ def _process_item(raw: dict) -> None:
     if x_post_ids and x_post_ids[0]:
         db.save_post(guid, title, latest_body, status="posted",
                      x_post_id=x_post_ids[0], pub_date=pub_date_iso)
+        db.record_posted_texts(guid, zip(formatted, x_post_ids))
     else:
         db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso)
 
@@ -156,11 +166,22 @@ def _retry_failed() -> int:
                 format_post(title, district, item["body"])
                 for item in thread_items
             ]
+
+            dup_guid = db.find_posted_guid(formatted[0])
+            if dup_guid:
+                db.save_post(guid, title, thread_items[0]["body"], status="skipped")
+                logger.info(
+                    "Retry found %r already posted as %s, giving up", title, dup_guid
+                )
+                retried += 1
+                continue
+
             x_post_ids = post_thread(formatted)
 
             if x_post_ids and x_post_ids[0]:
                 db.save_post(guid, title, thread_items[0]["body"],
                              status="posted", x_post_id=x_post_ids[0])
+                db.record_posted_texts(guid, zip(formatted, x_post_ids))
                 logger.info("Retry succeeded: %s", title)
             else:
                 db.save_post(guid, title, thread_items[0]["body"],

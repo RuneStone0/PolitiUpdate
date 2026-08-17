@@ -18,6 +18,15 @@ def reset_counter():
     main.running = True
 
 
+@pytest.fixture(autouse=True)
+def no_dup_guid():
+    """By default, nothing is a known duplicate — individual tests can
+    override find_posted_guid's return value to exercise that path."""
+    with mock.patch.object(db, "find_posted_guid", return_value=None), \
+         mock.patch.object(db, "record_posted_texts"):
+        yield
+
+
 class TestProcessItem:
     def test_skips_known_guid(self):
         with mock.patch.object(db, "is_known", return_value=True):
@@ -128,6 +137,28 @@ class TestProcessItem:
                             })
                             kw = mock_save.call_args_list[-1][1]
                             assert kw["status"] == "failed"
+
+    def test_skips_and_marks_skipped_when_content_already_posted(self):
+        """If this exact tweet text was already posted (e.g. under a
+        different guid the feed re-published), skip without calling X."""
+        with mock.patch.object(db, "is_known", return_value=False):
+            items = [{"body": "B"}]
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post",
+                                return_value="P"):
+                    with mock.patch.object(db, "find_posted_guid",
+                                            return_value="other-guid"):
+                        with mock.patch("src.bot.main.post_thread") as mock_post:
+                            with mock.patch.object(db, "save_post") as mock_save:
+                                main._process_item({
+                                    "guid": "g5",
+                                    "title": "T",
+                                    "link": "http://x",
+                                })
+                                mock_post.assert_not_called()
+                                kw = mock_save.call_args_list[-1][1]
+                                assert kw["status"] == "skipped"
 
     def test_saves_failed_when_posting_returns_empty_ids(self):
         with mock.patch.object(db, "is_known", return_value=False):
@@ -288,6 +319,29 @@ class TestRetryFailed:
                             assert result == 1
                             kw = mock_save.call_args_list[-1][1]
                             assert kw["status"] == "failed"
+
+    def test_retry_skips_when_content_already_posted(self):
+        """A retry whose formatted text matches an already-posted tweet
+        (e.g. an earlier attempt succeeded but we recorded it as failed)
+        should give up locally rather than hitting X again."""
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f9", "title": "Fail 9", "pub_date": fresh_iso}]
+        items = [{"body": "B"}]
+
+        with mock.patch.object(db, "get_failed_posts", return_value=failed):
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post",
+                                return_value="P"):
+                    with mock.patch.object(db, "find_posted_guid",
+                                            return_value="other-guid"):
+                        with mock.patch("src.bot.main.post_thread") as mock_post:
+                            with mock.patch.object(db, "save_post") as mock_save:
+                                result = main._retry_failed()
+                                assert result == 1
+                                mock_post.assert_not_called()
+                                kw = mock_save.call_args_list[-1][1]
+                                assert kw["status"] == "skipped"
 
     def test_retry_skips_when_no_thread_items(self):
         fresh_iso = datetime.now(timezone.utc).isoformat()
