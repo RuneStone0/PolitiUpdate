@@ -69,9 +69,10 @@ class TestRunSkipsAlreadyPostedWeek:
             "categories": {"other": 5},
             "posts_by_category": {},
         }
+        generate_result = {"narrative": "narrative", "narrative_html": "narrative", "notable": []}
         with mock.patch.object(digest_main.state, "read", return_value={}):
             with mock.patch.object(digest_main.builder, "build", return_value=data):
-                with mock.patch.object(digest_main.generator, "generate", return_value="narrative"):
+                with mock.patch.object(digest_main.generator, "generate", return_value=generate_result):
                     with mock.patch.object(digest_main.gist, "publish", return_value="https://gist/raw"):
                         with mock.patch.object(digest_main.publisher, "commit_archive"):
                             with mock.patch.object(digest_main.poster, "post_tweet", return_value="12345"):

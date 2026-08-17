@@ -21,6 +21,7 @@ class TestDistrictPrefix:
             ("Sydsjællands og Lolland-Falsters Politi", "Sydsjælland/L-F"),
             ("Østjyllands Politi", "Østjylland"),
             ("Rigspolitiet", "Rigspolitiet"),
+            ("Politiskolen", "Politiskolen"),
         ]
         for full, expected in cases:
             assert formatter._district_prefix(full) == expected

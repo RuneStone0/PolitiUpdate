@@ -13,8 +13,13 @@ than staying up like `bot`.
    `bot`) for posts with `status = 'posted'` in the target week, and
    categorizes them by keyword match: `missing_person`, `witness_appeal`,
    `arrest`, `other`.
-2. **`generator`** — sends the categorized data to a DeepSeek-compatible LLM
-   to produce a 3-5 sentence Danish narrative summary.
+2. **`generator`** — sends the categorized data to a DeepSeek-compatible LLM,
+   which returns JSON: a 3-5 sentence Danish narrative (leading with the
+   week's named efterlysninger/vidneappeller) plus 0-4 "notable" picks from
+   the arrest/other categories — genuinely newsworthy cases outside the main
+   narrative, each with its own one-sentence summary. The LLM references
+   candidates by an `[A3]`/`[O7]`-style id from the prompt rather than
+   reproducing titles, so picks map back to a real post deterministically.
 3. **`gist`** — publishes `digest.json` to a GitHub Gist so the site's `/uge`
    page and front-page widget can fetch live data without a redeploy.
 4. **`publisher`** — commits a static archive page

@@ -82,15 +82,18 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 `x-stats`, `weekly-post`, and `feedback-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
 
 ```cron
-# Weekly digest, Sundays
-0 8 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
+# Weekly digest, Sundays 18:00 Danish time (CRON_TZ keeps it DST-safe)
+CRON_TZ=Europe/Copenhagen
+0 18 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
 
 # Monthly feedback request — trigger every Saturday at 17:00 UTC (18:00/19:00
 # Danish time depending on DST); the app itself only posts on the first
 # Saturday of the month, at/after 18:00 Danish time, and no-ops otherwise
 # (see src/feedback's scheduling gate — cron can't express "first Saturday
 # of the month" or a DST-aware local time directly, so the container is
-# invoked more often than it actually posts).
+# invoked more often than it actually posts). Reset CRON_TZ to UTC here —
+# it persists to all following lines otherwise, which would shift this one.
+CRON_TZ=UTC
 0 17 * * 6 cd /path/to/politiupdate && docker compose run --rm feedback-post
 ```
 

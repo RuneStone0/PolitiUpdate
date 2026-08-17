@@ -41,7 +41,7 @@ def build(year: int, week: int) -> dict:
     conn.execute("PRAGMA journal_mode=WAL")
     rows = conn.execute(
         """
-        SELECT title, body, posted_at
+        SELECT title, body, posted_at, x_post_id, district
         FROM posts
         WHERE status = 'posted'
           AND posted_at >= ?
@@ -58,9 +58,17 @@ def build(year: int, week: int) -> dict:
         "arrest": [],
         "other": [],
     }
-    for title, body, posted_at in rows:
+    for title, body, posted_at, x_post_id, district in rows:
         cat = _categorize(title, body)
-        categories[cat].append({"title": title, "body": body, "posted_at": posted_at})
+        categories[cat].append(
+            {
+                "title": title,
+                "body": body,
+                "posted_at": posted_at,
+                "x_post_id": x_post_id,
+                "district": district,
+            }
+        )
 
     return {
         "week": week,
@@ -84,4 +92,11 @@ def current_week() -> tuple[int, int]:
     # Use the previous week so we have a complete dataset
     last_sunday = today - timedelta(days=today.weekday() + 1)
     iso = last_sunday.isocalendar()
+    return iso.year, iso.week
+
+
+def adjacent_week(year: int, week: int, delta_weeks: int) -> tuple[int, int]:
+    """Return the (year, week) `delta_weeks` ISO weeks away, handling year rollover."""
+    monday = _iso_week_start(year, week) + timedelta(weeks=delta_weeks)
+    iso = monday.isocalendar()
     return iso.year, iso.week
