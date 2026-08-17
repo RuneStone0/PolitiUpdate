@@ -13,7 +13,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 
-from . import builder, config, generator, gist, poster, publisher
+from . import builder, config, generator, gist, poster, publisher, state
 from src.bot.formatter import _district_prefix as district_short_name
 
 logging.basicConfig(
@@ -56,6 +56,11 @@ def _region_items(posts_by_category: dict) -> dict:
 
 
 def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
+    week_key = f"{year}-W{week:02d}"
+    if not dry_run and state.read().get("last_posted_week") == week_key:
+        logger.info("Week %d/%d already posted — skipping", week, year)
+        return
+
     logger.info("Building digest for week %d/%d", week, year)
     data = builder.build(year, week)
 
@@ -127,6 +132,7 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
     else:
         logger.info("Skipping tweet (--skip-tweet)")
 
+    state.write({"last_posted_week": week_key})
     logger.info("Done")
 
 

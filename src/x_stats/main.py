@@ -49,7 +49,7 @@ def _get_client() -> tweepy.Client:
             "or OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET and valid tokens)."
         )
 
-    tokens = _load_tokens()
+    tokens = _get_tokens()
     now = int(time.time())
     expires_at = tokens.get("obtained_at", 0) + tokens.get("expires_in", 7200)
 
@@ -61,14 +61,30 @@ def _get_client() -> tweepy.Client:
 
 
 def _load_tokens() -> dict:
-    if X_REFRESH_TOKEN:
-        return _refresh_access_token(X_REFRESH_TOKEN)
     if not Path(X_TOKEN_FILE).exists():
         raise RuntimeError(
             f"Token file not found at {X_TOKEN_FILE}. Run 'python -m src.bot.auth' or set X_REFRESH_TOKEN."
         )
     with open(X_TOKEN_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _get_tokens() -> dict:
+    """Load the current token, preferring the persisted file over X_REFRESH_TOKEN.
+
+    X rotates the refresh token on every use, so a static X_REFRESH_TOKEN env
+    var is only good for bootstrapping the first run against a fresh/empty
+    data volume — every refresh after that must use the persisted file (kept
+    current by each refresh), or it tries to reuse an already-consumed
+    refresh token and fails. Mirrors src/followers/client.py's _get_tokens().
+    """
+    if Path(X_TOKEN_FILE).exists():
+        return _load_tokens()
+    if X_REFRESH_TOKEN:
+        tokens = _refresh_access_token(X_REFRESH_TOKEN)
+        _save_tokens(tokens)
+        return tokens
+    return _load_tokens()
 
 
 def _save_tokens(tokens: dict) -> None:

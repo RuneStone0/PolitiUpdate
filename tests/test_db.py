@@ -28,6 +28,7 @@ class TestInitDb:
         conn.close()
         table_names = [t[0] for t in tables]
         assert "posts" in table_names
+        assert "posted_texts" in table_names
 
     def test_creates_index(self, db_path):
         conn = db.get_conn()
@@ -171,6 +172,37 @@ class TestGetFailedPosts:
         posts = db.get_failed_posts()
         assert posts[0]["guid"] == "old"
         assert posts[1]["guid"] == "new"
+
+
+class TestPostedTexts:
+    def test_find_returns_none_when_unposted(self, db_path):
+        assert db.find_posted_guid("Never posted this") is None
+
+    def test_record_then_find_returns_guid(self, db_path):
+        db.record_posted_texts("g1", [("Hello world", "1001")])
+        assert db.find_posted_guid("Hello world") == "g1"
+
+    def test_records_multiple_texts_in_a_thread(self, db_path):
+        db.record_posted_texts("g1", [("First", "1001"), ("Second", "1002")])
+        assert db.find_posted_guid("First") == "g1"
+        assert db.find_posted_guid("Second") == "g1"
+
+    def test_skips_pairs_with_no_post_id(self, db_path):
+        # A later item in a thread that failed to post has no id — its
+        # text must not be recorded as posted.
+        db.record_posted_texts("g1", [("Posted", "1001"), ("Not posted", None)])
+        assert db.find_posted_guid("Posted") == "g1"
+        assert db.find_posted_guid("Not posted") is None
+
+    def test_skips_dry_run_id(self, db_path):
+        db.record_posted_texts("g1", [("Dry run text", "dry-run")])
+        assert db.find_posted_guid("Dry run text") is None
+
+    def test_recording_same_text_twice_is_a_noop(self, db_path):
+        db.record_posted_texts("g1", [("Same text", "1001")])
+        db.record_posted_texts("g2", [("Same text", "1002")])
+        # First writer wins — the original guid stays the source of truth.
+        assert db.find_posted_guid("Same text") == "g1"
 
 
 class TestGetConn:

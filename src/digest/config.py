@@ -29,3 +29,8 @@ X_ACCESS_SECRET = os.getenv("X_ACCESS_SECRET", "")
 
 # Optional: override the ISO week number to generate (e.g. "32" for testing past weeks)
 DIGEST_WEEK_OVERRIDE = os.getenv("DIGEST_WEEK_OVERRIDE", "").strip()
+
+# Local state file (shared data volume) — which week was last successfully
+# posted, so a re-run for the same week (e.g. a misfiring schedule or a
+# manual retry) skips instead of hitting X's duplicate-content rejection.
+DIGEST_STATE_PATH = os.getenv("DIGEST_STATE_PATH", "data/digest_state.json")
