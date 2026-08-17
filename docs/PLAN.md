@@ -77,8 +77,13 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 ## Phase 5 — Multi-channel replication (future)
 - Mirror posts to Instagram, Facebook, etc.
 
+## Phase 5.5 — Monthly feedback request ✅
+- `src/feedback` — standalone app: posts a monthly tweet asking followers what they like and what to improve
+- Local state tracking (`FEEDBACK_STATE_PATH`) so a misfiring schedule doesn't double-post
+- `feedback-post` compose service, scheduled like `weekly-post` (host cron/Portainer)
+
 ## Future improvements / backlog
-- **User feedback collection** — request feedback via X posts/polls, website. Understand what followers value most (speed, completeness, district filtering, English summaries).
+- **Feedback polls / website feedback** — the X-post half of "request feedback via X posts/polls, website" is done (Phase 5.5); polls and a website feedback channel are still open. Understand what followers value most (speed, completeness, district filtering, English summaries).
 - **Reply-listening bot** — monitor @PolitiUpdate's X mentions/replies, auto-collect feature requests and sentiment, triaged by LLM.
 - Multi-channel (Phase 5)
 - English summaries for international audience (biggest revenue lever per financials.md)
