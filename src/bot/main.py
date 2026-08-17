@@ -88,15 +88,17 @@ def _process_item(raw: dict) -> None:
     # Store latest body for DB
     latest_body = thread_items[0]["body"]
 
-    db.save_post(guid, title, latest_body, status="fetching", pub_date=pub_date_iso)
+    db.save_post(guid, title, latest_body, status="fetching", pub_date=pub_date_iso,
+                 district=district)
 
     x_post_ids = post_thread(formatted)
 
     if x_post_ids and x_post_ids[0]:
         db.save_post(guid, title, latest_body, status="posted",
-                     x_post_id=x_post_ids[0], pub_date=pub_date_iso)
+                     x_post_id=x_post_ids[0], pub_date=pub_date_iso, district=district)
     else:
-        db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso)
+        db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso,
+                     district=district)
 
 
 def _retry_failed() -> int:
@@ -160,11 +162,11 @@ def _retry_failed() -> int:
 
             if x_post_ids and x_post_ids[0]:
                 db.save_post(guid, title, thread_items[0]["body"],
-                             status="posted", x_post_id=x_post_ids[0])
+                             status="posted", x_post_id=x_post_ids[0], district=district)
                 logger.info("Retry succeeded: %s", title)
             else:
                 db.save_post(guid, title, thread_items[0]["body"],
-                             status="failed")
+                             status="failed", district=district)
         except Exception:
             logger.exception("Retry failed: %s", title)
 

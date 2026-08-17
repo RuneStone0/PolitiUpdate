@@ -14,6 +14,7 @@ import sys
 from datetime import datetime, timezone
 
 from . import builder, config, generator, gist, poster, publisher
+from src.bot.formatter import _district_prefix as district_short_name
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,20 +46,34 @@ def _build_sources(posts_by_category: dict) -> list[dict]:
     return sources
 
 
+def _entry(post: dict) -> dict:
+    entry = {"title": post["title"]}
+    if post.get("x_post_id"):
+        entry["url"] = X_TWEET_URL.format(id=post["x_post_id"])
+    return entry
+
+
 def _category_items(posts_by_category: dict) -> dict:
     """Return {category: [{title, url?}]} for every post, so the site can let
     readers unfold a category and browse every case posted that week. `url`
     is omitted for posts that predate the x_post_id column being backfilled."""
-    items: dict[str, list[dict]] = {}
-    for cat, posts in posts_by_category.items():
-        entries = []
+    return {cat: [_entry(p) for p in posts] for cat, posts in posts_by_category.items()}
+
+
+UNKNOWN_REGION = "Ukendt"
+
+
+def _region_items(posts_by_category: dict) -> dict:
+    """Return {region: [{title, url?}]} for every post that week, so readers
+    can filter to their own police district instead of by category. `region`
+    is omitted (bucketed as UNKNOWN_REGION) for posts that predate the
+    district column being backfilled."""
+    regions: dict[str, list[dict]] = {}
+    for posts in posts_by_category.values():
         for post in posts:
-            entry = {"title": post["title"]}
-            if post.get("x_post_id"):
-                entry["url"] = X_TWEET_URL.format(id=post["x_post_id"])
-            entries.append(entry)
-        items[cat] = entries
-    return items
+            region = district_short_name(post.get("district") or "") or UNKNOWN_REGION
+            regions.setdefault(region, []).append(_entry(post))
+    return regions
 
 
 def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
@@ -97,6 +112,7 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
         "sources": _build_sources(data["posts_by_category"]),
         "notable": notable,
         "category_items": _category_items(data["posts_by_category"]),
+        "region_items": _region_items(data["posts_by_category"]),
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
 

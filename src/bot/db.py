@@ -27,7 +27,8 @@ def init_db() -> None:
             posted_at   TEXT,
             status      TEXT NOT NULL DEFAULT 'pending',
             x_post_id   TEXT,
-            pub_date    TEXT
+            pub_date    TEXT,
+            district    TEXT
         )
         """
     )
@@ -37,11 +38,12 @@ def init_db() -> None:
         ON posts (status)
         """
     )
-    # Migrate existing databases that pre-date the pub_date column.
-    try:
-        conn.execute("ALTER TABLE posts ADD COLUMN pub_date TEXT")
-    except sqlite3.OperationalError:
-        pass  # column already exists
+    # Migrate existing databases that pre-date the pub_date/district columns.
+    for column in ("pub_date", "district"):
+        try:
+            conn.execute(f"ALTER TABLE posts ADD COLUMN {column} TEXT")
+        except sqlite3.OperationalError:
+            pass  # column already exists
     conn.commit()
     conn.close()
 
@@ -63,21 +65,23 @@ def save_post(
     status: str = "pending",
     x_post_id: str | None = None,
     pub_date: str | None = None,
+    district: str | None = None,
 ) -> None:
     """Insert or update a post record."""
     conn = get_conn()
     now = datetime.now(timezone.utc).isoformat()
     conn.execute(
         """
-        INSERT INTO posts (guid, title, body, posted_at, status, x_post_id, pub_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO posts (guid, title, body, posted_at, status, x_post_id, pub_date, district)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(guid) DO UPDATE SET
             status = excluded.status,
             x_post_id = excluded.x_post_id,
             posted_at = excluded.posted_at,
-            pub_date = COALESCE(excluded.pub_date, pub_date)
+            pub_date = COALESCE(excluded.pub_date, pub_date),
+            district = COALESCE(excluded.district, district)
         """,
-        (guid, title, body, now, status, x_post_id, pub_date),
+        (guid, title, body, now, status, x_post_id, pub_date, district),
     )
     conn.commit()
     conn.close()

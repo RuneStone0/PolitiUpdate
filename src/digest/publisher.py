@@ -29,6 +29,23 @@ CATEGORY_LABELS = {
     "other": "Øvrige meddelelser",
 }
 
+UNKNOWN_REGION = "Ukendt"
+
+STATS_TOGGLE_SCRIPT = """\
+    <script>
+      document.querySelectorAll('#stats-section .sort-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('#stats-section .sort-btn').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+          var sort = btn.dataset.sort;
+          document.querySelector('#stats-section [data-panel="category"]').hidden = sort !== 'category';
+          document.querySelector('#stats-section [data-panel="region"]').hidden = sort !== 'region';
+        });
+      });
+    </script>
+"""
+
 
 def _headers() -> dict:
     return {
@@ -81,21 +98,34 @@ def _render_cat_items(items: list[dict]) -> str:
     return "\n".join(rows)
 
 
-def _render_accordion(cats: dict, category_items: dict) -> str:
+def _render_accordion(groups: list[tuple[str, list[dict]]]) -> str:
+    """groups: [(label, items)] in the order they should appear, already
+    filtered to non-empty groups."""
     blocks = []
-    for cat, label in CATEGORY_LABELS.items():
-        count = cats.get(cat, 0)
-        if not count:
-            continue
-        items_html = _render_cat_items(category_items.get(cat, []))
+    for label, items in groups:
+        items_html = _render_cat_items(items)
         blocks.append(
             f'<details class="cat-item">\n'
-            f"  <summary><span class=\"cat-label\">{label}</span>"
-            f'<span class="cat-count">{count}</span></summary>\n'
+            f'  <summary><span class="cat-count">{len(items)}</span>'
+            f'<span class="cat-label">{html.escape(label)}</span></summary>\n'
             f'  <ul class="cat-item-list">\n    {items_html}\n  </ul>\n'
             f"</details>"
         )
     return "\n".join(blocks)
+
+
+def _category_groups(cats: dict, category_items: dict) -> list[tuple[str, list[dict]]]:
+    return [
+        (label, category_items.get(cat, []))
+        for cat, label in CATEGORY_LABELS.items()
+        if cats.get(cat, 0)
+    ]
+
+
+def _region_groups(region_items: dict) -> list[tuple[str, list[dict]]]:
+    known = sorted((label, items) for label, items in region_items.items() if label != UNKNOWN_REGION)
+    unknown = [(UNKNOWN_REGION, region_items[UNKNOWN_REGION])] if UNKNOWN_REGION in region_items else []
+    return known + unknown
 
 
 def _render_archive_html(digest: dict) -> str:
@@ -108,8 +138,10 @@ def _render_archive_html(digest: dict) -> str:
     sources = digest.get("sources", [])
     notable = digest.get("notable", [])
     category_items = digest.get("category_items", {})
+    region_items = digest.get("region_items", {})
 
-    accordion_html = _render_accordion(cats, category_items)
+    category_accordion_html = _render_accordion(_category_groups(cats, category_items))
+    region_accordion_html = _render_accordion(_region_groups(region_items))
 
     source_rows = "\n".join(
         f'<li><a href="{html.escape(s["url"])}" target="_blank" rel="noopener">{html.escape(s["title"])}</a></li>'
@@ -170,10 +202,19 @@ def _render_archive_html(digest: dict) -> str:
                 <p>{narrative}</p>
               </article>
 {sources_section}{notable_section}
-              <section class="digest-breakdown">
-                <h2>Statistik</h2>
-                <div class="cat-list">
-                  {accordion_html}
+              <section class="digest-breakdown" id="stats-section">
+                <div class="stats-header">
+                  <h2>Statistik</h2>
+                  <div class="sort-toggle" role="group" aria-label="Sortér efter">
+                    <button type="button" class="sort-btn active" data-sort="category">Kategori</button>
+                    <button type="button" class="sort-btn" data-sort="region">Region</button>
+                  </div>
+                </div>
+                <div class="cat-list" data-panel="category">
+                  {category_accordion_html}
+                </div>
+                <div class="cat-list" data-panel="region" hidden>
+                  {region_accordion_html}
                 </div>
               </section>
             </main>
@@ -183,6 +224,7 @@ def _render_archive_html(digest: dict) -> str:
               <p><a href="../../">Seneste uges overblik</a></p>
             </footer>
           </div>
+{STATS_TOGGLE_SCRIPT}\
         </body>
         </html>
     """)

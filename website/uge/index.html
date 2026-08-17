@@ -37,6 +37,25 @@
       other: 'Øvrige meddelelser',
     };
 
+    const UNKNOWN_REGION = 'Ukendt';
+
+    function renderCatItems(items) {
+      return (items || [])
+        .map(item => item.url
+          ? `<li><a href="${escHtml(item.url)}" target="_blank" rel="noopener">${escHtml(item.title)}</a></li>`
+          : `<li><span>${escHtml(item.title)}</span></li>`
+        ).join('\n');
+    }
+
+    function renderAccordion(groups) {
+      return groups.map(([label, items]) => `
+        <details class="cat-item">
+          <summary><span class="cat-count">${items.length}</span><span class="cat-label">${escHtml(label)}</span></summary>
+          <ul class="cat-item-list">${renderCatItems(items)}</ul>
+        </details>
+      `).join('\n');
+    }
+
     async function loadDigest() {
       const main = document.getElementById('digest-main');
       try {
@@ -49,21 +68,18 @@
 
         const cats = data.categories || {};
         const catItems = data.category_items || {};
-
-        const renderCatItems = items => (items || [])
-          .map(item => item.url
-            ? `<li><a href="${escHtml(item.url)}" target="_blank" rel="noopener">${escHtml(item.title)}</a></li>`
-            : `<li><span>${escHtml(item.title)}</span></li>`
-          ).join('\n');
-
-        const accordionHtml = Object.entries(CAT_LABELS)
+        const categoryGroups = Object.entries(CAT_LABELS)
           .filter(([key]) => cats[key] > 0)
-          .map(([key, label]) => `
-            <details class="cat-item">
-              <summary><span class="cat-label">${label}</span><span class="cat-count">${cats[key]}</span></summary>
-              <ul class="cat-item-list">${renderCatItems(catItems[key])}</ul>
-            </details>
-          `).join('\n');
+          .map(([key, label]) => [label, catItems[key] || []]);
+        const categoryAccordionHtml = renderAccordion(categoryGroups);
+
+        const regionItems = data.region_items || {};
+        const regionGroups = Object.keys(regionItems)
+          .filter(label => label !== UNKNOWN_REGION)
+          .sort()
+          .concat(regionItems[UNKNOWN_REGION] ? [UNKNOWN_REGION] : [])
+          .map(label => [label, regionItems[label]]);
+        const regionAccordionHtml = renderAccordion(regionGroups);
 
         const sources = data.sources || [];
         const sourceRows = sources
@@ -87,11 +103,27 @@
           </article>
           ${sourcesSection}
           ${notableSection}
-          <section class="digest-breakdown">
-            <h2>Statistik</h2>
-            <div class="cat-list">${accordionHtml}</div>
+          <section class="digest-breakdown" id="stats-section">
+            <div class="stats-header">
+              <h2>Statistik</h2>
+              <div class="sort-toggle" role="group" aria-label="Sortér efter">
+                <button type="button" class="sort-btn active" data-sort="category">Kategori</button>
+                <button type="button" class="sort-btn" data-sort="region">Region</button>
+              </div>
+            </div>
+            <div class="cat-list" data-panel="category">${categoryAccordionHtml}</div>
+            <div class="cat-list" data-panel="region" hidden>${regionAccordionHtml}</div>
           </section>
         `;
+
+        document.querySelectorAll('#stats-section .sort-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#stats-section .sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+            const sort = btn.dataset.sort;
+            document.querySelector('#stats-section [data-panel="category"]').hidden = sort !== 'category';
+            document.querySelector('#stats-section [data-panel="region"]').hidden = sort !== 'region';
+          });
+        });
       } catch (err) {
         main.innerHTML = `<p class="digest-error">Kunne ikke hente ugens overblik. Prøv igen senere.</p>`;
         console.error('Digest fetch failed:', err);
