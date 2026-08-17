@@ -89,6 +89,19 @@
           ? `<section class="digest-notable"><h2>Andre bemærkelsesværdige sager</h2><ul class="notable-list">${notableRows}</ul></section>`
           : '';
 
+        const prevWeek = data.prev_week;
+        const nextWeek = data.next_week;
+        let pagerSection = '';
+        if (prevWeek || nextWeek) {
+          const prevLink = prevWeek
+            ? `<a class="pager-link pager-prev" href="${prevWeek.year}/${prevWeek.week}/">&larr; Uge ${prevWeek.week}, ${prevWeek.year}</a>`
+            : '';
+          const nextLink = nextWeek
+            ? `<a class="pager-link pager-next" href="${nextWeek.year}/${nextWeek.week}/">Uge ${nextWeek.week}, ${nextWeek.year} &rarr;</a>`
+            : '';
+          pagerSection = `<nav class="digest-pager">${prevLink}${nextLink}</nav>`;
+        }
+
         main.innerHTML = `
           <article class="digest-narrative">
             <p>${data.narrative_html || escHtml(data.narrative || '')}</p>
@@ -105,6 +118,7 @@
             <div class="cat-list" data-panel="category">${categoryAccordionHtml}</div>
             <div class="cat-list" data-panel="region" hidden>${regionAccordionHtml}</div>
           </section>
+          ${pagerSection}
         `;
 
         document.querySelectorAll('#stats-section .sort-btn').forEach(btn => {

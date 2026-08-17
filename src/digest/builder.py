@@ -93,3 +93,10 @@ def current_week() -> tuple[int, int]:
     last_sunday = today - timedelta(days=today.weekday() + 1)
     iso = last_sunday.isocalendar()
     return iso.year, iso.week
+
+
+def adjacent_week(year: int, week: int, delta_weeks: int) -> tuple[int, int]:
+    """Return the (year, week) `delta_weeks` ISO weeks away, handling year rollover."""
+    monday = _iso_week_start(year, week) + timedelta(weeks=delta_weeks)
+    iso = monday.isocalendar()
+    return iso.year, iso.week

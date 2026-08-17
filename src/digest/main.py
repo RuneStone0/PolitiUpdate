@@ -83,6 +83,9 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
             print(f"- {n['title']}: {n['summary']}")
         print("---\n")
 
+    prev_year, prev_week = builder.adjacent_week(year, week, -1)
+    prev_exists = publisher.week_page_exists(prev_year, prev_week)
+
     digest = {
         "week": week,
         "year": year,
@@ -93,6 +96,8 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
         "notable": notable,
         "category_items": _category_items(data["posts_by_category"]),
         "region_items": _region_items(data["posts_by_category"]),
+        "prev_week": {"year": prev_year, "week": prev_week} if prev_exists else None,
+        "next_week": None,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
 

@@ -68,6 +68,27 @@ def _get_file_sha(path: str) -> str | None:
         return None
 
 
+def week_page_exists(year: int, week: int) -> bool:
+    """Check whether an archive page has already been committed for this week."""
+    if not config.GITHUB_COMMIT_TOKEN:
+        return False
+    return _get_file_sha(f"website/uge/{year}/{week}/index.html") is not None
+
+
+def _fetch_digest_json(year: int, week: int) -> dict | None:
+    """Fetch and parse a previously committed week's digest.json, if any."""
+    url = f"{GITHUB_API}/repos/{config.GITHUB_REPO}/contents/website/uge/{year}/{week}/digest.json"
+    try:
+        resp = requests.get(url, headers=_headers(), timeout=30)
+        if resp.status_code == 404:
+            return None
+        resp.raise_for_status()
+        content = base64.b64decode(resp.json()["content"]).decode()
+        return json.loads(content)
+    except (requests.RequestException, KeyError, ValueError, UnicodeDecodeError):
+        return None
+
+
 def _put_file(path: str, content: str, message: str) -> None:
     url = f"{GITHUB_API}/repos/{config.GITHUB_REPO}/contents/{path}"
     encoded = base64.b64encode(content.encode()).decode()
@@ -128,6 +149,29 @@ def _region_groups(region_items: dict) -> list[tuple[str, list[dict]]]:
     return known + unknown
 
 
+def _render_pager(digest: dict) -> str:
+    prev_info = digest.get("prev_week")
+    next_info = digest.get("next_week")
+    if not prev_info and not next_info:
+        return ""
+
+    prev_link = ""
+    if prev_info:
+        py, pw = prev_info["year"], prev_info["week"]
+        prev_link = f'<a class="pager-link pager-prev" href="../../{py}/{pw}/">&larr; Uge {pw}, {py}</a>'
+
+    next_link = ""
+    if next_info:
+        ny, nw = next_info["year"], next_info["week"]
+        next_link = f'<a class="pager-link pager-next" href="../../{ny}/{nw}/">Uge {nw}, {ny} &rarr;</a>'
+
+    return f"""
+              <nav class="digest-pager">
+                {prev_link}{next_link}
+              </nav>
+"""
+
+
 def _render_archive_html(digest: dict) -> str:
     week = digest["week"]
     year = digest["year"]
@@ -141,6 +185,7 @@ def _render_archive_html(digest: dict) -> str:
 
     category_accordion_html = _render_accordion(_category_groups(cats, category_items))
     region_accordion_html = _render_accordion(_region_groups(region_items))
+    pager_nav = _render_pager(digest)
 
     notable_rows = "\n".join(
         f'<li><a href="{html.escape(n["url"])}" target="_blank" rel="noopener">{html.escape(n["title"])}</a>'
@@ -199,6 +244,7 @@ def _render_archive_html(digest: dict) -> str:
                   {region_accordion_html}
                 </div>
               </section>
+{pager_nav}
             </main>
 
             <footer class="digest-footer">
@@ -210,6 +256,26 @@ def _render_archive_html(digest: dict) -> str:
         </body>
         </html>
     """)
+
+
+def _backfill_next_link(prev_info: dict, year: int, week: int) -> None:
+    """After publishing a new week, retroactively point the previous week's
+    page forward to it, so pagination works in both directions over time."""
+    prev_year, prev_week = prev_info["year"], prev_info["week"]
+    prev_digest = _fetch_digest_json(prev_year, prev_week)
+    if not prev_digest:
+        return
+
+    prev_digest["next_week"] = {"year": year, "week": week}
+    base = f"website/uge/{prev_year}/{prev_week}"
+    commit_msg = f"feat(digest): link uge {prev_week}/{prev_year} forward to {week}/{year}"
+    _put_file(
+        f"{base}/digest.json",
+        json.dumps(prev_digest, indent=2, ensure_ascii=False),
+        commit_msg,
+    )
+    _put_file(f"{base}/index.html", _render_archive_html(prev_digest), commit_msg)
+    logger.info("Backfilled next-week link on %s/%s", prev_week, prev_year)
 
 
 def commit_archive(digest: dict) -> None:
@@ -232,3 +298,10 @@ def commit_archive(digest: dict) -> None:
     )
     _put_file(f"{base}/index.html", _render_archive_html(digest), commit_msg)
     logger.info("Archive for week %s/%s committed to repo", week, year)
+
+    prev_info = digest.get("prev_week")
+    if prev_info:
+        try:
+            _backfill_next_link(prev_info, year, week)
+        except Exception:
+            logger.exception("Failed to backfill next-week link on prior page")

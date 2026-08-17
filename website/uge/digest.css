@@ -291,6 +291,30 @@
   font-size: 0.95rem;
 }
 
+.digest-pager {
+  display: flex;
+  gap: 12px;
+}
+
+.pager-link {
+  color: #93c5fd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(30, 64, 175, 0.14);
+}
+
+.pager-link:hover {
+  color: #7dd3fc;
+  background: rgba(30, 64, 175, 0.22);
+}
+
+.pager-next {
+  margin-left: auto;
+}
+
 .digest-footer {
   margin-top: 48px;
   padding-top: 20px;
@@ -321,6 +345,11 @@
 
   .digest-narrative p {
     font-size: 1.05rem;
+  }
+
+  .pager-link {
+    font-size: 0.8rem;
+    padding: 10px 12px;
   }
 }
 
