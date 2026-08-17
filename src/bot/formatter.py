@@ -78,6 +78,7 @@ def _district_prefix(full_name: str) -> str:
         "Sydsjællands og Lolland-Falsters Politi": "Sydsjælland/L-F",
         "Østjyllands Politi": "Østjylland",
         "Rigspolitiet": "Rigspolitiet",
+        "Politiskolen": "Politiskolen",
     }
 
     for key, prefix in prefix_map.items():
