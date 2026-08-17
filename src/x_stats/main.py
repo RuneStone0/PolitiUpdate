@@ -165,19 +165,27 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         stats = fetch_stats(force_refresh=args.refresh)
-        print(json.dumps(stats, indent=2, ensure_ascii=False))
-
-        if args.skip_gist:
-            print("Skipping gist publish (--skip-gist).")
-        else:
-            raw_url = gist_publisher.publish_stats(stats)
-            print("Published stats to gist. Raw URL:", raw_url)
     except Exception as exc:
         print("ERROR:", exc)
         from src.notify.prowl import send as notify_send
 
         notify_send(f"PolitiUpdate x-stats job failed: {exc}")
         raise SystemExit(1)
+
+    print(json.dumps(stats, indent=2, ensure_ascii=False))
+
+    if args.skip_gist:
+        print("Skipping gist publish (--skip-gist).")
+        return
+
+    # Stats were already fetched and cached above — a Gist hiccup (e.g. a
+    # transient 503) shouldn't fail the whole job. The next run (manual,
+    # cron, or notify's weekly job) will publish current numbers anyway.
+    try:
+        raw_url = gist_publisher.publish_stats(stats)
+        print("Published stats to gist. Raw URL:", raw_url)
+    except Exception as exc:
+        print("WARNING: gist publish failed (stats were still fetched/cached):", exc)
 
 
 if __name__ == "__main__":
