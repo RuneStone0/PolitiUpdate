@@ -31,6 +31,12 @@ services:
     # fetcher/publisher instead of the posting bot.
     entrypoint: ["python", "-m", "src.x_stats"]
     command: ["--refresh"]
+    # The image's HEALTHCHECK probes bot's HTTP /health endpoint (port
+    # 8080); this entrypoint never binds it. Only quietly harmless today
+    # because the job exits before Docker's first probe fires — disable it
+    # explicitly rather than relying on that timing.
+    healthcheck:
+      disable: true
     logging:
       driver: json-file
       options:
@@ -46,6 +52,9 @@ services:
     volumes:
       - /mnt/data/politiupdate:/app/data
     entrypoint: ["python", "-m", "src.digest"]
+    # See x-stats above: this entrypoint doesn't serve :8080/health either.
+    healthcheck:
+      disable: true
     logging:
       driver: json-file
       options:
@@ -61,6 +70,9 @@ services:
     volumes:
       - /mnt/data/politiupdate:/app/data
     entrypoint: ["python", "-m", "src.feedback"]
+    # See x-stats above: this entrypoint doesn't serve :8080/health either.
+    healthcheck:
+      disable: true
     logging:
       driver: json-file
       options:
@@ -81,6 +93,12 @@ services:
     volumes:
       - /mnt/data/politiupdate:/app/data
     entrypoint: ["python", "-m", "src.notify"]
+    # The image's HEALTHCHECK probes bot's HTTP /health endpoint (port
+    # 8080), but notify's loop (src/notify/loop.py) never binds that port —
+    # it's a background scheduler, not an HTTP service. Without this it
+    # gets flagged "unhealthy" forever even when working correctly.
+    healthcheck:
+      disable: true
     logging:
       driver: json-file
       options:
