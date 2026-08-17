@@ -24,27 +24,6 @@ logger = logging.getLogger(__name__)
 
 X_TWEET_URL = "https://x.com/PolitiUpdate/status/{id}"
 
-# Categories worth linking back to the source tweet — the ones the narrative
-# calls out by name. Arrests/other are too numerous per week to list individually.
-SOURCE_CATEGORIES = ("missing_person", "witness_appeal")
-
-
-def _build_sources(posts_by_category: dict) -> list[dict]:
-    """Return {title, category, url} for the week's most newsworthy posts."""
-    sources = []
-    for cat in SOURCE_CATEGORIES:
-        for post in posts_by_category.get(cat, []):
-            if not post.get("x_post_id"):
-                continue
-            sources.append(
-                {
-                    "title": post["title"],
-                    "category": cat,
-                    "url": X_TWEET_URL.format(id=post["x_post_id"]),
-                }
-            )
-    return sources
-
 
 def _entry(post: dict) -> dict:
     entry = {"title": post["title"]}
@@ -93,6 +72,7 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
     logger.info("Generating narrative via LLM")
     result = generator.generate(data)
     narrative = result["narrative"]
+    narrative_html = result["narrative_html"]
     notable = result["notable"]
     print("\n--- Narrative ---")
     print(narrative)
@@ -109,7 +89,7 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
         "total_posts": data["total_posts"],
         "categories": data["categories"],
         "narrative": narrative,
-        "sources": _build_sources(data["posts_by_category"]),
+        "narrative_html": narrative_html,
         "notable": notable,
         "category_items": _category_items(data["posts_by_category"]),
         "region_items": _region_items(data["posts_by_category"]),

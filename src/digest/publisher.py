@@ -133,32 +133,14 @@ def _render_archive_html(digest: dict) -> str:
     year = digest["year"]
     total = digest["total_posts"]
     cats = digest["categories"]
-    narrative = digest.get("narrative", "")
+    narrative_html = digest.get("narrative_html") or html.escape(digest.get("narrative", ""))
     generated_at = digest.get("generated_at", "")
-    sources = digest.get("sources", [])
     notable = digest.get("notable", [])
     category_items = digest.get("category_items", {})
     region_items = digest.get("region_items", {})
 
     category_accordion_html = _render_accordion(_category_groups(cats, category_items))
     region_accordion_html = _render_accordion(_region_groups(region_items))
-
-    source_rows = "\n".join(
-        f'<li><a href="{html.escape(s["url"])}" target="_blank" rel="noopener">{html.escape(s["title"])}</a></li>'
-        for s in sources
-    )
-    sources_section = (
-        f"""
-              <section class="digest-sources">
-                <h2>Kilder</h2>
-                <ul class="source-list">
-                  {source_rows}
-                </ul>
-              </section>
-"""
-        if source_rows
-        else ""
-    )
 
     notable_rows = "\n".join(
         f'<li><a href="{html.escape(n["url"])}" target="_blank" rel="noopener">{html.escape(n["title"])}</a>'
@@ -199,9 +181,9 @@ def _render_archive_html(digest: dict) -> str:
 
             <main class="digest-main">
               <article class="digest-narrative">
-                <p>{narrative}</p>
+                <p>{narrative_html}</p>
               </article>
-{sources_section}{notable_section}
+{notable_section}
               <section class="digest-breakdown" id="stats-section">
                 <div class="stats-header">
                   <h2>Statistik</h2>

@@ -81,14 +81,6 @@
           .map(label => [label, regionItems[label]]);
         const regionAccordionHtml = renderAccordion(regionGroups);
 
-        const sources = data.sources || [];
-        const sourceRows = sources
-          .map(s => `<li><a href="${escHtml(s.url)}" target="_blank" rel="noopener">${escHtml(s.title)}</a></li>`)
-          .join('\n');
-        const sourcesSection = sourceRows
-          ? `<section class="digest-sources"><h2>Kilder</h2><ul class="source-list">${sourceRows}</ul></section>`
-          : '';
-
         const notable = data.notable || [];
         const notableRows = notable
           .map(n => `<li><a href="${escHtml(n.url)}" target="_blank" rel="noopener">${escHtml(n.title)}</a><p>${escHtml(n.summary)}</p></li>`)
@@ -99,9 +91,8 @@
 
         main.innerHTML = `
           <article class="digest-narrative">
-            <p>${escHtml(data.narrative || '')}</p>
+            <p>${data.narrative_html || escHtml(data.narrative || '')}</p>
           </article>
-          ${sourcesSection}
           ${notableSection}
           <section class="digest-breakdown" id="stats-section">
             <div class="stats-header">
