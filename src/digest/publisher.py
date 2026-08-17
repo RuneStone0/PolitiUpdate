@@ -22,6 +22,13 @@ logger = logging.getLogger(__name__)
 
 GITHUB_API = "https://api.github.com"
 
+CATEGORY_LABELS = {
+    "missing_person": "Efterlysninger/savnede",
+    "witness_appeal": "Vidneappeller",
+    "arrest": "Anholdelser/sigtelser",
+    "other": "Øvrige meddelelser",
+}
+
 
 def _headers() -> dict:
     return {
@@ -61,6 +68,36 @@ def _put_file(path: str, content: str, message: str) -> None:
     logger.info("Committed %s", path)
 
 
+def _render_cat_items(items: list[dict]) -> str:
+    rows = []
+    for item in items:
+        title = html.escape(item["title"])
+        if item.get("url"):
+            rows.append(
+                f'<li><a href="{html.escape(item["url"])}" target="_blank" rel="noopener">{title}</a></li>'
+            )
+        else:
+            rows.append(f"<li><span>{title}</span></li>")
+    return "\n".join(rows)
+
+
+def _render_accordion(cats: dict, category_items: dict) -> str:
+    blocks = []
+    for cat, label in CATEGORY_LABELS.items():
+        count = cats.get(cat, 0)
+        if not count:
+            continue
+        items_html = _render_cat_items(category_items.get(cat, []))
+        blocks.append(
+            f'<details class="cat-item">\n'
+            f"  <summary><span class=\"cat-label\">{label}</span>"
+            f'<span class="cat-count">{count}</span></summary>\n'
+            f'  <ul class="cat-item-list">\n    {items_html}\n  </ul>\n'
+            f"</details>"
+        )
+    return "\n".join(blocks)
+
+
 def _render_archive_html(digest: dict) -> str:
     week = digest["week"]
     year = digest["year"]
@@ -69,21 +106,10 @@ def _render_archive_html(digest: dict) -> str:
     narrative = digest.get("narrative", "")
     generated_at = digest.get("generated_at", "")
     sources = digest.get("sources", [])
+    notable = digest.get("notable", [])
+    category_items = digest.get("category_items", {})
 
-    missing = cats.get("missing_person", 0)
-    witness = cats.get("witness_appeal", 0)
-    arrest = cats.get("arrest", 0)
-    other = cats.get("other", 0)
-
-    cat_rows = ""
-    if missing:
-        cat_rows += f'<li><span class="cat-label">Efterlysninger/savnede</span><span class="cat-count">{missing}</span></li>\n'
-    if witness:
-        cat_rows += f'<li><span class="cat-label">Vidneappeller</span><span class="cat-count">{witness}</span></li>\n'
-    if arrest:
-        cat_rows += f'<li><span class="cat-label">Anholdelser/sigtelser</span><span class="cat-count">{arrest}</span></li>\n'
-    if other:
-        cat_rows += f'<li><span class="cat-label">Øvrige meddelelser</span><span class="cat-count">{other}</span></li>\n'
+    accordion_html = _render_accordion(cats, category_items)
 
     source_rows = "\n".join(
         f'<li><a href="{html.escape(s["url"])}" target="_blank" rel="noopener">{html.escape(s["title"])}</a></li>'
@@ -99,6 +125,24 @@ def _render_archive_html(digest: dict) -> str:
               </section>
 """
         if source_rows
+        else ""
+    )
+
+    notable_rows = "\n".join(
+        f'<li><a href="{html.escape(n["url"])}" target="_blank" rel="noopener">{html.escape(n["title"])}</a>'
+        f'<p>{html.escape(n["summary"])}</p></li>'
+        for n in notable
+    )
+    notable_section = (
+        f"""
+              <section class="digest-notable">
+                <h2>Andre bemærkelsesværdige sager</h2>
+                <ul class="notable-list">
+                  {notable_rows}
+                </ul>
+              </section>
+"""
+        if notable_rows
         else ""
     )
 
@@ -125,12 +169,12 @@ def _render_archive_html(digest: dict) -> str:
               <article class="digest-narrative">
                 <p>{narrative}</p>
               </article>
-{sources_section}
+{sources_section}{notable_section}
               <section class="digest-breakdown">
                 <h2>Statistik</h2>
-                <ul class="cat-list">
-                  {cat_rows.strip()}
-                </ul>
+                <div class="cat-list">
+                  {accordion_html}
+                </div>
               </section>
             </main>
 

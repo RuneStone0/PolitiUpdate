@@ -48,11 +48,22 @@
         document.getElementById('digest-meta').textContent = `${data.total_posts} Opdateringer`;
 
         const cats = data.categories || {};
-        const catRows = Object.entries(CAT_LABELS)
-          .filter(([key]) => cats[key] > 0)
-          .map(([key, label]) =>
-            `<li><span class="cat-label">${label}</span><span class="cat-count">${cats[key]}</span></li>`
+        const catItems = data.category_items || {};
+
+        const renderCatItems = items => (items || [])
+          .map(item => item.url
+            ? `<li><a href="${escHtml(item.url)}" target="_blank" rel="noopener">${escHtml(item.title)}</a></li>`
+            : `<li><span>${escHtml(item.title)}</span></li>`
           ).join('\n');
+
+        const accordionHtml = Object.entries(CAT_LABELS)
+          .filter(([key]) => cats[key] > 0)
+          .map(([key, label]) => `
+            <details class="cat-item">
+              <summary><span class="cat-label">${label}</span><span class="cat-count">${cats[key]}</span></summary>
+              <ul class="cat-item-list">${renderCatItems(catItems[key])}</ul>
+            </details>
+          `).join('\n');
 
         const sources = data.sources || [];
         const sourceRows = sources
@@ -62,14 +73,23 @@
           ? `<section class="digest-sources"><h2>Kilder</h2><ul class="source-list">${sourceRows}</ul></section>`
           : '';
 
+        const notable = data.notable || [];
+        const notableRows = notable
+          .map(n => `<li><a href="${escHtml(n.url)}" target="_blank" rel="noopener">${escHtml(n.title)}</a><p>${escHtml(n.summary)}</p></li>`)
+          .join('\n');
+        const notableSection = notableRows
+          ? `<section class="digest-notable"><h2>Andre bemærkelsesværdige sager</h2><ul class="notable-list">${notableRows}</ul></section>`
+          : '';
+
         main.innerHTML = `
           <article class="digest-narrative">
             <p>${escHtml(data.narrative || '')}</p>
           </article>
           ${sourcesSection}
+          ${notableSection}
           <section class="digest-breakdown">
             <h2>Statistik</h2>
-            <ul class="cat-list">${catRows}</ul>
+            <div class="cat-list">${accordionHtml}</div>
           </section>
         `;
       } catch (err) {

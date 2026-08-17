@@ -45,6 +45,22 @@ def _build_sources(posts_by_category: dict) -> list[dict]:
     return sources
 
 
+def _category_items(posts_by_category: dict) -> dict:
+    """Return {category: [{title, url?}]} for every post, so the site can let
+    readers unfold a category and browse every case posted that week. `url`
+    is omitted for posts that predate the x_post_id column being backfilled."""
+    items: dict[str, list[dict]] = {}
+    for cat, posts in posts_by_category.items():
+        entries = []
+        for post in posts:
+            entry = {"title": post["title"]}
+            if post.get("x_post_id"):
+                entry["url"] = X_TWEET_URL.format(id=post["x_post_id"])
+            entries.append(entry)
+        items[cat] = entries
+    return items
+
+
 def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
     logger.info("Building digest for week %d/%d", week, year)
     data = builder.build(year, week)
@@ -60,10 +76,17 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
     )
 
     logger.info("Generating narrative via LLM")
-    narrative = generator.generate(data)
+    result = generator.generate(data)
+    narrative = result["narrative"]
+    notable = result["notable"]
     print("\n--- Narrative ---")
     print(narrative)
     print("---\n")
+    if notable:
+        print(f"--- {len(notable)} notable extra case(s) ---")
+        for n in notable:
+            print(f"- {n['title']}: {n['summary']}")
+        print("---\n")
 
     digest = {
         "week": week,
@@ -72,10 +95,10 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
         "categories": data["categories"],
         "narrative": narrative,
         "sources": _build_sources(data["posts_by_category"]),
+        "notable": notable,
+        "category_items": _category_items(data["posts_by_category"]),
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
-    # Include posts_by_category only for archive publishing (stripped before Gist)
-    digest_full = {**digest, "posts_by_category": data["posts_by_category"]}
 
     digest_url = f"{config.DIGEST_BASE_URL}/{year}/{week}"
 
@@ -91,7 +114,7 @@ def run(week: int, year: int, dry_run: bool, skip_tweet: bool) -> None:
 
     logger.info("Committing archive pages to repo")
     try:
-        publisher.commit_archive(digest_full)
+        publisher.commit_archive(digest)
     except Exception:
         logger.exception("Archive commit failed — continuing with tweet")
 
