@@ -17,7 +17,7 @@ X_TWEET_URL = "https://x.com/PolitiUpdate/status/{id}"
 # cases are already the narrative's main subject, so they're excluded there.
 NOTABLE_PREFIXES = ("A", "O")
 
-_MARKER_RE = re.compile(r"\{\{([A-Za-z]\d+)\|([^{}]+)\}\}")
+_MARKER_RE = re.compile(r"\{\{([A-Za-z]\d+)(?:\|([^{}]+))?\}\}")
 
 SYSTEM_PROMPT = (
     "Du er redaktør for PolitiUpdate, et dansk nyhedsbrev der opsummerer ugens "
@@ -112,7 +112,9 @@ def _linkify(narrative: str, lookup: dict) -> tuple[str, str]:
     Returns (plain, html): `plain` strips markers down to their inner text
     (safe for any plain-text consumer), `html` turns resolvable markers into
     <a> tags linking to the source tweet (falls back to escaped plain text
-    for unknown ids or posts missing an x_post_id).
+    for unknown ids or posts missing an x_post_id). The `|text` part is
+    optional — if the LLM emits a bare {{id}}, the post's own title fills
+    in rather than leaking the raw marker into the published narrative.
     """
     plain_parts = []
     html_parts = []
@@ -122,9 +124,10 @@ def _linkify(narrative: str, lookup: dict) -> tuple[str, str]:
         html_parts.append(html.escape(narrative[pos:m.start()]))
 
         cid, text = m.group(1), m.group(2)
-        plain_parts.append(text)
-
         post = lookup.get(cid)
+        if text is None:
+            text = post["title"] if post else cid
+        plain_parts.append(text)
         if post and post.get("x_post_id"):
             url = X_TWEET_URL.format(id=post["x_post_id"])
             html_parts.append(

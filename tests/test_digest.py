@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest  # noqa: E402
 import tweepy  # noqa: E402
 
+import src.digest.generator as generator  # noqa: E402
 import src.digest.main as digest_main  # noqa: E402
 import src.digest.poster as poster  # noqa: E402
 import src.digest.state as state  # noqa: E402
@@ -87,6 +88,38 @@ class TestRunSkipsAlreadyPostedWeek:
                 with mock.patch.object(digest_main.state, "write") as mock_write:
                     digest_main.run(week=33, year=2026, dry_run=False, skip_tweet=False)
                     mock_write.assert_not_called()
+
+
+class TestLinkify:
+    def test_resolves_marker_with_explicit_text(self):
+        lookup = {"M1": {"title": "Efterlysning af dreng", "x_post_id": "123"}}
+        plain, html_out = generator._linkify("{{M1|en dreng}} blev efterlyst.", lookup)
+        assert plain == "en dreng blev efterlyst."
+        assert '<a href="https://x.com/PolitiUpdate/status/123"' in html_out
+        assert ">en dreng</a>" in html_out
+
+    def test_bare_marker_without_pipe_falls_back_to_post_title(self):
+        """Regression test: the LLM sometimes emits {{id}} without the
+        '|text' part. That used to fail the marker regex entirely, leaking
+        the raw "{{M3}}" into the published narrative."""
+        lookup = {"M3": {"title": "Vidneappel i Vejle", "x_post_id": "456"}}
+        plain, html_out = generator._linkify("Politiet søgte vidner {{M3}}.", lookup)
+        assert "{{M3}}" not in plain
+        assert "{{M3}}" not in html_out
+        assert plain == "Politiet søgte vidner Vidneappel i Vejle."
+        assert '<a href="https://x.com/PolitiUpdate/status/456"' in html_out
+
+    def test_bare_marker_for_unknown_id_falls_back_to_id_itself(self):
+        plain, html_out = generator._linkify("Se sagen {{Z9}}.", {})
+        assert "{{Z9}}" not in plain
+        assert "{{Z9}}" not in html_out
+        assert plain == "Se sagen Z9."
+
+    def test_known_id_without_x_post_id_omits_link(self):
+        lookup = {"O2": {"title": "Sag uden tweet-id", "x_post_id": None}}
+        plain, html_out = generator._linkify("{{O2}} er stadig under efterforskning.", lookup)
+        assert plain == "Sag uden tweet-id er stadig under efterforskning."
+        assert "<a " not in html_out
 
 
 class TestPostTweetDuplicateContent:
