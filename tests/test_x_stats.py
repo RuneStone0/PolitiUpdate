@@ -193,3 +193,11 @@ class TestMain:
             with pytest.raises(SystemExit) as exc:
                 main.main([])
             assert exc.value.code == 1
+
+    def test_gist_publish_failure_does_not_crash_job(self):
+        """Stats were already fetched/cached — a transient Gist outage (e.g.
+        a 503) shouldn't fail the whole job or trip the Prowl alert."""
+        with mock.patch.object(main, "fetch_stats", return_value={"tweet_count": 1}):
+            with mock.patch.object(main, "gist_publisher") as mock_gist:
+                mock_gist.publish_stats.side_effect = RuntimeError("503 Server Error")
+                main.main(["--refresh"])  # should not raise
