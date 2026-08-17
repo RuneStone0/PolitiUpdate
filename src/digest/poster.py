@@ -45,7 +45,8 @@ def _build_tweet(digest: dict, url: str) -> str:
 
 
 def post_tweet(digest: dict, url: str, dry_run: bool = False) -> str | None:
-    """Post the weekly link tweet. Returns the tweet ID, or None on dry run."""
+    """Post the weekly link tweet. Returns the tweet ID, or None on dry run
+    or if X reports the exact text as already posted (duplicate content)."""
     text = _build_tweet(digest, url)
 
     if dry_run:
@@ -64,7 +65,19 @@ def post_tweet(digest: dict, url: str, dry_run: bool = False) -> str | None:
         access_token=config.X_ACCESS_TOKEN,
         access_token_secret=config.X_ACCESS_SECRET,
     )
-    response = client.create_tweet(text=text)
+    try:
+        response = client.create_tweet(text=text)
+    except tweepy.errors.Forbidden as exc:
+        # The tweet text is fully determined by week/total/categories/url, so
+        # a re-run for a week we already posted (e.g. a misfiring schedule)
+        # always reproduces byte-identical text. Treat X's duplicate-content
+        # rejection as confirmation we already succeeded, not a failure —
+        # matches src/bot's proactive-dedup philosophy of not alerting on a
+        # rejection that just means "already done".
+        if any("duplicate content" in msg.lower() for msg in exc.api_messages):
+            logger.warning("X rejected tweet as duplicate content — already posted, treating as done")
+            return None
+        raise
     tweet_id = response.data["id"]
     logger.info("Posted digest tweet: %s", tweet_id)
     return tweet_id
