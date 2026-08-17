@@ -15,6 +15,7 @@
 - **Failed post retry** — sweeps undelivered posts every ~1 hour
 - **Health check** — built-in HTTP `/health` endpoint for container monitoring
 - **Follower automation** — follows back new followers, unfollows anyone who unfollows (`src/followers`, run periodically)
+- **Monthly feedback request** — asks followers what they like and what to improve, once a month (`src/feedback`)
 - **Notifications** — daily service health check and weekly follower-count summary, delivered via a Prowl webhook
 
 ## Quick start
@@ -78,11 +79,19 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 
 ### Scheduling batch jobs
 
-`x-stats` and `weekly-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
+`x-stats`, `weekly-post`, and `feedback-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
 
 ```cron
 # Weekly digest, Sundays
 0 8 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
+
+# Monthly feedback request — trigger every Saturday at 17:00 UTC (18:00/19:00
+# Danish time depending on DST); the app itself only posts on the first
+# Saturday of the month, at/after 18:00 Danish time, and no-ops otherwise
+# (see src/feedback's scheduling gate — cron can't express "first Saturday
+# of the month" or a DST-aware local time directly, so the container is
+# invoked more often than it actually posts).
+0 17 * * 6 cd /path/to/politiupdate && docker compose run --rm feedback-post
 ```
 
 `notify` is **not** a batch job — it's a persistent service (`restart: unless-stopped`, like `bot`) that self-schedules its own daily health check and weekly X-stats refresh + follower notification internally (see [src/notify/loop.py](src/notify/loop.py)). No cron, Portainer scheduling, or GitHub Actions needed for it — `docker compose up -d` is enough. `x-stats`'s own periodic refresh is redundant with notify's weekly job (same X API call); the `x-stats` compose entry is kept only for on-demand manual refreshes.
@@ -138,6 +147,7 @@ src/bot/
   main.py         Polling loop (fetch → dedupe → format → post)
   auth.py         One-time OAuth 2.0 PKCE authorization
 src/followers/    Follow-back / unfollow automation (standalone, run periodically)
+src/feedback/     Monthly feedback-request tweet (standalone, run monthly)
 src/notify/
   prowl.py        Prowl webhook client
   health.py       Daily check: bot /health + failed-post backlog

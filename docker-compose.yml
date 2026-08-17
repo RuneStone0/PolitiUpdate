@@ -69,6 +69,21 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  feedback-post:
+    image: ghcr.io/runestone0/politiupdate:latest
+    container_name: feedback-post
+    restart: "no"
+    env_file:
+      - stack.env
+    volumes:
+      - /mnt/data/politiupdate:/app/data
+    entrypoint: ["python", "-m", "src.feedback"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Persistent — self-schedules its own daily health check (bot
   # reachability/health, failed-post backlog) and weekly X-stats refresh +
   # follower-delta notification internally (see src/notify/loop.py), the
