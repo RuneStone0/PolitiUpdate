@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # they differ (even on an otherwise-successful refresh), so this needs to
 # track whatever scopes the token was minted with, not just what this module
 # itself needs.
-SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access", "follows.read", "follows.write"]
+SCOPES = ["tweet.read", "tweet.write", "users.read", "offline.access"]
 
 
 def _raw_response_detail(e: tweepy.TweepyException) -> str:
@@ -123,7 +123,7 @@ def _get_tokens() -> dict:
     var is only good for bootstrapping the first run against a fresh/empty
     data volume — every refresh after that must use the persisted file (kept
     current by each refresh), or it tries to reuse an already-consumed
-    refresh token and fails. Mirrors src/followers/client.py's _get_tokens().
+    refresh token and fails.
     """
     if os.path.exists(X_TOKEN_FILE):
         return _load_tokens()
