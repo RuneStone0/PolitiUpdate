@@ -93,6 +93,45 @@ class TestGetClient:
         mock_tweepy.Client.assert_called_once()
 
 
+class TestGetTokens:
+    """_get_tokens() must prefer the persisted file over X_REFRESH_TOKEN — X
+    rotates the refresh token on every use, so the static env var is only
+    good for bootstrapping a fresh/empty data volume. Mirrors
+    src/followers/client.py's equivalent tests."""
+
+    def test_uses_refresh_token_from_env_when_no_file_exists(self, tmp_path):
+        token_path = tmp_path / "does-not-exist.json"
+        with mock.patch.object(main, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(main, "X_REFRESH_TOKEN", "rtok"):
+                with mock.patch.object(
+                    main, "_refresh_access_token",
+                    return_value={"access_token": "newtok", "expires_in": 7200, "refresh_token": "rtok2"},
+                ) as mock_refresh:
+                    tokens = main._get_tokens()
+
+        assert tokens["access_token"] == "newtok"
+        mock_refresh.assert_called_once_with("rtok")
+        assert json.loads(token_path.read_text())["access_token"] == "newtok"
+
+    def test_prefers_existing_file_over_stale_env_refresh_token(self, tmp_path):
+        token_path = tmp_path / "tokens.json"
+        token_path.write_text(json.dumps({"access_token": "from-file", "refresh_token": "file-rtok"}))
+        with mock.patch.object(main, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(main, "X_REFRESH_TOKEN", "stale-env-rtok"):
+                with mock.patch.object(main, "_refresh_access_token") as mock_refresh:
+                    tokens = main._get_tokens()
+
+        assert tokens["access_token"] == "from-file"
+        mock_refresh.assert_not_called()
+
+    def test_raises_when_no_file_and_no_env_var(self, tmp_path):
+        token_path = tmp_path / "does-not-exist.json"
+        with mock.patch.object(main, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(main, "X_REFRESH_TOKEN", ""):
+                with pytest.raises(RuntimeError, match="Token file not found"):
+                    main._get_tokens()
+
+
 class TestPublishStats:
     def test_raises_without_token(self):
         with mock.patch.dict(os.environ, {}, clear=True):
