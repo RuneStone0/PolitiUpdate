@@ -81,8 +81,9 @@ The bot auto-refreshes the access token via `X_REFRESH_TOKEN` — no file mounts
 `x-stats` and `weekly-post` are one-shot jobs (`restart: "no"`) — they run once and exit, so something outside Compose needs to trigger them on a schedule (host cron, Portainer, etc.) if you want them to run automatically. Example host crontab:
 
 ```cron
-# Weekly digest, Sundays
-0 8 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
+# Weekly digest, Sundays 18:00 Danish time (CRON_TZ keeps it DST-safe)
+CRON_TZ=Europe/Copenhagen
+0 18 * * 0 cd /path/to/politiupdate && docker compose run --rm weekly-post
 ```
 
 `notify` is **not** a batch job — it's a persistent service (`restart: unless-stopped`, like `bot`) that self-schedules its own daily health check and weekly X-stats refresh + follower notification internally (see [src/notify/loop.py](src/notify/loop.py)). No cron, Portainer scheduling, or GitHub Actions needed for it — `docker compose up -d` is enough. `x-stats`'s own periodic refresh is redundant with notify's weekly job (same X API call); the `x-stats` compose entry is kept only for on-demand manual refreshes.

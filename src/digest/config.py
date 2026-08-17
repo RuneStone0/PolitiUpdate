@@ -19,7 +19,7 @@ GITHUB_COMMIT_TOKEN = os.getenv("GITHUB_COMMIT_TOKEN", "")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "RuneStone0/PolitiUpdate")
 
 # Public URL base for the digest pages (no trailing slash)
-DIGEST_BASE_URL = os.getenv("DIGEST_BASE_URL", "https://politiupdate.dk/uge")
+DIGEST_BASE_URL = os.getenv("DIGEST_BASE_URL", "https://runestone0.github.io/PolitiUpdate/uge")
 
 # X posting
 X_API_KEY = os.getenv("X_API_KEY", "")
