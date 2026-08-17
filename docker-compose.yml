@@ -1,6 +1,7 @@
 services:
   bot:
     image: ghcr.io/runestone0/politiupdate:latest
+    container_name: bot
     restart: unless-stopped
     env_file:
       - stack.env
@@ -19,6 +20,7 @@ services:
   # immediate refresh outside notify's weekly cadence.
   x-stats:
     image: ghcr.io/runestone0/politiupdate:latest
+    container_name: x-stats
     restart: "no"
     env_file:
       - stack.env

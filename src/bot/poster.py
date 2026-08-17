@@ -117,6 +117,16 @@ def _get_client() -> tuple[tweepy.Client, str]:
 
 
 def _get_tokens() -> dict:
+    """Load the current token, preferring the persisted file over X_REFRESH_TOKEN.
+
+    X rotates the refresh token on every use, so a static X_REFRESH_TOKEN env
+    var is only good for bootstrapping the first run against a fresh/empty
+    data volume — every refresh after that must use the persisted file (kept
+    current by each refresh), or it tries to reuse an already-consumed
+    refresh token and fails. Mirrors src/followers/client.py's _get_tokens().
+    """
+    if os.path.exists(X_TOKEN_FILE):
+        return _load_tokens()
     if X_REFRESH_TOKEN:
         logger.info("Using X_REFRESH_TOKEN from environment (initial refresh)...")
         tokens = _refresh_access_token(X_REFRESH_TOKEN)

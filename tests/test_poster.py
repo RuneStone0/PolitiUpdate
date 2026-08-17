@@ -189,23 +189,41 @@ class TestPostTweetLiveMode:
                 "https://api.x.com/2/oauth2/token", refresh_token="old-refresh"
             )
 
-    def test_get_tokens_from_env_var(self):
+    def test_get_tokens_from_env_var_when_no_file_exists(self, tmp_path):
+        token_path = tmp_path / "does-not-exist.json"
         fresh_tokens = {"access_token": "env-token", "refresh_token": "env-refresh", "expires_in": 7200, "obtained_at": int(time.time())}
-        with mock.patch.object(poster, "X_REFRESH_TOKEN", "env-refresh-token"):
-            with mock.patch.object(poster, "_refresh_access_token", return_value=fresh_tokens) as mock_refresh:
-                with mock.patch.object(poster, "_save_tokens") as mock_save:
-                    result = poster._get_tokens()
-                    assert result == fresh_tokens
-                    mock_refresh.assert_called_once_with("env-refresh-token")
-                    mock_save.assert_called_once_with(fresh_tokens)
+        with mock.patch.object(poster, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(poster, "X_REFRESH_TOKEN", "env-refresh-token"):
+                with mock.patch.object(poster, "_refresh_access_token", return_value=fresh_tokens) as mock_refresh:
+                    with mock.patch.object(poster, "_save_tokens") as mock_save:
+                        result = poster._get_tokens()
+                        assert result == fresh_tokens
+                        mock_refresh.assert_called_once_with("env-refresh-token")
+                        mock_save.assert_called_once_with(fresh_tokens)
 
-    def test_get_tokens_from_file_when_no_env_var(self):
+    def test_get_tokens_from_file_when_no_env_var(self, tmp_path):
+        token_path = tmp_path / "does-not-exist.json"
         expected = {"access_token": "file-token", "refresh_token": "file-refresh"}
-        with mock.patch.object(poster, "X_REFRESH_TOKEN", ""):
-            with mock.patch.object(poster, "_load_tokens", return_value=expected) as mock_load:
-                result = poster._get_tokens()
-                assert result == expected
-                mock_load.assert_called_once()
+        with mock.patch.object(poster, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(poster, "X_REFRESH_TOKEN", ""):
+                with mock.patch.object(poster, "_load_tokens", return_value=expected) as mock_load:
+                    result = poster._get_tokens()
+                    assert result == expected
+                    mock_load.assert_called_once()
+
+    def test_prefers_existing_file_over_stale_env_refresh_token(self, tmp_path):
+        """A static X_REFRESH_TOKEN is single-use (X rotates on every refresh) —
+        once a token file exists, it must win, or every run after the first
+        would try to reuse an already-consumed refresh token."""
+        token_path = tmp_path / "tokens.json"
+        token_path.write_text(json.dumps({"access_token": "from-file", "refresh_token": "file-rtok"}))
+        with mock.patch.object(poster, "X_TOKEN_FILE", str(token_path)):
+            with mock.patch.object(poster, "X_REFRESH_TOKEN", "stale-env-rtok"):
+                with mock.patch.object(poster, "_refresh_access_token") as mock_refresh:
+                    result = poster._get_tokens()
+
+        assert result["access_token"] == "from-file"
+        mock_refresh.assert_not_called()
 
 
 class TestPostThread:
