@@ -76,7 +76,7 @@ def _get_tokens() -> dict:
     var is only good for bootstrapping the first run against a fresh/empty
     data volume — every refresh after that must use the persisted file (kept
     current by each refresh), or it tries to reuse an already-consumed
-    refresh token and fails. Mirrors src/followers/client.py's _get_tokens().
+    refresh token and fails.
     """
     if Path(X_TOKEN_FILE).exists():
         return _load_tokens()
@@ -102,7 +102,7 @@ def _refresh_access_token(refresh_token: str) -> dict:
         # refresh_token() compares this against the token's actual granted
         # scope and raises if they differ, even on an otherwise-successful
         # refresh.
-        scope=["tweet.read", "tweet.write", "users.read", "offline.access", "follows.read", "follows.write"],
+        scope=["tweet.read", "tweet.write", "users.read", "offline.access"],
     )
     tokens = oauth2.refresh_token(
         "https://api.x.com/2/oauth2/token",

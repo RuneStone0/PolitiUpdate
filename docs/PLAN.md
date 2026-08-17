@@ -68,11 +68,12 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - Responsive dark-themed design, favicon
  - Add the website URL to the X profile once the site is live.
 
-## Phase 4.5 — Follower automation ✅
-- `src/followers` — standalone app: follows back new followers, unfollows anyone who unfollowed
-- SQLite tracking of follow-back status (retries failures on next run instead of dropping them)
-- Runs periodically (not continuous — X API v2 follow/followers endpoints are tightly rate-limited)
-- `followers` compose service + `scripts/run-followers.sh`, `--dry-run` mode
+## Phase 4.5 — Follower automation ❌ Retired
+- `src/followers` — standalone app: followed back new followers, unfollowed anyone who unfollowed
+- Retired 2026-08-17: X removed Following (and Follows-relationship API writes generally) from
+  all self-serve tiers on 2026-04-20, moving it to Enterprise-only access. No token/config fix
+  restores this — the account's paid "Pay Per Use" plan can no longer be granted `follows.read`/
+  `follows.write` at all, so the feature is permanently non-functional on this plan. Code removed.
 
 ## Phase 5 — Multi-channel replication (future)
 - Mirror posts to Instagram, Facebook, etc.

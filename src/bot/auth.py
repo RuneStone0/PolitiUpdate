@@ -44,13 +44,6 @@ SCOPES = [
     "tweet.write",
     "users.read",
     "offline.access",
-    # Needed by src/followers: X API v2's GET /2/users/:id/followers only
-    # accepts OAuth 2.0 (App-only or user-context) — OAuth 1.0a is rejected
-    # with a 401 regardless of API access tier. follows.write isn't strictly
-    # required (follow/unfollow also work over OAuth 1.0a) but is requested
-    # so the followers app can run entirely on this one OAuth 2.0 token.
-    "follows.read",
-    "follows.write",
 ]
 
 

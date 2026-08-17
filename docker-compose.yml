@@ -37,25 +37,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  followers:
-    image: ghcr.io/runestone0/politiupdate:latest
-    container_name: followers
-    restart: "no"
-    env_file:
-      - stack.env
-    volumes:
-      - /mnt/data/politiupdate:/app/data
-    # Override the bot's default ENTRYPOINT so this service follows back new
-    # followers / unfollows lapsed ones instead of running the posting bot.
-    # Run periodically (e.g. hourly cron via Portainer) — the X API v2
-    # follow/followers endpoints are tightly rate-limited.
-    entrypoint: ["python", "-m", "src.followers"]
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   weekly-post:
     image: ghcr.io/runestone0/politiupdate:latest
     container_name: weekly-post
