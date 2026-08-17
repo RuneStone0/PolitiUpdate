@@ -1,6 +1,7 @@
 """Post the weekly digest link tweet to X."""
 
 import logging
+import random
 
 import tweepy
 
@@ -8,40 +9,20 @@ from . import config
 
 logger = logging.getLogger(__name__)
 
-# X counts all URLs as exactly 23 chars regardless of actual length.
-_URL_LENGTH_ON_X = 23
+_HEADLINE_TEMPLATES = (
+    "Se ugens opdateringer fra Politiet - Uge {week}:",
+    "Ugens politiopdateringer er klar - Uge {week}:",
+    "Uge {week} hos Politiet - se ugens opdateringer:",
+    "Politiets uge {week} er samlet her:",
+    "Ugens overblik fra Politiet (uge {week}):",
+    "Gik du glip af noget? Ugens politiopdateringer (uge {week}):",
+)
 
 
 def _build_tweet(digest: dict, url: str) -> str:
     week = digest["week"]
-    year = digest["year"]
-    total = digest["total_posts"]
-    cats = digest["categories"]
-
-    highlights = []
-    if cats.get("missing_person"):
-        n = cats["missing_person"]
-        highlights.append(f"{n} efterlysning{'er' if n != 1 else ''}")
-    if cats.get("witness_appeal"):
-        n = cats["witness_appeal"]
-        highlights.append(f"{n} vidneappel{'ler' if n != 1 else ''}")
-
-    highlights_str = (", ".join(highlights) + " — ") if highlights else ""
-    text = (
-        f"Ugens politi-overblik (uge {week}): "
-        f"{total} opdateringer — "
-        f"{highlights_str}"
-        f"{url}"
-    )
-
-    # X enforces 280 chars, counting the URL as _URL_LENGTH_ON_X.
-    # Replace the real URL with a placeholder of that length for the check.
-    check = text.replace(url, "x" * _URL_LENGTH_ON_X)
-    if len(check) > 280:
-        # Trim the highlights from the tweet and keep it simple
-        text = f"Ugens politi-overblik (uge {week}): {total} opdateringer → {url}"
-
-    return text
+    headline = random.choice(_HEADLINE_TEMPLATES).format(week=week)
+    return f"{headline}\n\n{url}"
 
 
 def post_tweet(digest: dict, url: str, dry_run: bool = False) -> str | None:
@@ -68,12 +49,13 @@ def post_tweet(digest: dict, url: str, dry_run: bool = False) -> str | None:
     try:
         response = client.create_tweet(text=text)
     except tweepy.errors.Forbidden as exc:
-        # The tweet text is fully determined by week/total/categories/url, so
-        # a re-run for a week we already posted (e.g. a misfiring schedule)
-        # always reproduces byte-identical text. Treat X's duplicate-content
-        # rejection as confirmation we already succeeded, not a failure —
-        # matches src/bot's proactive-dedup philosophy of not alerting on a
-        # rejection that just means "already done".
+        # Belt-and-suspenders: the primary re-run guard is the state file
+        # checked in main.run(). This only catches the case where a retry
+        # happens to pick the same random headline template — most re-runs
+        # won't land here and rely on the state guard instead. Treat X's
+        # duplicate-content rejection as confirmation we already succeeded,
+        # not a failure — matches src/bot's proactive-dedup philosophy of
+        # not alerting on a rejection that just means "already done".
         if any("duplicate content" in msg.lower() for msg in exc.api_messages):
             logger.warning("X rejected tweet as duplicate content — already posted, treating as done")
             return None
