@@ -9,6 +9,7 @@ Requires a PAT with 'contents: write' scope (GITHUB_COMMIT_TOKEN env var).
 """
 
 import base64
+import html
 import json
 import logging
 import textwrap
@@ -67,6 +68,7 @@ def _render_archive_html(digest: dict) -> str:
     cats = digest["categories"]
     narrative = digest.get("narrative", "")
     generated_at = digest.get("generated_at", "")
+    sources = digest.get("sources", [])
 
     missing = cats.get("missing_person", 0)
     witness = cats.get("witness_appeal", 0)
@@ -82,6 +84,23 @@ def _render_archive_html(digest: dict) -> str:
         cat_rows += f'<li><span class="cat-label">Anholdelser/sigtelser</span><span class="cat-count">{arrest}</span></li>\n'
     if other:
         cat_rows += f'<li><span class="cat-label">Øvrige meddelelser</span><span class="cat-count">{other}</span></li>\n'
+
+    source_rows = "\n".join(
+        f'<li><a href="{html.escape(s["url"])}" target="_blank" rel="noopener">{html.escape(s["title"])}</a></li>'
+        for s in sources
+    )
+    sources_section = (
+        f"""
+              <section class="digest-sources">
+                <h2>Kilder</h2>
+                <ul class="source-list">
+                  {source_rows}
+                </ul>
+              </section>
+"""
+        if source_rows
+        else ""
+    )
 
     return textwrap.dedent(f"""\
         <!DOCTYPE html>
@@ -99,16 +118,16 @@ def _render_archive_html(digest: dict) -> str:
             <header class="digest-header">
               <a class="back-link" href="../../../">PolitiUpdate</a>
               <h1>Uge {week}, {year}</h1>
-              <p class="digest-meta">{total} politimeddelelser</p>
+              <p class="digest-meta">{total} Opdateringer</p>
             </header>
 
             <main class="digest-main">
               <article class="digest-narrative">
                 <p>{narrative}</p>
               </article>
-
+{sources_section}
               <section class="digest-breakdown">
-                <h2>Fordeling</h2>
+                <h2>Statistik</h2>
                 <ul class="cat-list">
                   {cat_rows.strip()}
                 </ul>

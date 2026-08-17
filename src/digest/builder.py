@@ -41,7 +41,7 @@ def build(year: int, week: int) -> dict:
     conn.execute("PRAGMA journal_mode=WAL")
     rows = conn.execute(
         """
-        SELECT title, body, posted_at
+        SELECT title, body, posted_at, x_post_id
         FROM posts
         WHERE status = 'posted'
           AND posted_at >= ?
@@ -58,9 +58,11 @@ def build(year: int, week: int) -> dict:
         "arrest": [],
         "other": [],
     }
-    for title, body, posted_at in rows:
+    for title, body, posted_at, x_post_id in rows:
         cat = _categorize(title, body)
-        categories[cat].append({"title": title, "body": body, "posted_at": posted_at})
+        categories[cat].append(
+            {"title": title, "body": body, "posted_at": posted_at, "x_post_id": x_post_id}
+        )
 
     return {
         "week": week,

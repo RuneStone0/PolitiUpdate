@@ -45,7 +45,7 @@
         const data = await resp.json();
 
         document.getElementById('digest-heading').textContent = `Uge ${data.week}, ${data.year}`;
-        document.getElementById('digest-meta').textContent = `${data.total_posts} politimeddelelser`;
+        document.getElementById('digest-meta').textContent = `${data.total_posts} Opdateringer`;
 
         const cats = data.categories || {};
         const catRows = Object.entries(CAT_LABELS)
@@ -54,12 +54,21 @@
             `<li><span class="cat-label">${label}</span><span class="cat-count">${cats[key]}</span></li>`
           ).join('\n');
 
+        const sources = data.sources || [];
+        const sourceRows = sources
+          .map(s => `<li><a href="${escHtml(s.url)}" target="_blank" rel="noopener">${escHtml(s.title)}</a></li>`)
+          .join('\n');
+        const sourcesSection = sourceRows
+          ? `<section class="digest-sources"><h2>Kilder</h2><ul class="source-list">${sourceRows}</ul></section>`
+          : '';
+
         main.innerHTML = `
           <article class="digest-narrative">
             <p>${escHtml(data.narrative || '')}</p>
           </article>
+          ${sourcesSection}
           <section class="digest-breakdown">
-            <h2>Fordeling</h2>
+            <h2>Statistik</h2>
             <ul class="cat-list">${catRows}</ul>
           </section>
         `;

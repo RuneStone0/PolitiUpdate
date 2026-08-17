@@ -13,6 +13,9 @@ SYSTEM_PROMPT = (
     "politimeddelelser. Du skriver præcise, faktabaserede resuméer på dansk. "
     "Skriv i en neutral, journalistisk tone.\n\n"
     "REGLER:\n"
+    "- Start altid resuméet med ugens vigtigste og mest interessante sager — "
+    "efterlysninger og vidneappeller — nævnt ved navn. Fortsæt derefter kort med "
+    "resten af ugens sager (anholdelser og øvrige meddelelser).\n"
     "- Bevar navne, aldre og steder i efterlysningssager — de er vigtige for læseren.\n"
     "- Undgå at specificere anholdelses- og sigtelsessager med navne.\n"
     "- Skriv KUN det faktiske resumé. Ingen introduktion, ingen overskrift, ingen kommentarer.\n"
@@ -56,8 +59,9 @@ def generate(data: dict) -> str:
         f"Skriv et ugeoverblik for uge {week}, {year}. "
         f"Politiet udsendte {total} meddelelser i alt.\n\n"
         f"Fordeling:\n{content_summary}\n\n"
-        "Skriv et kort resumé på 3-5 sætninger der fremhæver ugens vigtigste sager. "
-        "Nævn konkrete efterlysningssager ved navn hvis relevant. "
+        "Skriv et kort resumé på 3-5 sætninger. Start med ugens vigtigste og mest "
+        "interessante sager — nævn konkrete efterlysnings- og vidneappelsager ved navn "
+        "hvis relevant. Fortsæt derefter kort med resten af ugens sager. "
         "Afslut med det samlede antal meddelelser."
     )
 
