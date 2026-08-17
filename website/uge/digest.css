@@ -146,6 +146,10 @@
   gap: 10px;
 }
 
+.cat-list[hidden] {
+  display: none;
+}
+
 .cat-item {
   border-radius: 12px;
   background: rgba(30, 64, 175, 0.14);
