@@ -8,18 +8,12 @@
     "arrest": 37,
     "other": 62
   },
-  "narrative": "Ugen startede med en efterlysning af en 14-årig dreng fra Lunderskov, som blev fundet i god behold, og politiet takkede for hjælpen i en sag i Svendborg. Desuden blev der efterlyst vidner i en voldsanmeldelse i Vejle og en kvinde, der kørte mellem Ølgod og Herning i maj. I øvrige sager var der flere færdselsuheld, herunder alvorlige på sydmotorvejen ved Farø og ved Randers, samt en brand i en ejendom ved Vindegade. Politiet var også til stede ved et dødsfald i Vejen og fandt en død mand i Hovedgård.",
-  "narrative_html": "Ugen startede med en efterlysning af <a href=\"https://x.com/PolitiUpdate/status/2088142603112059083\" target=\"_blank\" rel=\"noopener\">en 14-årig dreng fra Lunderskov</a>, som blev fundet i god behold, og politiet takkede for hjælpen i en sag i Svendborg. Desuden blev der efterlyst vidner i en voldsanmeldelse i Vejle og en kvinde, der kørte mellem Ølgod og Herning i maj. I øvrige sager var der flere færdselsuheld, herunder alvorlige på sydmotorvejen ved Farø og ved Randers, samt en brand i en ejendom ved Vindegade. Politiet var også til stede ved et dødsfald i Vejen og fandt en død mand i Hovedgård.",
+  "narrative": "Ugen bød på flere efterlysninger, heriblandt en 14-årig dreng fra Lunderskov, som blev efterlyst, og en savnet person, hvor politiet bad offentligheden om hjælp. Desuden efterlyste Nordsjællands Politi indbrudstyve i en vidneappel. I øvrige sager blev der rapporteret om et alvorligt færdselsuheld ved Randers, et skyderi i Holbæk, og en død mand fundet i Hovedgård. Politiet gennemførte også flere anholdelser og sigtelser, herunder for grov vold, indbrud og vanvidskørsel.",
+  "narrative_html": "Ugen bød på flere efterlysninger, heriblandt <a href=\"https://x.com/PolitiUpdate/status/2088142603112059083\" target=\"_blank\" rel=\"noopener\">en 14-årig dreng fra Lunderskov</a>, som blev efterlyst, og <a href=\"https://x.com/PolitiUpdate/status/2088936817085305004\" target=\"_blank\" rel=\"noopener\">en savnet person</a>, hvor politiet bad offentligheden om hjælp. Desuden efterlyste Nordsjællands Politi <a href=\"https://x.com/PolitiUpdate/status/2088168623697428899\" target=\"_blank\" rel=\"noopener\">indbrudstyve</a> i en vidneappel. I øvrige sager blev der rapporteret om et alvorligt færdselsuheld ved Randers, et skyderi i Holbæk, og en død mand fundet i Hovedgård. Politiet gennemførte også flere anholdelser og sigtelser, herunder for grov vold, indbrud og vanvidskørsel.",
   "notable": [
     {
-      "title": "Tre mænd varetægtsfængslet i sag om skyderi",
-      "summary": "Tre mænd blev varetægtsfængslet i en sag om skyderi.",
-      "category": "arrest",
-      "url": "https://x.com/PolitiUpdate/status/2088573475342717130"
-    },
-    {
       "title": "Drabssag begynder ved retten i Viborg",
-      "summary": "En drabssag begyndte ved retten i Viborg.",
+      "summary": "En drabssag begyndte ved Retten i Viborg.",
       "category": "other",
       "url": "https://x.com/PolitiUpdate/status/2087833711303864422"
     },
@@ -30,10 +24,16 @@
       "url": "https://x.com/PolitiUpdate/status/2088163090953371791"
     },
     {
-      "title": "37-årig tilstår besiddelse af 18.000 opioider",
-      "summary": "En 37-årig tilstod besiddelse af 18.000 opioider.",
+      "title": "Skyderi i Holbæk",
+      "summary": "Politiet efterforsker et skyderi i Holbæk.",
       "category": "other",
-      "url": "https://x.com/PolitiUpdate/status/2088583738225774841"
+      "url": "https://x.com/PolitiUpdate/status/2088214480560033813"
+    },
+    {
+      "title": "Død mand fundet i Hovedgård",
+      "summary": "En død mand blev fundet i Hovedgård.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2088235016346361955"
     }
   ],
   "category_items": {
@@ -892,5 +892,5 @@
   },
   "prev_week": null,
   "next_week": null,
-  "generated_at": "2026-08-17T05:10:43.960957+00:00"
+  "generated_at": "2026-08-17T05:12:22.672173+00:00"
 }
