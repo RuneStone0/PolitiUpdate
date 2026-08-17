@@ -90,14 +90,14 @@ def _render_archive_html(digest: dict) -> str:
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Uge {week}, {year} — PolitiUpdate</title>
-          <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-          <link rel="stylesheet" href="/styles.css">
-          <link rel="stylesheet" href="/uge/digest.css">
+          <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
+          <link rel="stylesheet" href="../../../styles.css">
+          <link rel="stylesheet" href="../../digest.css">
         </head>
         <body>
           <div class="digest-shell">
             <header class="digest-header">
-              <a class="back-link" href="/">PolitiUpdate</a>
+              <a class="back-link" href="../../../">PolitiUpdate</a>
               <h1>Uge {week}, {year}</h1>
               <p class="digest-meta">{total} politimeddelelser</p>
             </header>
@@ -116,8 +116,8 @@ def _render_archive_html(digest: dict) -> str:
             </main>
 
             <footer class="digest-footer">
-              <p>Genereret med AI &middot; Ikke tilknyttet politiet &middot; Data fra <a href="https://via.ritzau.dk" target="_blank" rel="noopener">Ritzau</a></p>
-              <p><a href="/uge">Seneste uges overblik</a></p>
+              <p>Ikke tilknyttet politiet &middot; Data fra <a href="https://via.ritzau.dk" target="_blank" rel="noopener">Ritzau</a></p>
+              <p><a href="../../">Seneste uges overblik</a></p>
             </footer>
           </div>
         </body>
