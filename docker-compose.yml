@@ -16,12 +16,19 @@ services:
   # Manual/on-demand only — notify's weekly job (see below) already refreshes
   # and publishes these stats on a schedule, reusing the same X API call
   # instead of running a second separately-scheduled fetch. Run this
-  # directly (`docker compose run --rm x-stats --refresh`) if you want an
-  # immediate refresh outside notify's weekly cadence.
+  # directly (`docker compose --profile manual run --rm x-stats --refresh`)
+  # if you want an immediate refresh outside notify's weekly cadence.
+  #
+  # `profiles: [manual]` keeps this out of the default `docker compose up`
+  # set — without it, Portainer's GitOps polling (`docker compose up -d`
+  # every 5m) restarts this exited one-shot container on every poll, and
+  # since it has no idempotency guard (`--refresh` always republishes), that
+  # hammered the GitHub Gist API into a 503 (~113 runs in 9.5h on 2026-08-17).
   x-stats:
     image: ghcr.io/runestone0/politiupdate:latest
     container_name: x-stats
     restart: "no"
+    profiles: ["manual"]
     env_file:
       - stack.env
     volumes:
@@ -43,10 +50,14 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Manual/on-demand only — see x-stats above for why `profiles: [manual]`
+  # is required (otherwise Portainer's GitOps polling restarts this every
+  # 5m; it survived only because of its own "already posted" guard).
   weekly-post:
     image: ghcr.io/runestone0/politiupdate:latest
     container_name: weekly-post
     restart: "no"
+    profiles: ["manual"]
     env_file:
       - stack.env
     volumes:
@@ -61,10 +72,14 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Manual/on-demand only — see x-stats above for why `profiles: [manual]`
+  # is required (otherwise Portainer's GitOps polling restarts this every
+  # 5m; it survived only because of its own "scheduled post time" guard).
   feedback-post:
     image: ghcr.io/runestone0/politiupdate:latest
     container_name: feedback-post
     restart: "no"
+    profiles: ["manual"]
     env_file:
       - stack.env
     volumes:
