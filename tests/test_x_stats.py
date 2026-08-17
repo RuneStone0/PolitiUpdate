@@ -96,8 +96,7 @@ class TestGetClient:
 class TestGetTokens:
     """_get_tokens() must prefer the persisted file over X_REFRESH_TOKEN — X
     rotates the refresh token on every use, so the static env var is only
-    good for bootstrapping a fresh/empty data volume. Mirrors
-    src/followers/client.py's equivalent tests."""
+    good for bootstrapping a fresh/empty data volume."""
 
     def test_uses_refresh_token_from_env_when_no_file_exists(self, tmp_path):
         token_path = tmp_path / "does-not-exist.json"
