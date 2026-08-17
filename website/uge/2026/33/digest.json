@@ -8,24 +8,24 @@
     "arrest": 37,
     "other": 62
   },
-  "narrative": "Ugen har været præget af flere efterlysninger, herunder en 14-årig dreng fra Lunderskov, som blev efterlyst, og en savnet person, hvor politiet bad offentligheden om hjælp. Desuden søgte politiet vidner i en voldsanmeldelse i Vejle ({{M3}}). I øvrige sager blev Kevin fra Lunderskov efterlyst, og en død mand fundet i Hovedgård har ført til en varetægtsfængsling. Der har også været flere alvorlige færdselsuheld, herunder på Sydmotorvejen ved Farø og ved Randers, samt en række domme for vold og vanvidskørsel.",
-  "narrative_html": "Ugen har været præget af flere efterlysninger, herunder <a href=\"https://x.com/PolitiUpdate/status/2088142603112059083\" target=\"_blank\" rel=\"noopener\">en 14-årig dreng fra Lunderskov</a>, som blev efterlyst, og <a href=\"https://x.com/PolitiUpdate/status/2088936817085305004\" target=\"_blank\" rel=\"noopener\">en savnet person</a>, hvor politiet bad offentligheden om hjælp. Desuden søgte politiet vidner i en voldsanmeldelse i Vejle ({{M3}}). I øvrige sager blev <a href=\"https://x.com/PolitiUpdate/status/2088214497123344710\" target=\"_blank\" rel=\"noopener\">Kevin fra Lunderskov</a> efterlyst, og <a href=\"https://x.com/PolitiUpdate/status/2088235016346361955\" target=\"_blank\" rel=\"noopener\">en død mand fundet i Hovedgård</a> har ført til en varetægtsfængsling. Der har også været flere alvorlige færdselsuheld, herunder på Sydmotorvejen ved Farø og ved Randers, samt en række domme for vold og vanvidskørsel.",
+  "narrative": "Ugen bød på flere efterlysninger, herunder en 14-årig dreng fra Lunderskov og en savnet person, samt en opdatering på en tidligere efterlysning (M1). Politiet efterlyste også vidner i en voldsanmeldelse i Vejle (M3) og en sag i Svendborg (M4). Derudover blev der udsendt en vidneappel i en sag om indbrudstyve i Nordsjælland (W1). Resten af ugen var præget af anholdelser og sigtelser, herunder flere sager om grov vold, indbrud, vanvidskørsel og overtrædelse af indrejseforbud, samt øvrige sager om færdselsuheld, brande og en række andre hændelser.",
+  "narrative_html": "Ugen bød på flere efterlysninger, herunder <a href=\"https://x.com/PolitiUpdate/status/2088142603112059083\" target=\"_blank\" rel=\"noopener\">en 14-årig dreng fra Lunderskov</a> og <a href=\"https://x.com/PolitiUpdate/status/2088936817085305004\" target=\"_blank\" rel=\"noopener\">en savnet person</a>, samt en opdatering på en tidligere efterlysning (<a href=\"https://x.com/PolitiUpdate/status/2087843932743119136\" target=\"_blank\" rel=\"noopener\">M1</a>). Politiet efterlyste også vidner i en voldsanmeldelse i Vejle (<a href=\"https://x.com/PolitiUpdate/status/2088152847351447607\" target=\"_blank\" rel=\"noopener\">M3</a>) og en sag i Svendborg (<a href=\"https://x.com/PolitiUpdate/status/2088173370642923917\" target=\"_blank\" rel=\"noopener\">M4</a>). Derudover blev der udsendt en vidneappel i en sag om indbrudstyve i Nordsjælland (<a href=\"https://x.com/PolitiUpdate/status/2088168623697428899\" target=\"_blank\" rel=\"noopener\">W1</a>). Resten af ugen var præget af anholdelser og sigtelser, herunder flere sager om grov vold, indbrud, vanvidskørsel og overtrædelse af indrejseforbud, samt øvrige sager om færdselsuheld, brande og en række andre hændelser.",
   "notable": [
     {
       "title": "Tre mænd varetægtsfængslet i sag om skyderi",
-      "summary": "Tre mænd er varetægtsfængslet i sag om skyderi.",
+      "summary": "Tre mænd er varetægtsfængslet i en sag om skyderi.",
       "category": "arrest",
       "url": "https://x.com/PolitiUpdate/status/2088573475342717130"
     },
     {
-      "title": "Forældre dømt for vold mod børn",
-      "summary": "Forældre er dømt for vold mod børn.",
-      "category": "other",
-      "url": "https://x.com/PolitiUpdate/status/2087823446394941827"
+      "title": "Dømt for at holde pistol for bandefolk",
+      "summary": "En person er dømt for at holde pistol for bandefolk.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2088624752915341521"
     },
     {
       "title": "5 års fængsel for en række grove røverier i Aarhus",
-      "summary": "En mand er idømt 5 års fængsel for en række grove røverier i Aarhus.",
+      "summary": "En person er idømt 5 års fængsel for en række grove røverier i Aarhus.",
       "category": "other",
       "url": "https://x.com/PolitiUpdate/status/2088163090953371791"
     },
@@ -892,5 +892,5 @@
   },
   "prev_week": null,
   "next_week": null,
-  "generated_at": "2026-08-17T05:00:31.019016+00:00"
+  "generated_at": "2026-08-17T05:05:44.062115+00:00"
 }
