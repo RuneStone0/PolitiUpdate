@@ -179,19 +179,23 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
             logger.info("Posted tweet %s after backoff (%d chars)", tweet_id, len(text))
             return str(tweet_id)
         except Exception as e2:
-            logger.error("Failed to post after backoff: %s", e2)
+            logger.error(
+                "Failed to post after backoff: %s | reply_to=%s | text=%.60r",
+                e2, reply_to, text,
+            )
             return None
 
     except tweepy.Forbidden as e:
         logger.error(
-            "X API forbidden (check app permissions): %s | raw response: %s",
-            e, _raw_response_detail(e),
+            "X API forbidden (check app permissions): %s | reply_to=%s | text=%.60r | raw=%s",
+            e, reply_to, text, _raw_response_detail(e),
         )
         return None
 
     except tweepy.TweepyException as e:
         logger.error(
-            "X API error: %s | raw response: %s", e, _raw_response_detail(e)
+            "X API error: %s | reply_to=%s | text=%.60r | raw=%s",
+            e, reply_to, text, _raw_response_detail(e),
         )
         return None
 

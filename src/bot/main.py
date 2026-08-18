@@ -110,6 +110,11 @@ def _process_item(raw: dict) -> None:
     else:
         db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso,
                      district=district)
+        sm_id = urlparse(guid).fragment or guid
+        logger.error(
+            "Post failed for sm_id=%s x_post_ids=%s title=%r",
+            sm_id, x_post_ids, title,
+        )
 
 
 def _retry_failed() -> int:
@@ -189,6 +194,11 @@ def _retry_failed() -> int:
             else:
                 db.save_post(guid, title, thread_items[0]["body"],
                              status="failed", district=district)
+                sm_id = urlparse(guid).fragment or guid
+                logger.error(
+                    "Retry also failed for sm_id=%s x_post_ids=%s title=%r",
+                    sm_id, x_post_ids, title,
+                )
         except Exception:
             logger.exception("Retry failed: %s", title)
 
