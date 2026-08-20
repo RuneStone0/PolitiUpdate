@@ -10,8 +10,8 @@ services:
       # on instead of retried. Retries run every ~40 min (RETRY_EVERY_POLLS
       # in src/bot/main.py) — the code default of 1h only gave a failed
       # post ~1 retry attempt before a transient X API 503 got it dropped
-      # as stale on 2026-08-20. 2h gives ~3 attempts of headroom instead.
-      - MAX_ARTICLE_AGE_HOURS=2
+      # as stale on 2026-08-20. 4h gives ~6 attempts of headroom instead.
+      - MAX_ARTICLE_AGE_HOURS=4
     volumes:
       - /mnt/data/politiupdate:/app/data
     logging:
