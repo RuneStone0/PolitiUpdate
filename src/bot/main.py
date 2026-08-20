@@ -111,7 +111,11 @@ def _process_item(raw: dict) -> None:
         db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso,
                      district=district)
         sm_id = urlparse(guid).fragment or guid
-        logger.error(
+        # Not alert-worthy on its own — _retry_failed() below will keep
+        # retrying this for up to MAX_ARTICLE_AGE_HOURS. Only a post that
+        # ultimately gets given up on as stale (status="dropped_stale")
+        # represents actual lost content, and that's what's alert-worthy.
+        logger.warning(
             "Post failed for sm_id=%s x_post_ids=%s title=%r",
             sm_id, x_post_ids, title,
         )
@@ -147,14 +151,20 @@ def _retry_failed() -> int:
                 is_stale = False  # malformed pub_date — fall through to retry
 
         if is_stale:
-            db.save_post(guid, title, "", status="skipped")
+            # Distinct from status="skipped" (an exact-duplicate-content
+            # dedup — expected, not a problem): this is a post that failed
+            # and is now permanently given up on, i.e. real content that
+            # never made it to X. src/notify's periodic digest check
+            # alerts on this status specifically, rather than on every
+            # individual retry attempt above.
+            db.save_post(guid, title, "", status="dropped_stale")
             if age_hours is not None:
                 logger.info(
-                    "Skipping stale failed post (%.1fh old): %s", age_hours, title
+                    "Giving up on stale failed post (%.1fh old): %s", age_hours, title
                 )
             else:
                 logger.info(
-                    "Skipping failed post with no recorded pub_date: %s", title
+                    "Giving up on failed post with no recorded pub_date: %s", title
                 )
             retried += 1
             continue
@@ -195,7 +205,10 @@ def _retry_failed() -> int:
                 db.save_post(guid, title, thread_items[0]["body"],
                              status="failed", district=district)
                 sm_id = urlparse(guid).fragment or guid
-                logger.error(
+                # Stays status="failed" — will be retried again next pass
+                # (up to MAX_ARTICLE_AGE_HOURS), so not yet a real drop.
+                # See the is_stale branch above for the one that is.
+                logger.warning(
                     "Retry also failed for sm_id=%s x_post_ids=%s title=%r",
                     sm_id, x_post_ids, title,
                 )
@@ -246,9 +259,14 @@ def run() -> None:
                 age_hours = _article_age_hours(pub_dt)
                 if age_hours > MAX_ARTICLE_AGE_HOURS:
                     if not db.is_known(raw["guid"]):
+                        # Same "dropped_stale" status as the retry-staleness
+                        # giveup in _retry_failed() — this item never even
+                        # got a post attempt, but the outcome (real news
+                        # that never made it to X) is the same, so it
+                        # surfaces in the same periodic digest check.
                         db.save_post(
                             raw["guid"], raw["title"], "",
-                            status="skipped",
+                            status="dropped_stale",
                             pub_date=pub_dt.isoformat(),
                         )
                         logger.info(

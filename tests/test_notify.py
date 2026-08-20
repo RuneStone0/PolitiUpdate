@@ -143,6 +143,123 @@ class TestHealthRun:
         mock_send.assert_not_called()
 
 
+class TestDroppedPostsCheck:
+    def test_no_problem_when_db_missing(self, tmp_path):
+        with mock.patch.object(health.config, "DB_PATH", str(tmp_path / "missing.db")):
+            assert health._check_dropped_posts("2026-01-01T00:00:00+00:00") == []
+
+    def test_no_problem_when_nothing_dropped(self, tmp_path):
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        conn.execute(
+            "INSERT INTO posts VALUES ('a', 'T', 'posted', '2026-08-20T12:00:00+00:00')"
+        )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            assert health._check_dropped_posts("2026-08-20T00:00:00+00:00") == []
+
+    def test_ignores_drops_before_since(self, tmp_path):
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        conn.execute(
+            "INSERT INTO posts VALUES ('a', 'Old drop', 'dropped_stale', '2026-08-19T00:00:00+00:00')"
+        )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            assert health._check_dropped_posts("2026-08-20T00:00:00+00:00") == []
+
+    def test_reports_single_dropped_post(self, tmp_path):
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        conn.execute(
+            "INSERT INTO posts VALUES ('a', 'Traffic accident', 'dropped_stale', "
+            "'2026-08-20T12:00:00+00:00')"
+        )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            problems = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
+        assert len(problems) == 1
+        assert "1 post dropped as stale" in problems[0]
+        assert "Traffic accident" in problems[0]
+
+    def test_reports_multiple_dropped_posts_with_truncation(self, tmp_path):
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        for i in range(7):
+            conn.execute(
+                "INSERT INTO posts VALUES (?, ?, 'dropped_stale', '2026-08-20T12:00:00+00:00')",
+                (str(i), f"Item {i}"),
+            )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            problems = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
+        assert len(problems) == 1
+        assert "7 posts dropped as stale" in problems[0]
+        assert "+2 more" in problems[0]
+
+
+class TestRunDigest:
+    def test_first_run_establishes_baseline_without_sending(self):
+        with mock.patch.object(health.state, "read", return_value={}):
+            with mock.patch.object(health.state, "write") as mock_write:
+                with mock.patch.object(health, "_check_dropped_posts") as mock_check:
+                    with mock.patch.object(health, "send") as mock_send:
+                        health.run_digest()
+        mock_check.assert_not_called()
+        mock_send.assert_not_called()
+        mock_write.assert_called_once()
+        assert "last_digest_check" in mock_write.call_args[0][0]
+
+    def test_sends_when_problems_found(self):
+        since = "2026-08-20T00:00:00+00:00"
+        with mock.patch.object(health.state, "read", return_value={"last_digest_check": since}):
+            with mock.patch.object(health.state, "write"):
+                with mock.patch.object(
+                    health, "_check_dropped_posts", return_value=["1 post dropped as stale: X"]
+                ) as mock_check:
+                    with mock.patch.object(health, "send") as mock_send:
+                        health.run_digest()
+        mock_check.assert_called_once_with(since)
+        mock_send.assert_called_once()
+        assert "1 post dropped as stale: X" in mock_send.call_args[0][0]
+
+    def test_no_send_when_nothing_dropped(self):
+        since = "2026-08-20T00:00:00+00:00"
+        with mock.patch.object(health.state, "read", return_value={"last_digest_check": since}):
+            with mock.patch.object(health.state, "write"):
+                with mock.patch.object(health, "_check_dropped_posts", return_value=[]):
+                    with mock.patch.object(health, "send") as mock_send:
+                        health.run_digest()
+        mock_send.assert_not_called()
+
+    def test_always_advances_last_digest_check(self):
+        since = "2026-08-20T00:00:00+00:00"
+        with mock.patch.object(health.state, "read", return_value={"last_digest_check": since}):
+            with mock.patch.object(health.state, "write") as mock_write:
+                with mock.patch.object(health, "_check_dropped_posts", return_value=[]):
+                    with mock.patch.object(health, "send"):
+                        health.run_digest()
+        mock_write.assert_called_once()
+        new_value = mock_write.call_args[0][0]["last_digest_check"]
+        assert new_value != since
+
+
 class TestState:
     def test_read_returns_empty_dict_when_missing(self, tmp_path):
         with mock.patch.object(state.config, "STATE_PATH", str(tmp_path / "missing.json")):
@@ -260,17 +377,43 @@ class TestLoop:
                         loop._maybe_run_weekly(now)
         mock_weekly.assert_not_called()
 
+    def test_digest_runs_when_never_checked_before(self):
+        now = datetime(2026, 8, 20, 12, 0, tzinfo=timezone.utc)
+        with mock.patch.object(loop.state, "read", return_value={}):
+            with mock.patch.object(loop.health, "run_digest") as mock_digest:
+                loop._maybe_run_digest(now)
+        mock_digest.assert_called_once()
+
+    def test_digest_skips_before_interval_elapsed(self):
+        now = datetime(2026, 8, 20, 12, 0, tzinfo=timezone.utc)
+        last = datetime(2026, 8, 20, 10, 0, tzinfo=timezone.utc).isoformat()  # 2h ago
+        with mock.patch.object(loop.config, "DIGEST_INTERVAL_HOURS", 4):
+            with mock.patch.object(loop.state, "read", return_value={"last_digest_check": last}):
+                with mock.patch.object(loop.health, "run_digest") as mock_digest:
+                    loop._maybe_run_digest(now)
+        mock_digest.assert_not_called()
+
+    def test_digest_runs_once_interval_elapsed(self):
+        now = datetime(2026, 8, 20, 14, 1, tzinfo=timezone.utc)
+        last = datetime(2026, 8, 20, 10, 0, tzinfo=timezone.utc).isoformat()  # 4h1m ago
+        with mock.patch.object(loop.config, "DIGEST_INTERVAL_HOURS", 4):
+            with mock.patch.object(loop.state, "read", return_value={"last_digest_check": last}):
+                with mock.patch.object(loop.health, "run_digest") as mock_digest:
+                    loop._maybe_run_digest(now)
+        mock_digest.assert_called_once()
+
     def test_run_loop_stops_on_signal_and_survives_job_errors(self):
         with mock.patch.object(loop, "_maybe_run_daily", side_effect=RuntimeError("boom")):
             with mock.patch.object(loop, "_maybe_run_weekly"):
-                with mock.patch.object(loop.time, "sleep") as mock_sleep:
+                with mock.patch.object(loop, "_maybe_run_digest"):
+                    with mock.patch.object(loop.time, "sleep") as mock_sleep:
 
-                    def _stop(*args, **kwargs):
-                        loop.running = False
+                        def _stop(*args, **kwargs):
+                            loop.running = False
 
-                    mock_sleep.side_effect = _stop
-                    loop.running = True
-                    loop.run()  # must not raise despite _maybe_run_daily blowing up
+                        mock_sleep.side_effect = _stop
+                        loop.running = True
+                        loop.run()  # must not raise despite _maybe_run_daily blowing up
         mock_sleep.assert_called_once()
 
 

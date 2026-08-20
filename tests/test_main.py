@@ -182,7 +182,7 @@ class TestProcessItem:
 class TestAgeGate:
     """Verify that stale items are skipped rather than posted."""
 
-    def test_old_item_is_skipped_in_run_loop(self):
+    def test_old_item_is_dropped_in_run_loop(self):
         old_pub_dt = datetime(1970, 1, 1, tzinfo=timezone.utc)
         items = [{"guid": "old-1", "title": "Old", "link": "http://x", "pub_dt": old_pub_dt}]
 
@@ -206,10 +206,10 @@ class TestAgeGate:
                                                 main.run()
                                             except SystemExit:
                                                 pass
-                                            # Should be marked skipped, not fetched
+                                            # Should be dropped as stale, not fetched
                                             mock_fetch_pr.assert_not_called()
                                             mock_save.assert_called_once()
-                                            assert mock_save.call_args[1]["status"] == "skipped"
+                                            assert mock_save.call_args[1]["status"] == "dropped_stale"
 
     def test_fresh_item_is_processed(self):
         fresh_pub_dt = datetime.now(timezone.utc)
@@ -355,8 +355,9 @@ class TestRetryFailed:
                     assert result == 0
                     mock_save.assert_not_called()
 
-    def test_retry_skips_stale_failed_post(self):
-        """Failed posts whose pub_date is too old should be marked skipped, not retried."""
+    def test_retry_drops_stale_failed_post(self):
+        """Failed posts whose pub_date is too old should be given up on
+        (status="dropped_stale"), not retried."""
         old_iso = datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat()
         failed = [{"guid": "f-old", "title": "Old Fail", "pub_date": old_iso}]
 
@@ -366,7 +367,7 @@ class TestRetryFailed:
                     result = main._retry_failed()
                     assert result == 1
                     mock_fetch_pr.assert_not_called()
-                    assert mock_save.call_args[1]["status"] == "skipped"
+                    assert mock_save.call_args[1]["status"] == "dropped_stale"
 
     def test_retry_skips_failed_post_with_missing_pub_date(self):
         """A row with no recorded pub_date (e.g. pre-dating the age-gate migration)
@@ -379,7 +380,7 @@ class TestRetryFailed:
                     result = main._retry_failed()
                     assert result == 1
                     mock_fetch_pr.assert_not_called()
-                    assert mock_save.call_args[1]["status"] == "skipped"
+                    assert mock_save.call_args[1]["status"] == "dropped_stale"
 
     def test_retry_filters_by_sm_id_fragment(self):
         """Retry must not re-post all thread items — only the one matching the guid fragment."""

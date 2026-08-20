@@ -48,3 +48,12 @@ ERROR_ALERTS_ENABLED = os.getenv("NOTIFY_ON_ERROR", "1").lower() not in ("0", "f
 # logger name + message) — protects against flooding Prowl while an outage
 # (e.g. RSS down) keeps logging the same error every poll.
 ERROR_ALERT_MIN_INTERVAL = int(os.getenv("NOTIFY_ERROR_MIN_INTERVAL", str(15 * 60)))
+
+# How often the persistent loop checks for posts permanently given up on
+# as stale (status="dropped_stale" in the bot's DB — see MAX_ARTICLE_AGE_HOURS
+# in src/bot/config.py). This is the one posting-failure outcome that's
+# actually worth knowing about; an individual failed attempt the bot is
+# still retrying is not (see src/bot/poster.py and src/bot/main.py for the
+# log-level split), so those don't page in real time via ProwlErrorHandler —
+# this periodic, batched check is what surfaces real drops instead.
+DIGEST_INTERVAL_HOURS = int(os.getenv("NOTIFY_DIGEST_INTERVAL_HOURS", "4"))
