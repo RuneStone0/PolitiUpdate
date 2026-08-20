@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
 
+# The digest publisher commits archive pages (digest.json + index.html) as
+# two separate pushes to main, seconds apart — without this, both pushes
+# trigger concurrent runs that race to create the same version tag and one
+# fails with "Release.tag_name already exists". Queuing (not cancelling)
+# ensures the second run's checkout sees the tag the first run just created.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
