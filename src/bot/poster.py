@@ -179,13 +179,21 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
             logger.info("Posted tweet %s after backoff (%d chars)", tweet_id, len(text))
             return str(tweet_id)
         except Exception as e2:
-            logger.error(
+            # Same known-flaky bucket as the generic TweepyException case
+            # below — the retry loop (see src/bot/main.py) is what actually
+            # recovers from this, not an on-call human, so this shouldn't
+            # page anyone in real time. See that module for the one outcome
+            # that does: a post permanently given up on as stale.
+            logger.warning(
                 "Failed to post after backoff: %s | reply_to=%s | text=%.60r",
                 e2, reply_to, text,
             )
             return None
 
     except tweepy.Forbidden as e:
+        # Unlike TooManyRequests/TweepyException below, this usually means a
+        # real problem (revoked/misconfigured app permissions) rather than
+        # X's API having a routine bad moment — worth paging on immediately.
         logger.error(
             "X API forbidden (check app permissions): %s | reply_to=%s | text=%.60r | raw=%s",
             e, reply_to, text, _raw_response_detail(e),
@@ -193,7 +201,13 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
         return None
 
     except tweepy.TweepyException as e:
-        logger.error(
+        # Catches everything else, including the 401/503 X intermittently
+        # returns on POST /2/tweets — a widely-reported, self-resolving
+        # flakiness in X's API (not a credential or config problem on our
+        # end), so WARNING rather than ERROR keeps it out of real-time
+        # Prowl alerts. The retry loop in src/bot/main.py handles recovery;
+        # only a post that's ultimately given up on as stale is alert-worthy.
+        logger.warning(
             "X API error: %s | reply_to=%s | text=%.60r | raw=%s",
             e, reply_to, text, _raw_response_detail(e),
         )

@@ -53,13 +53,25 @@ def _maybe_run_weekly(now: datetime) -> None:
     state.write({"last_weekly_run": this_week})
 
 
+def _maybe_run_digest(now: datetime) -> None:
+    last = state.read().get("last_digest_check")
+    if last:
+        elapsed_hours = (now - datetime.fromisoformat(last)).total_seconds() / 3600
+        if elapsed_hours < config.DIGEST_INTERVAL_HOURS:
+            return
+    logger.info("Running dropped-posts digest check")
+    health.run_digest()
+
+
 def run() -> None:
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
     logger.info(
-        "Starting notify loop (daily %02d:00 UTC, weekly %02d:00 UTC on weekday %d)",
+        "Starting notify loop (daily %02d:00 UTC, weekly %02d:00 UTC on weekday %d, "
+        "dropped-posts digest every %dh)",
         config.DAILY_HOUR_UTC, config.WEEKLY_HOUR_UTC, config.WEEKLY_WEEKDAY,
+        config.DIGEST_INTERVAL_HOURS,
     )
 
     while running:
@@ -67,6 +79,7 @@ def run() -> None:
         try:
             _maybe_run_daily(now)
             _maybe_run_weekly(now)
+            _maybe_run_digest(now)
         except Exception:
             logger.exception("Error in notify loop")
 
