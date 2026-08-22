@@ -191,10 +191,15 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
             return None
 
     except tweepy.Forbidden as e:
-        # Unlike TooManyRequests/TweepyException below, this usually means a
-        # real problem (revoked/misconfigured app permissions) rather than
-        # X's API having a routine bad moment — worth paging on immediately.
-        logger.error(
+        # Originally kept at ERROR on the assumption this reliably means a
+        # revoked/misconfigured permission. Real incident on 2026-08-21
+        # disproved that: the same sm_id hit 403 "not permitted to access
+        # this feature" three times over ~45min, then succeeded on its next
+        # retry with no manual intervention — i.e. transient X-side
+        # flakiness, same as the TweepyException case below. Downgraded to
+        # WARNING; the dropped_stale digest (see src/notify/health.py) is
+        # the safety net if a 403 ever turns out to be genuinely permanent.
+        logger.warning(
             "X API forbidden (check app permissions): %s | reply_to=%s | text=%.60r | raw=%s",
             e, reply_to, text, _raw_response_detail(e),
         )

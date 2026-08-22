@@ -92,6 +92,12 @@ def _district_prefix(full_name: str) -> str:
 
 MAX_CONDENSE_ATTEMPTS = 3
 
+# DeepSeek is unreliable at hitting an exact character budget and tends to
+# overshoot rather than undershoot — this is subtracted from the true
+# available budget before the first condense attempt, so typical overshoot
+# still lands under the real limit. See _condense_or_truncate() below.
+CONDENSE_SAFETY_MARGIN = 50
+
 
 def _condense_or_truncate(text: str, header: str, body: str, limit: int | None = None) -> str:
     """Try LLM summarization first, retrying with a tighter target if the
@@ -104,8 +110,21 @@ def _condense_or_truncate(text: str, header: str, body: str, limit: int | None =
             from . import summarizer
 
             header_overhead = len(header) + 2  # +2 for \n\n
-            target = limit - header_overhead
-            if target > 40:
+            available = limit - header_overhead
+            if available > 40:
+                # DeepSeek reliably overshoots a requested character budget
+                # rather than undershooting it (measured mean/median
+                # overshoot ~50-57 chars in prod on 2026-08-22) — likely
+                # because the system prompt's "preserve ALL facts"
+                # instruction is in tension with a hard length cap. Asking
+                # for less than the true available budget up front absorbs
+                # that typical overshoot, so the first attempt fits without
+                # needing the retry loop below. The >40 gate above is
+                # deliberately checked against the unadjusted `available`
+                # space, not this margin-reduced target, so a tight-but-
+                # workable header/limit combo still gets an LLM attempt
+                # instead of being skipped straight to truncation.
+                target = max(20, available - CONDENSE_SAFETY_MARGIN)
                 for attempt in range(1, MAX_CONDENSE_ATTEMPTS + 1):
                     condensed = summarizer.summarize(body, target)
                     if not condensed:
@@ -124,6 +143,16 @@ def _condense_or_truncate(text: str, header: str, body: str, limit: int | None =
                         attempt, MAX_CONDENSE_ATTEMPTS, len(result), limit,
                     )
                     target = max(20, target - overflow - 10)
+                else:
+                    # Loop ran out of attempts without ever fitting (as
+                    # opposed to the `break` above, when DeepSeek itself
+                    # failed — that's already logged in summarizer.py).
+                    # Previously silent; flagged so the effect of
+                    # CONDENSE_SAFETY_MARGIN on this rate is measurable.
+                    logger.warning(
+                        "LLM condensation exhausted %d attempts, falling back to truncation",
+                        MAX_CONDENSE_ATTEMPTS,
+                    )
         except Exception:
             logger.exception("LLM summarization failed, falling back to truncation")
 
