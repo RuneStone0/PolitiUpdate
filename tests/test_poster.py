@@ -48,7 +48,7 @@ class TestPostTweetLiveMode:
             result = poster.post_tweet("Fail")
             assert result is None
 
-    def test_handles_forbidden(self):
+    def test_handles_forbidden(self, caplog):
         with mock.patch("src.bot.poster._get_client") as mock_get_client:
             mock_client = mock.MagicMock()
             mock_client.create_tweet.side_effect = tweepy.Forbidden(
@@ -56,8 +56,14 @@ class TestPostTweetLiveMode:
             )
             mock_get_client.return_value = mock_client
 
-            result = poster.post_tweet("Forbidden")
+            with caplog.at_level("WARNING", logger="src.bot.poster"):
+                result = poster.post_tweet("Forbidden")
             assert result is None
+            # A 403 has turned out to be transient X-side flakiness in
+            # practice (see the comment in poster.py), not reliably a real
+            # permissions problem — must not page in real time as ERROR.
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == "WARNING"
 
     def test_retries_on_rate_limit(self):
         with (

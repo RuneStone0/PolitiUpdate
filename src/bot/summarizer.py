@@ -60,14 +60,19 @@ def summarize(text: str, max_chars: int) -> str | None:
         )
         resp.raise_for_status()
     except requests.RequestException as e:
-        logger.error("DeepSeek API request failed: %s", e)
+        # Not alert-worthy on its own — formatter._condense_or_truncate()
+        # falls back to plain truncation whenever this returns None, so a
+        # DeepSeek hiccup degrades tweet quality (LLM-condensed vs.
+        # truncated) but never loses a post. Same self-healing bucket as
+        # the X API failure paths in poster.py.
+        logger.warning("DeepSeek API request failed: %s", e)
         return None
 
     try:
         data = resp.json()
         result = data["choices"][0]["message"]["content"].strip()
     except (KeyError, IndexError, ValueError) as e:
-        logger.error("Failed to parse DeepSeek response: %s", e)
+        logger.warning("Failed to parse DeepSeek response: %s", e)
         return None
 
     logger.debug(

@@ -247,9 +247,10 @@ class TestCondenseOrTruncate:
             second_target = mock_sum.call_args_list[1][0][1]
             assert second_target < first_target
 
-    def test_llm_gives_up_after_max_attempts_and_truncates(self):
+    def test_llm_gives_up_after_max_attempts_and_truncates(self, caplog):
         """If the LLM keeps overshooting past MAX_CONDENSE_ATTEMPTS, fall
-        back to truncation rather than retrying forever."""
+        back to truncation rather than retrying forever, and log it (this
+        path was previously silent)."""
         formatter.POST_MAX_CHARS = 60
         formatter.LLM_ENABLED = True
         header = "X: Test"
@@ -259,12 +260,40 @@ class TestCondenseOrTruncate:
 
         with mock.patch("src.bot.summarizer.summarize") as mock_sum:
             mock_sum.return_value = "I" * 80  # always too long
-            result = formatter._condense_or_truncate(
-                f"{header}\n\n{body}", header, body
-            )
+            with caplog.at_level("WARNING", logger="src.bot.formatter"):
+                result = formatter._condense_or_truncate(
+                    f"{header}\n\n{body}", header, body
+                )
             assert mock_sum.call_count == formatter.MAX_CONDENSE_ATTEMPTS
             assert result.endswith("…")
             assert len(result) <= formatter.POST_MAX_CHARS
+            assert any(
+                "exhausted" in r.message and "falling back to truncation" in r.message
+                for r in caplog.records
+            )
+
+    def test_first_condense_attempt_applies_safety_margin(self):
+        """The first attempt should ask DeepSeek for less than the full
+        available budget, since it reliably overshoots what it's asked
+        for (see CONDENSE_SAFETY_MARGIN)."""
+        formatter.POST_MAX_CHARS = 280
+        formatter.LLM_ENABLED = True
+        header = "Prefix: Titel"
+        body = "J" * 500
+
+        from unittest import mock
+
+        with mock.patch("src.bot.summarizer.summarize") as mock_sum:
+            mock_sum.return_value = "Fits fine."
+            formatter._condense_or_truncate(f"{header}\n\n{body}", header, body)
+
+            header_overhead = len(header) + 2
+            available = formatter.POST_MAX_CHARS - header_overhead
+            expected_target = available - formatter.CONDENSE_SAFETY_MARGIN
+
+            first_target = mock_sum.call_args_list[0][0][1]
+            assert first_target == expected_target
+            assert first_target < available
 
     def test_llm_success_never_appends_sparkle(self):
         """Condensed posts must not get a trailing sparkle marker."""
