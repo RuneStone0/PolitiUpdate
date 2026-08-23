@@ -150,11 +150,14 @@ def _condense_or_truncate(text: str, header: str, body: str, limit: int | None =
                     # Previously silent; flagged so the effect of
                     # CONDENSE_SAFETY_MARGIN on this rate is measurable.
                     logger.warning(
-                        "LLM condensation exhausted %d attempts, falling back to truncation",
-                        MAX_CONDENSE_ATTEMPTS,
+                        "LLM condensation exhausted %d attempts, falling back to "
+                        "truncation for %r",
+                        MAX_CONDENSE_ATTEMPTS, header,
                     )
         except Exception:
-            logger.exception("LLM summarization failed, falling back to truncation")
+            logger.exception(
+                "LLM summarization failed, falling back to truncation for %r", header
+            )
 
     return _truncate(text, limit)
 
