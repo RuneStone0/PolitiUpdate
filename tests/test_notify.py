@@ -176,42 +176,63 @@ class TestDroppedPostsCheck:
         with mock.patch.object(health.config, "DB_PATH", str(db_path)):
             assert health._check_dropped_posts("2026-08-20T00:00:00+00:00") == []
 
-    def test_reports_single_dropped_post(self, tmp_path):
+    def test_reports_single_dropped_post_with_sm_id_and_link(self, tmp_path):
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        guid = "https://via.ritzau.dk/pressemeddelelse/123/traffic-accident?lang=da#sm-123"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        conn.execute(
+            "INSERT INTO posts VALUES (?, 'Traffic accident', 'dropped_stale', "
+            "'2026-08-20T12:00:00+00:00')",
+            (guid,),
+        )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            lines = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
+        assert len(lines) == 1
+        assert "Traffic accident" in lines[0]
+        assert "sm_id=sm-123" in lines[0]
+        assert guid in lines[0]
+
+    def test_falls_back_to_full_guid_when_no_fragment(self, tmp_path):
+        """A guid with no #sm-XXXXX fragment should use the whole guid as
+        the sm_id rather than showing an empty identifier."""
         import sqlite3
 
         db_path = tmp_path / "test.db"
         conn = sqlite3.connect(db_path)
         conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
         conn.execute(
-            "INSERT INTO posts VALUES ('a', 'Traffic accident', 'dropped_stale', "
+            "INSERT INTO posts VALUES ('plain-guid', 'T', 'dropped_stale', "
             "'2026-08-20T12:00:00+00:00')"
         )
         conn.commit()
         conn.close()
         with mock.patch.object(health.config, "DB_PATH", str(db_path)):
-            problems = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
-        assert len(problems) == 1
-        assert "1 post dropped as stale" in problems[0]
-        assert "Traffic accident" in problems[0]
+            lines = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
+        assert "sm_id=plain-guid" in lines[0]
 
-    def test_reports_multiple_dropped_posts_with_truncation(self, tmp_path):
+    def test_returns_all_dropped_posts_without_truncating(self, tmp_path):
+        """Truncation for display is run_digest()'s job, not this
+        function's — it should just report everything it finds."""
         import sqlite3
 
         db_path = tmp_path / "test.db"
         conn = sqlite3.connect(db_path)
         conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
-        for i in range(7):
+        for i in range(15):
             conn.execute(
                 "INSERT INTO posts VALUES (?, ?, 'dropped_stale', '2026-08-20T12:00:00+00:00')",
-                (str(i), f"Item {i}"),
+                (f"guid-{i}", f"Item {i}"),
             )
         conn.commit()
         conn.close()
         with mock.patch.object(health.config, "DB_PATH", str(db_path)):
-            problems = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
-        assert len(problems) == 1
-        assert "7 posts dropped as stale" in problems[0]
-        assert "+2 more" in problems[0]
+            lines = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
+        assert len(lines) == 15
 
 
 class TestRunDigest:
@@ -231,13 +252,33 @@ class TestRunDigest:
         with mock.patch.object(health.state, "read", return_value={"last_digest_check": since}):
             with mock.patch.object(health.state, "write"):
                 with mock.patch.object(
-                    health, "_check_dropped_posts", return_value=["1 post dropped as stale: X"]
+                    health, "_check_dropped_posts",
+                    return_value=["Title X (sm_id=sm-1) — https://example.com/x#sm-1"],
                 ) as mock_check:
                     with mock.patch.object(health, "send") as mock_send:
                         health.run_digest()
         mock_check.assert_called_once_with(since)
         mock_send.assert_called_once()
-        assert "1 post dropped as stale: X" in mock_send.call_args[0][0]
+        message = mock_send.call_args[0][0]
+        assert "1 post(s) dropped as stale" in message
+        assert "Title X (sm_id=sm-1) — https://example.com/x#sm-1" in message
+
+    def test_truncates_long_list_of_dropped_posts(self):
+        """A large batch of drops (e.g. a sustained outage) should list only
+        the first _MAX_DROPPED_POSTS_SHOWN in detail, summarizing the rest."""
+        since = "2026-08-20T00:00:00+00:00"
+        dropped = [f"Item {i} (sm_id=sm-{i}) — https://example.com/{i}" for i in range(15)]
+        with mock.patch.object(health.state, "read", return_value={"last_digest_check": since}):
+            with mock.patch.object(health.state, "write"):
+                with mock.patch.object(health, "_check_dropped_posts", return_value=dropped):
+                    with mock.patch.object(health, "send") as mock_send:
+                        health.run_digest()
+        message = mock_send.call_args[0][0]
+        assert "15 post(s) dropped as stale" in message
+        assert "Item 0" in message
+        assert f"Item {health._MAX_DROPPED_POSTS_SHOWN - 1}" in message
+        assert "Item 10" not in message  # beyond the shown cap
+        assert "(+5 more)" in message
 
     def test_no_send_when_nothing_dropped(self):
         since = "2026-08-20T00:00:00+00:00"

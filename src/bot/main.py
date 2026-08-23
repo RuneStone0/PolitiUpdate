@@ -58,6 +58,7 @@ def _process_item(raw: dict) -> None:
     guid = raw["guid"]
     title = raw["title"]
     link = raw["link"]
+    sm_id = urlparse(guid).fragment or guid
 
     pub_dt: datetime | None = raw.get("pub_dt")
     pub_date_iso: str | None = pub_dt.isoformat() if pub_dt else None
@@ -65,12 +66,12 @@ def _process_item(raw: dict) -> None:
     if db.is_known(guid):
         return
 
-    logger.info("New item: %s", title)
+    logger.info("New item: %s (sm_id=%s)", title, sm_id)
 
     district, thread_items = fetch_press_release(link)
 
     if not thread_items:
-        logger.warning("No thread items extracted from %s", link)
+        logger.warning("No thread items extracted from %s (sm_id=%s)", link, sm_id)
         db.save_post(guid, title, "", status="failed", pub_date=pub_date_iso)
         return
 
@@ -95,7 +96,9 @@ def _process_item(raw: dict) -> None:
         # get rejected by X as duplicate content.
         db.save_post(guid, title, latest_body, status="skipped", pub_date=pub_date_iso,
                      district=district)
-        logger.info("Skipping %r — already posted as %s", title, dup_guid)
+        logger.info(
+            "Skipping %r (sm_id=%s) — already posted as %s", title, sm_id, dup_guid
+        )
         return
 
     db.save_post(guid, title, latest_body, status="fetching", pub_date=pub_date_iso,
@@ -110,7 +113,6 @@ def _process_item(raw: dict) -> None:
     else:
         db.save_post(guid, title, latest_body, status="failed", pub_date=pub_date_iso,
                      district=district)
-        sm_id = urlparse(guid).fragment or guid
         # Not alert-worthy on its own — _retry_failed() below will keep
         # retrying this for up to MAX_ARTICLE_AGE_HOURS. Only a post that
         # ultimately gets given up on as stale (status="dropped_stale")
@@ -134,6 +136,7 @@ def _retry_failed() -> int:
         guid = post["guid"]
         title = post["title"]
         link = guid  # guid is the press release URL in the Ritzau feed
+        sm_id = urlparse(guid).fragment or guid
 
         # Skip retrying articles that are too old to be worth posting. A missing
         # pub_date means this row predates the age-gate migration (or otherwise
@@ -160,11 +163,13 @@ def _retry_failed() -> int:
             db.save_post(guid, title, "", status="dropped_stale")
             if age_hours is not None:
                 logger.info(
-                    "Giving up on stale failed post (%.1fh old): %s", age_hours, title
+                    "Giving up on stale failed post (%.1fh old): %s (sm_id=%s)",
+                    age_hours, title, sm_id,
                 )
             else:
                 logger.info(
-                    "Giving up on failed post with no recorded pub_date: %s", title
+                    "Giving up on failed post with no recorded pub_date: %s (sm_id=%s)",
+                    title, sm_id,
                 )
             retried += 1
             continue
@@ -189,7 +194,8 @@ def _retry_failed() -> int:
             if dup_guid:
                 db.save_post(guid, title, thread_items[0]["body"], status="skipped")
                 logger.info(
-                    "Retry found %r already posted as %s, giving up", title, dup_guid
+                    "Retry found %r (sm_id=%s) already posted as %s, giving up",
+                    title, sm_id, dup_guid,
                 )
                 retried += 1
                 continue
@@ -200,11 +206,13 @@ def _retry_failed() -> int:
                 db.save_post(guid, title, thread_items[0]["body"],
                              status="posted", x_post_id=x_post_ids[0], district=district)
                 db.record_posted_texts(guid, zip(formatted, x_post_ids))
-                logger.info("Retry succeeded: %s", title)
+                logger.info(
+                    "Retry succeeded: %s (sm_id=%s, x_post_id=%s)",
+                    title, sm_id, x_post_ids[0],
+                )
             else:
                 db.save_post(guid, title, thread_items[0]["body"],
                              status="failed", district=district)
-                sm_id = urlparse(guid).fragment or guid
                 # Stays status="failed" — will be retried again next pass
                 # (up to MAX_ARTICLE_AGE_HOURS), so not yet a real drop.
                 # See the is_stale branch above for the one that is.
@@ -213,7 +221,7 @@ def _retry_failed() -> int:
                     sm_id, x_post_ids, title,
                 )
         except Exception:
-            logger.exception("Retry failed: %s", title)
+            logger.exception("Retry failed for sm_id=%s: %s (guid=%s)", sm_id, title, guid)
 
         retried += 1
 
@@ -270,7 +278,9 @@ def run() -> None:
                             pub_date=pub_dt.isoformat(),
                         )
                         logger.info(
-                            "Skipping old item (%.1fh): %s", age_hours, raw["title"]
+                            "Skipping old item (%.1fh): %s (sm_id=%s)",
+                            age_hours, raw["title"],
+                            urlparse(raw["guid"]).fragment or raw["guid"],
                         )
                     continue
 
@@ -279,7 +289,11 @@ def run() -> None:
                     _process_item(raw)
                     new_count += 1
             except Exception:
-                logger.exception("Error processing item: %s", raw.get("title", "?"))
+                logger.exception(
+                    "Error processing item: %s (sm_id=%s)",
+                    raw.get("title", "?"),
+                    urlparse(raw["guid"]).fragment or raw["guid"],
+                )
                 # Save as failed so we don't retry indefinitely
                 try:
                     db.save_post(raw["guid"], raw["title"], "", status="failed",
