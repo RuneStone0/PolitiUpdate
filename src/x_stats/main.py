@@ -49,13 +49,30 @@ def _get_client() -> tweepy.Client:
             "or OAuth 2.0 credentials (X_CLIENT_ID, X_CLIENT_SECRET and valid tokens)."
         )
 
-    tokens = _get_tokens()
-    now = int(time.time())
-    expires_at = tokens.get("obtained_at", 0) + tokens.get("expires_in", 7200)
+    try:
+        tokens = _get_tokens()
+        now = int(time.time())
+        expires_at = tokens.get("obtained_at", 0) + tokens.get("expires_in", 7200)
 
-    if now > expires_at - 60:
-        tokens = _refresh_access_token(tokens["refresh_token"])
-        _save_tokens(tokens)
+        if now > expires_at - 60:
+            tokens = _refresh_access_token(tokens["refresh_token"])
+            _save_tokens(tokens)
+    except RuntimeError:
+        # Missing token file is a real config problem — keep the original
+        # message and let main() page on it.
+        raise
+    except Exception as e:
+        # A stale/consumed refresh token makes X answer the refresh with
+        # 401 invalid_grant; oauthlib surfaces it as InvalidGrantError (a
+        # plain Exception). Rewrite it into an actionable message so the
+        # Prowl alert in main() tells us to re-auth instead of dumping
+        # cryptic oauthlib text.
+        if getattr(e, "error", None) == "invalid_grant":
+            raise RuntimeError(
+                "X OAuth2 token refresh failed (invalid_grant): refresh token is "
+                "stale or consumed — re-authorize with `python -m src.bot.auth`"
+            ) from e
+        raise
 
     return tweepy.Client(bearer_token=tokens["access_token"])
 

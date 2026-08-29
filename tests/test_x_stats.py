@@ -1,5 +1,6 @@
 """Tests for src.x_stats — X stats fetch, cache, and gist publish."""
 
+import contextlib
 import json
 import os
 import sys
@@ -91,6 +92,61 @@ class TestGetClient:
                             with mock.patch.object(main, "X_ACCESS_SECRET", "a"):
                                 main._get_client()
         mock_tweepy.Client.assert_called_once()
+
+
+class TestGetClientRefreshErrors:
+    """_get_client() must turn a stale/consumed refresh token (invalid_grant)
+    into an actionable message instead of leaking cryptic oauthlib text, while
+    still letting real config problems and transient errors through untouched."""
+
+    def _oauth2_env(self):
+        # No OAuth 1.0a creds, so _get_client() takes the OAuth 2.0 path.
+        return (
+            mock.patch.object(main, "X_API_KEY", ""),
+            mock.patch.object(main, "X_API_SECRET", ""),
+            mock.patch.object(main, "X_ACCESS_TOKEN", ""),
+            mock.patch.object(main, "X_ACCESS_SECRET", ""),
+            mock.patch.object(main, "X_CLIENT_ID", "cid"),
+            mock.patch.object(main, "X_CLIENT_SECRET", "csec"),
+        )
+
+    def _expired_tokens(self):
+        return {"access_token": "old", "refresh_token": "rtok", "obtained_at": 0, "expires_in": 1}
+
+    def test_invalid_grant_raises_actionable_runtime_error(self):
+        class InvalidGrantError(Exception):
+            error = "invalid_grant"
+
+        with contextlib.ExitStack() as stack:
+            for cm in self._oauth2_env():
+                stack.enter_context(cm)
+            stack.enter_context(mock.patch.object(main, "_get_tokens", return_value=self._expired_tokens()))
+            stack.enter_context(
+                mock.patch.object(main, "_refresh_access_token", side_effect=InvalidGrantError("bad"))
+            )
+            with pytest.raises(RuntimeError, match="re-authorize"):
+                main._get_client()
+
+    def test_other_refresh_error_propagates_unchanged(self):
+        with contextlib.ExitStack() as stack:
+            for cm in self._oauth2_env():
+                stack.enter_context(cm)
+            stack.enter_context(mock.patch.object(main, "_get_tokens", return_value=self._expired_tokens()))
+            stack.enter_context(
+                mock.patch.object(main, "_refresh_access_token", side_effect=ConnectionError("net down"))
+            )
+            with pytest.raises(ConnectionError):
+                main._get_client()
+
+    def test_missing_token_file_runtime_error_propagates_unchanged(self):
+        with contextlib.ExitStack() as stack:
+            for cm in self._oauth2_env():
+                stack.enter_context(cm)
+            stack.enter_context(
+                mock.patch.object(main, "_get_tokens", side_effect=RuntimeError("Token file not found"))
+            )
+            with pytest.raises(RuntimeError, match="Token file not found"):
+                main._get_client()
 
 
 class TestGetTokens:
