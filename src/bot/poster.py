@@ -144,7 +144,32 @@ def post_tweet(text: str, reply_to: str | None = None) -> str | None:
         text: The tweet text.
         reply_to: If set, post as a reply to this tweet ID.
     """
-    result = _get_client()
+    try:
+        result = _get_client()
+    except RuntimeError:
+        # Missing/incomplete credentials or a missing token file is a real
+        # config problem, not transient X flakiness — let it propagate so
+        # src/bot/main.py still pages on it.
+        raise
+    except Exception as e:
+        # _get_client() also refreshes the OAuth 2.0 token when it's expired,
+        # and a stale/consumed refresh token makes X answer that refresh with
+        # 401 invalid_grant. oauthlib surfaces it as InvalidGrantError — a
+        # plain Exception, NOT a tweepy.TweepyException — so the create_tweet
+        # handlers below never see it, and it used to escape uncaught to
+        # src/bot/main.py and page on every item. A dead token needs re-auth,
+        # so alert once with a stable message (the Prowl handler dedups
+        # identical messages); anything else (e.g. a network blip) is transient
+        # noise.
+        if getattr(e, "error", None) == "invalid_grant":
+            logger.error(
+                "X OAuth2 token refresh failed (invalid_grant): refresh token is "
+                "stale or consumed — re-authorize with `python -m src.bot.auth`"
+            )
+        else:
+            logger.warning("Could not obtain X client: %s", e)
+        return None
+
     # Backwards-compat: _get_client may return either a client or (client, type)
     if isinstance(result, tuple):
         client, client_type = result

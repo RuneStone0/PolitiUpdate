@@ -98,6 +98,44 @@ class TestPostTweetLiveMode:
             assert result is None
             assert mock_client.create_tweet.call_count == 2
 
+    def test_invalid_grant_on_client_refresh_logs_error_once_and_returns_none(self, caplog):
+        """A stale/consumed OAuth2 refresh token surfaces as oauthlib's
+        InvalidGrantError (NOT a TweepyException) during _get_client(). It must
+        not escape to main.py and page on every item — instead it returns None
+        and logs a stable ERROR the Prowl handler can dedup."""
+        class InvalidGrantError(Exception):
+            error = "invalid_grant"
+
+        with mock.patch("src.bot.poster._get_client", side_effect=InvalidGrantError()):
+            with caplog.at_level("ERROR", logger="src.bot.poster"):
+                result = poster.post_tweet("dead token")
+
+        assert result is None
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == "ERROR"
+        assert "invalid_grant" in caplog.records[0].message
+
+    def test_other_client_error_logs_warning_and_returns_none(self, caplog):
+        """Non-invalid_grant failures getting a client (e.g. network blips)
+        should be treated as transient noise, not paged."""
+        with mock.patch("src.bot.poster._get_client", side_effect=ConnectionError("boom")):
+            with caplog.at_level("WARNING", logger="src.bot.poster"):
+                result = poster.post_tweet("transient")
+
+        assert result is None
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == "WARNING"
+
+    def test_missing_credentials_still_propagates(self):
+        """Config errors (missing credentials) must keep paging, not get
+        swallowed by the new client-error handling."""
+        with mock.patch(
+            "src.bot.poster._get_client",
+            side_effect=RuntimeError("X API credentials not configured"),
+        ):
+            with pytest.raises(RuntimeError, match="credentials"):
+                poster.post_tweet("no creds")
+
     def test_get_client_missing_credentials(self):
         with (
             mock.patch.object(poster, "X_API_KEY", ""),
