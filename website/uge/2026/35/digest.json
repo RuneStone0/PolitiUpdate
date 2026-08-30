@@ -1,0 +1,733 @@
+{
+  "week": 35,
+  "year": 2026,
+  "total_posts": 81,
+  "categories": {
+    "missing_person": 5,
+    "witness_appeal": 3,
+    "arrest": 20,
+    "other": 53
+  },
+  "narrative": "I denne uge har politiet efterlyst en 73-årig dement kvinde og Jan, som er forsvundet fra Østjylland. Der er desuden iværksat en vidneappel i sagen om en dræbt rumæner fundet i Gudenåen nord for Svostrup, ligesom politiet søger vidner til et overfald under \"Rockbæk\". Øvrige sager omfatter blandt andet en række anholdelser og sigtelser for tyveri, narkotika og vold, samt flere brande og færdselsuheld.",
+  "narrative_html": "I denne uge har politiet efterlyst <a href=\"https://x.com/PolitiUpdate/status/2092337814541402210\" target=\"_blank\" rel=\"noopener\">en 73-årig dement kvinde</a> og <a href=\"https://x.com/PolitiUpdate/status/2093750083145892259\" target=\"_blank\" rel=\"noopener\">Jan</a>, som er forsvundet fra Østjylland. Der er desuden iværksat en vidneappel i sagen om <a href=\"https://x.com/PolitiUpdate/status/2093248043638501379\" target=\"_blank\" rel=\"noopener\">en dræbt rumæner fundet i Gudenåen nord for Svostrup</a>, ligesom politiet søger vidner til et overfald under &quot;Rockbæk&quot;. Øvrige sager omfatter blandt andet en række anholdelser og sigtelser for tyveri, narkotika og vold, samt flere brande og færdselsuheld.",
+  "notable": [
+    {
+      "title": "Østre Landsret idømmer 28-årig mand 14 års fængsel for drabsforsøg med pistol i forbindelse med en bandekonflikt i Holbæk i 2024",
+      "summary": "Østre Landsret idømte en 28-årig mand 14 års fængsel for drabsforsøg med pistol i forbindelse med en bandekonflikt i Holbæk i 2024.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2092221307853435186"
+    },
+    {
+      "title": "Dømt for vold mod tre-årig i Jyderup",
+      "summary": "En person blev dømt for vold mod en tre-årig i Jyderup.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2092245745881776291"
+    },
+    {
+      "title": "78-årig mand idømt tre års fængsel og boligforbud for seksuelle overgreb begået i 2007-2008 i Sydøstjylland",
+      "summary": "En 78-årig mand blev idømt tre års fængsel og boligforbud for seksuelle overgreb begået i 2007-2008 i Sydøstjylland.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2092579911269818667"
+    },
+    {
+      "title": "Dømt for drabsforsøg",
+      "summary": "Der faldt dom i en sag om drabsforsøg.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2093317348602376274"
+    }
+  ],
+  "category_items": {
+    "missing_person": [
+      {
+        "title": "Efterlysning af 73-årig dement kvinde",
+        "url": "https://x.com/PolitiUpdate/status/2092337814541402210"
+      },
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2093153188845367693"
+      },
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2093277274288402567"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093750083145892259"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093984646929461510"
+      }
+    ],
+    "witness_appeal": [
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092576564294955220"
+      },
+      {
+        "title": "Politiet søger oplysninger i sag om dræbt rumæner fundet i Gudenåen nord for Svostrup",
+        "url": "https://x.com/PolitiUpdate/status/2093248043638501379"
+      },
+      {
+        "title": "Vidner søges til overfald under \"Rockbæk\"",
+        "url": "https://x.com/PolitiUpdate/status/2093272395608215724"
+      }
+    ],
+    "arrest": [
+      {
+        "title": "Knivstikkeri i Herning",
+        "url": "https://x.com/PolitiUpdate/status/2091780809338601712"
+      },
+      {
+        "title": "19-årig mand får straksdom for tyveri i Horsens",
+        "url": "https://x.com/PolitiUpdate/status/2091791093092503664"
+      },
+      {
+        "title": "To personer varetægtsfængslet for forsøg på tricktyveri",
+        "url": "https://x.com/PolitiUpdate/status/2091811601183846451"
+      },
+      {
+        "title": "Kvinde tildelt straksdom for forsøg på tyveri",
+        "url": "https://x.com/PolitiUpdate/status/2091837861691867445"
+      },
+      {
+        "title": "Målrettet færdselskontrol på Hareskovvej",
+        "url": "https://x.com/PolitiUpdate/status/2091842351824298061"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.30",
+        "url": "https://x.com/PolitiUpdate/status/2092190610375803302"
+      },
+      {
+        "title": "22-årig mand varetægtsfængslet for butikstyveri",
+        "url": "https://x.com/PolitiUpdate/status/2092208454698233923"
+      },
+      {
+        "title": "22-årig mand varetægtsfængslet for butikstyveri",
+        "url": "https://x.com/PolitiUpdate/status/2092211034258112743"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2092240308016947397"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2092240839913414902"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.30",
+        "url": "https://x.com/PolitiUpdate/status/2092247031096176867"
+      },
+      {
+        "title": "Grundlovsforhør Retten i Sønderborg 11.00",
+        "url": "https://x.com/PolitiUpdate/status/2092554827268247735"
+      },
+      {
+        "title": "Fire sigtet i sag om salg af piller",
+        "url": "https://x.com/PolitiUpdate/status/2092567216298586540"
+      },
+      {
+        "title": "61 cyklister sigtet for at cykle over for rødt lys ved skole",
+        "url": "https://x.com/PolitiUpdate/status/2092859577876558181"
+      },
+      {
+        "title": "Borgere hjalp med opklaring - mand dømt for indbrud i Fårevejle",
+        "url": "https://x.com/PolitiUpdate/status/2092899498171453674"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2093245320318923098"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2093255610045436394"
+      },
+      {
+        "title": "Mand med relation til bandemiljøet varetægtsfængslet",
+        "url": "https://x.com/PolitiUpdate/status/2093296694616334524"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika, kniv og gasspray",
+        "url": "https://x.com/PolitiUpdate/status/2093317214753689770"
+      },
+      {
+        "title": "Forbud mod ikke-nødvendig kørsel i nattelivszoner",
+        "url": "https://x.com/PolitiUpdate/status/2093327504148930847"
+      }
+    ],
+    "other": [
+      {
+        "title": "Brand i Villa",
+        "url": "https://x.com/PolitiUpdate/status/2091914086196085029"
+      },
+      {
+        "title": "Personpåkørsel ved Brørup station",
+        "url": "https://x.com/PolitiUpdate/status/2091954946874994926"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2091955084192346284"
+      },
+      {
+        "title": "Personpåkørsel ved Brørup station",
+        "url": "https://x.com/PolitiUpdate/status/2091968036689543555"
+      },
+      {
+        "title": "Brand i Villa",
+        "url": "https://x.com/PolitiUpdate/status/2091975599229431847"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092006355813171282"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092016610345382262"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092037046013747561"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092218729904111868"
+      },
+      {
+        "title": "Fartkontrol Degnevej Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2092218992752800108"
+      },
+      {
+        "title": "Østre Landsret idømmer 28-årig mand 14 års fængsel for drabsforsøg med pistol i forbindelse med en bandekonflikt i Holbæk i 2024",
+        "url": "https://x.com/PolitiUpdate/status/2092221307853435186"
+      },
+      {
+        "title": "20-årig mand idømt lang fængselsstraf for medvirken til narkosalg",
+        "url": "https://x.com/PolitiUpdate/status/2092231576184902143"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092241877345169451"
+      },
+      {
+        "title": "Dømt for vold mod tre-årig i Jyderup",
+        "url": "https://x.com/PolitiUpdate/status/2092245745881776291"
+      },
+      {
+        "title": "Dømt for forsøg på overgreb mod fiktiv 14-årig",
+        "url": "https://x.com/PolitiUpdate/status/2092252161111707943"
+      },
+      {
+        "title": "Ild i beboelsesejendom",
+        "url": "https://x.com/PolitiUpdate/status/2092364726999355445"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092560271311360185"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092569652077724100"
+      },
+      {
+        "title": "Ekspedition i Toftlund og Skærbæk er lukket i dag",
+        "url": "https://x.com/PolitiUpdate/status/2092579901195030830"
+      },
+      {
+        "title": "78-årig mand idømt tre års fængsel og boligforbud for seksuelle overgreb begået i 2007-2008 i Sydøstjylland",
+        "url": "https://x.com/PolitiUpdate/status/2092579911269818667"
+      },
+      {
+        "title": "Fire års fængsel for besiddelse af kokain",
+        "url": "https://x.com/PolitiUpdate/status/2092641239317512437"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092764001348554969"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092784497637101863"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092794766564167937"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092815286147928150"
+      },
+      {
+        "title": "Borgere hjalp med opklaring - mand dømt for indbrud i Fårevejle",
+        "url": "https://x.com/PolitiUpdate/status/2092907460441018821"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2092970716497162639"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2092979176404107332"
+      },
+      {
+        "title": "Dømt for vold på ungdomsinstitution på Stevns",
+        "url": "https://x.com/PolitiUpdate/status/2092989375550480676"
+      },
+      {
+        "title": "Bortgået i Aarhus C",
+        "url": "https://x.com/PolitiUpdate/status/2093060965822837124"
+      },
+      {
+        "title": "Bortgået i Aarhus C",
+        "url": "https://x.com/PolitiUpdate/status/2093071231683821976"
+      },
+      {
+        "title": "Brug af unge kontrolkøbere var ikke i strid med menneskerettighederne",
+        "url": "https://x.com/PolitiUpdate/status/2093286399634227238"
+      },
+      {
+        "title": "56-årig mand idømt 3 år og 3 måneders fængsel for besiddelse af en pistol og narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2093294239979647151"
+      },
+      {
+        "title": "Dømt for drabsforsøg",
+        "url": "https://x.com/PolitiUpdate/status/2093317348602376274"
+      },
+      {
+        "title": "Dom for drabsforsøg",
+        "url": "https://x.com/PolitiUpdate/status/2093319408550912467"
+      },
+      {
+        "title": "Dom for husfreds- og blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2093327653373882684"
+      },
+      {
+        "title": "Våd vejbane skaber farlige forhold og uheld på Fynske Motorvej - bilister opfordres til forsigtighed",
+        "url": "https://x.com/PolitiUpdate/status/2093399210947391994"
+      },
+      {
+        "title": "24-årig mand fremstilles i grundlovsforhør efter hændelse i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2093614191613710610"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093716459604390036"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093732312613785870"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093767711650373904"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093775046108164549"
+      },
+      {
+        "title": "Østjyllands Politi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093785275008987274"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093815293084913762"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093817864210026766"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093836626166501559"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093867046270648702"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093885893660770761"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093929160750338132"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093980418295124179"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen nær Borup",
+        "url": "https://x.com/PolitiUpdate/status/2094058312656646206"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen nær Borup",
+        "url": "https://x.com/PolitiUpdate/status/2094062422156059116"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2094082838610276440"
+      }
+    ]
+  },
+  "region_items": {
+    "Østjylland": [
+      {
+        "title": "Efterlysning af 73-årig dement kvinde",
+        "url": "https://x.com/PolitiUpdate/status/2092337814541402210"
+      },
+      {
+        "title": "Politiet søger oplysninger i sag om dræbt rumæner fundet i Gudenåen nord for Svostrup",
+        "url": "https://x.com/PolitiUpdate/status/2093248043638501379"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2093245320318923098"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2093255610045436394"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2092970716497162639"
+      },
+      {
+        "title": "Episode på skole i Viby J - vi efterforsker sagen",
+        "url": "https://x.com/PolitiUpdate/status/2092979176404107332"
+      },
+      {
+        "title": "Bortgået i Aarhus C",
+        "url": "https://x.com/PolitiUpdate/status/2093060965822837124"
+      },
+      {
+        "title": "Bortgået i Aarhus C",
+        "url": "https://x.com/PolitiUpdate/status/2093071231683821976"
+      },
+      {
+        "title": "Østjyllands Politi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093785275008987274"
+      }
+    ],
+    "Sydsjælland/L-F": [
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2093153188845367693"
+      },
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2093277274288402567"
+      },
+      {
+        "title": "Brand i Villa",
+        "url": "https://x.com/PolitiUpdate/status/2091914086196085029"
+      },
+      {
+        "title": "Brand i Villa",
+        "url": "https://x.com/PolitiUpdate/status/2091975599229431847"
+      }
+    ],
+    "Sydøstjylland": [
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093750083145892259"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093984646929461510"
+      },
+      {
+        "title": "19-årig mand får straksdom for tyveri i Horsens",
+        "url": "https://x.com/PolitiUpdate/status/2091791093092503664"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.30",
+        "url": "https://x.com/PolitiUpdate/status/2092190610375803302"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.30",
+        "url": "https://x.com/PolitiUpdate/status/2092247031096176867"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093716459604390036"
+      },
+      {
+        "title": "Vi efterlyser Jan",
+        "url": "https://x.com/PolitiUpdate/status/2093732312613785870"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093817864210026766"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093885893660770761"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2093980418295124179"
+      },
+      {
+        "title": "Voldeligt overfald i Horsens omkring Fabrikvej og Houmannsgade",
+        "url": "https://x.com/PolitiUpdate/status/2094082838610276440"
+      }
+    ],
+    "Midt/Vestjylland": [
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092576564294955220"
+      },
+      {
+        "title": "Knivstikkeri i Herning",
+        "url": "https://x.com/PolitiUpdate/status/2091780809338601712"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2091955084192346284"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092006355813171282"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092016610345382262"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092037046013747561"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092218729904111868"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092241877345169451"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092560271311360185"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold ved Gudenåen",
+        "url": "https://x.com/PolitiUpdate/status/2092569652077724100"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092764001348554969"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092784497637101863"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092794766564167937"
+      },
+      {
+        "title": "Brand i industrivirksomhed i Brande",
+        "url": "https://x.com/PolitiUpdate/status/2092815286147928150"
+      }
+    ],
+    "Midt/Vestsjælland": [
+      {
+        "title": "Vidner søges til overfald under \"Rockbæk\"",
+        "url": "https://x.com/PolitiUpdate/status/2093272395608215724"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093767711650373904"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093775046108164549"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093815293084913762"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093836626166501559"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093867046270648702"
+      },
+      {
+        "title": "Større brand på havnen i Køge",
+        "url": "https://x.com/PolitiUpdate/status/2093929160750338132"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen nær Borup",
+        "url": "https://x.com/PolitiUpdate/status/2094058312656646206"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen nær Borup",
+        "url": "https://x.com/PolitiUpdate/status/2094062422156059116"
+      }
+    ],
+    "København": [
+      {
+        "title": "To personer varetægtsfængslet for forsøg på tricktyveri",
+        "url": "https://x.com/PolitiUpdate/status/2091811601183846451"
+      },
+      {
+        "title": "Kvinde tildelt straksdom for forsøg på tyveri",
+        "url": "https://x.com/PolitiUpdate/status/2091837861691867445"
+      },
+      {
+        "title": "Målrettet færdselskontrol på Hareskovvej",
+        "url": "https://x.com/PolitiUpdate/status/2091842351824298061"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2092240308016947397"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2092240839913414902"
+      },
+      {
+        "title": "Fire sigtet i sag om salg af piller",
+        "url": "https://x.com/PolitiUpdate/status/2092567216298586540"
+      },
+      {
+        "title": "61 cyklister sigtet for at cykle over for rødt lys ved skole",
+        "url": "https://x.com/PolitiUpdate/status/2092859577876558181"
+      },
+      {
+        "title": "Mand med relation til bandemiljøet varetægtsfængslet",
+        "url": "https://x.com/PolitiUpdate/status/2093296694616334524"
+      },
+      {
+        "title": "Mand varetægtsfængslet for besiddelse af narkotika, kniv og gasspray",
+        "url": "https://x.com/PolitiUpdate/status/2093317214753689770"
+      },
+      {
+        "title": "Forbud mod ikke-nødvendig kørsel i nattelivszoner",
+        "url": "https://x.com/PolitiUpdate/status/2093327504148930847"
+      },
+      {
+        "title": "Ild i beboelsesejendom",
+        "url": "https://x.com/PolitiUpdate/status/2092364726999355445"
+      }
+    ],
+    "Sydjylland": [
+      {
+        "title": "22-årig mand varetægtsfængslet for butikstyveri",
+        "url": "https://x.com/PolitiUpdate/status/2092208454698233923"
+      },
+      {
+        "title": "22-årig mand varetægtsfængslet for butikstyveri",
+        "url": "https://x.com/PolitiUpdate/status/2092211034258112743"
+      },
+      {
+        "title": "Grundlovsforhør Retten i Sønderborg 11.00",
+        "url": "https://x.com/PolitiUpdate/status/2092554827268247735"
+      },
+      {
+        "title": "Personpåkørsel ved Brørup station",
+        "url": "https://x.com/PolitiUpdate/status/2091954946874994926"
+      },
+      {
+        "title": "Personpåkørsel ved Brørup station",
+        "url": "https://x.com/PolitiUpdate/status/2091968036689543555"
+      },
+      {
+        "title": "Fartkontrol Degnevej Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2092218992752800108"
+      },
+      {
+        "title": "Ekspedition i Toftlund og Skærbæk er lukket i dag",
+        "url": "https://x.com/PolitiUpdate/status/2092579901195030830"
+      },
+      {
+        "title": "24-årig mand fremstilles i grundlovsforhør efter hændelse i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2093614191613710610"
+      }
+    ],
+    "Anklagemyndigheden ved Midt-": [
+      {
+        "title": "Borgere hjalp med opklaring - mand dømt for indbrud i Fårevejle",
+        "url": "https://x.com/PolitiUpdate/status/2092899498171453674"
+      },
+      {
+        "title": "Dømt for vold mod tre-årig i Jyderup",
+        "url": "https://x.com/PolitiUpdate/status/2092245745881776291"
+      },
+      {
+        "title": "Dømt for forsøg på overgreb mod fiktiv 14-årig",
+        "url": "https://x.com/PolitiUpdate/status/2092252161111707943"
+      },
+      {
+        "title": "Fire års fængsel for besiddelse af kokain",
+        "url": "https://x.com/PolitiUpdate/status/2092641239317512437"
+      },
+      {
+        "title": "Borgere hjalp med opklaring - mand dømt for indbrud i Fårevejle",
+        "url": "https://x.com/PolitiUpdate/status/2092907460441018821"
+      },
+      {
+        "title": "Dømt for vold på ungdomsinstitution på Stevns",
+        "url": "https://x.com/PolitiUpdate/status/2092989375550480676"
+      }
+    ],
+    "Statsadvokaten i København": [
+      {
+        "title": "Østre Landsret idømmer 28-årig mand 14 års fængsel for drabsforsøg med pistol i forbindelse med en bandekonflikt i Holbæk i 2024",
+        "url": "https://x.com/PolitiUpdate/status/2092221307853435186"
+      }
+    ],
+    "Nordjylland": [
+      {
+        "title": "20-årig mand idømt lang fængselsstraf for medvirken til narkosalg",
+        "url": "https://x.com/PolitiUpdate/status/2092231576184902143"
+      },
+      {
+        "title": "56-årig mand idømt 3 år og 3 måneders fængsel for besiddelse af en pistol og narkotika",
+        "url": "https://x.com/PolitiUpdate/status/2093294239979647151"
+      }
+    ],
+    "Statsadvokaten i Viborg": [
+      {
+        "title": "78-årig mand idømt tre års fængsel og boligforbud for seksuelle overgreb begået i 2007-2008 i Sydøstjylland",
+        "url": "https://x.com/PolitiUpdate/status/2092579911269818667"
+      }
+    ],
+    "Rigsadvokaten": [
+      {
+        "title": "Brug af unge kontrolkøbere var ikke i strid med menneskerettighederne",
+        "url": "https://x.com/PolitiUpdate/status/2093286399634227238"
+      }
+    ],
+    "Kbh Vestegn": [
+      {
+        "title": "Dømt for drabsforsøg",
+        "url": "https://x.com/PolitiUpdate/status/2093317348602376274"
+      },
+      {
+        "title": "Dom for drabsforsøg",
+        "url": "https://x.com/PolitiUpdate/status/2093319408550912467"
+      },
+      {
+        "title": "Dom for husfreds- og blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2093327653373882684"
+      }
+    ],
+    "Fyn": [
+      {
+        "title": "Våd vejbane skaber farlige forhold og uheld på Fynske Motorvej - bilister opfordres til forsigtighed",
+        "url": "https://x.com/PolitiUpdate/status/2093399210947391994"
+      }
+    ]
+  },
+  "prev_week": {
+    "year": 2026,
+    "week": 34
+  },
+  "next_week": null,
+  "generated_at": "2026-08-30T16:01:01.254246+00:00"
+}
