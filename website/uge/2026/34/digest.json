@@ -1046,6 +1046,9 @@
     "year": 2026,
     "week": 33
   },
-  "next_week": null,
+  "next_week": {
+    "year": 2026,
+    "week": 35
+  },
   "generated_at": "2026-08-30T02:22:30.984841+00:00"
 }
