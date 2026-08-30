@@ -1,7 +1,7 @@
 """Query the database and group this week's posts by category."""
 
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from . import config
 
@@ -86,9 +86,22 @@ def _iso_week_start(year: int, week: int) -> datetime:
     return week_one_monday + timedelta(weeks=week - 1)
 
 
-def current_week() -> tuple[int, int]:
-    """Return (year, week) for the ISO week that just ended (last Sunday)."""
-    today = datetime.now(timezone.utc).date()
+def current_week(today: date | None = None) -> tuple[int, int]:
+    """Return (year, week) for the ISO week the digest should summarize.
+
+    The digest runs Sunday evening (18:00 Danish) and summarizes the week
+    ending that day, so on Sunday this returns *this* week. On any other day
+    (e.g. a manual mid-week run, or a Monday schedule) it returns the most
+    recently completed week (the one ending last Sunday).
+
+    The optional `today` argument exists only to make the Sunday/mid-week
+    boundary deterministic under test.
+    """
+    if today is None:
+        today = datetime.now(timezone.utc).date()
+    if today.weekday() == 6:  # Sunday — the week ends today
+        iso = today.isocalendar()
+        return iso.year, iso.week
     # Use the previous week so we have a complete dataset
     last_sunday = today - timedelta(days=today.weekday() + 1)
     iso = last_sunday.isocalendar()

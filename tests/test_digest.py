@@ -5,6 +5,7 @@ misfiring schedule) and hitting X's duplicate-content 403 every time,
 since the tweet text is fully determined by week/total/categories/url.
 """
 
+import datetime as dt
 import os
 import sys
 from unittest import mock
@@ -14,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest  # noqa: E402
 import tweepy  # noqa: E402
 
+import src.digest.builder as builder  # noqa: E402
 import src.digest.generator as generator  # noqa: E402
 import src.digest.main as digest_main  # noqa: E402
 import src.digest.poster as poster  # noqa: E402
@@ -37,6 +39,21 @@ class TestState:
             state.write({"last_posted_week": "2026-W32"})
             state.write({"last_posted_week": "2026-W33"})
             assert state.read() == {"last_posted_week": "2026-W33"}
+
+
+class TestCurrentWeek:
+    def test_sunday_returns_the_week_ending_that_day(self):
+        # Regression: on Sunday the digest summarizes *this* week, not last week.
+        sunday = dt.date(2026, 8, 23)
+        assert builder.current_week(today=sunday) == (2026, 34)
+
+    def test_monday_returns_the_week_that_just_ended(self):
+        monday = dt.date(2026, 8, 24)
+        assert builder.current_week(today=monday) == (2026, 34)
+
+    def test_midweek_returns_the_most_recently_completed_week(self):
+        wednesday = dt.date(2026, 8, 26)
+        assert builder.current_week(today=wednesday) == (2026, 34)
 
 
 class TestRunSkipsAlreadyPostedWeek:
