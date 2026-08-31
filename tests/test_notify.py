@@ -234,6 +234,39 @@ class TestDroppedPostsCheck:
             lines = health._check_dropped_posts("2026-08-20T00:00:00+00:00")
         assert len(lines) == 15
 
+    def test_is_expected_drop(self):
+        assert health._is_expected_drop("Efterlysning") is True
+        assert health._is_expected_drop("Efterlysning aflyst") is True
+        assert health._is_expected_drop("Efterlysning - Viborg: Har du set X?") is True
+        assert health._is_expected_drop("Traffic accident") is False
+        assert health._is_expected_drop("Vi efterlyser Jan") is False
+
+    def test_suppresses_expected_efterlysning_drops(self, tmp_path):
+        """Missing-person 'Efterlysning' drops are the police's own GDPR
+        cleanup, not lost content — they shouldn't be reported."""
+        import sqlite3
+
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.execute("CREATE TABLE posts (guid TEXT, title TEXT, status TEXT, posted_at TEXT)")
+        rows = [
+            ("g1", "Efterlysning", "2026-08-30T13:07:00+00:00"),
+            ("g2", "Efterlysning aflyst", "2026-08-30T13:16:00+00:00"),
+            ("g3", "Traffic accident", "2026-08-30T13:20:00+00:00"),
+        ]
+        for guid, title, posted in rows:
+            conn.execute(
+                "INSERT INTO posts VALUES (?, ?, 'dropped_stale', ?)",
+                (guid, title, posted),
+            )
+        conn.commit()
+        conn.close()
+        with mock.patch.object(health.config, "DB_PATH", str(db_path)):
+            lines = health._check_dropped_posts("2026-08-30T00:00:00+00:00")
+        assert len(lines) == 1
+        assert "Traffic accident" in lines[0]
+        assert "Efterlysning" not in lines[0]
+
 
 class TestRunDigest:
     def test_first_run_establishes_baseline_without_sending(self):

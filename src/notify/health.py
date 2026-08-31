@@ -25,7 +25,22 @@ from .prowl import send
 # outage from producing an unreadably long Prowl push.
 _MAX_DROPPED_POSTS_SHOWN = 10
 
+# Titles the police routinely delete once the case is resolved. A missing-person
+# appeal ("Efterlysning") carries the individual's identifying data and is removed
+# (GDPR) once they're found — the police also tell media to delete it. So a drop
+# here is the expected outcome of the police's own cleanup, not content the bot
+# failed to surface. "Efterlyser" (appealing for a suspect/witness) is NOT deleted
+# and is intentionally not matched by this marker.
+_EXPECTED_DROP_TITLE_MARKERS = ("efterlysning",)
+
 logger = logging.getLogger(__name__)
+
+
+def _is_expected_drop(title: str) -> bool:
+    """True if a dropped post is expected to vanish (police GDPR cleanup of
+    missing-person data) and so shouldn't page anyone."""
+    lowered = title.lower()
+    return any(marker in lowered for marker in _EXPECTED_DROP_TITLE_MARKERS)
 
 
 def _check_bot_health() -> list[str]:
@@ -108,9 +123,18 @@ def _check_dropped_posts(since_iso: str) -> list[str]:
     except sqlite3.Error as e:
         return [f"could not read posts DB at {config.DB_PATH}: {e}"]
 
+    expected = [(g, t) for g, t in rows if _is_expected_drop(t)]
+    real = [(g, t) for g, t in rows if not _is_expected_drop(t)]
+    if expected:
+        logger.info(
+            "Suppressing %d dropped post(s) expected to be deleted by the police "
+            "(missing-person 'Efterlysning' GDPR cleanup): %s",
+            len(expected),
+            ", ".join(t for _, t in expected),
+        )
     return [
         f"{title} (sm_id={urlparse(guid).fragment or guid}) — {guid}"
-        for guid, title in rows
+        for guid, title in real
     ]
 
 
