@@ -90,6 +90,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - English summaries for international audience (biggest revenue lever per financials.md)
 - Analytics: track which posts drive profile visits/follows
 - Own funnel: drive followers to a site/newsletter we control
+- **Same-case threading (cross-release)** — thread follow-up releases as replies to the original tweet (e.g. an "Efterlysning aflyst" cancellation replies to its "Efterlysning" appeal) instead of posting flat. *What exists:* multi-update threads on one page already post as threads, and `poster` supports `in_reply_to_tweet_id`. *Gap:* linking separate releases (different URLs) for the same case. *Scope (narrow first):* thread only "Efterlysning aflyst/afblæst" cancellations as replies to their original appeal. *Needs:* (1) a case key derived from content — district + person name/age/location, since the police don't tag releases with a case ID; (2) a DB `case_key → tweet_id` map recorded when an appeal posts; (3) reply wiring passing `in_reply_to_tweet_id` on a key match. *Risks:* false-positive linking (mitigate with conservative matching + flat-post fallback), cancellations not repeating the full person description, cancellations arriving before the appeal posts. *Recommendation:* narrow scope + conservative matching; genuine UX win but not urgent.
 
 ## Prerequisites / open items
 - X API Project/App + OAuth 1.0a keys with write access
