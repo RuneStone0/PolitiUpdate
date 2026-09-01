@@ -56,9 +56,12 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
 - Log rotation: 10MB × 3 files (json-file driver)
 - Monitor logs; keep latency low
 
-## Phase 3 — Weekly AI summaries
-- Generate weekly digest of the week's items with an LLM
-- Post as original content, disclosed as AI-generated, format varied weekly
+## Phase 3 — Weekly AI summaries ✅
+- `src/digest` — generates a weekly Danish narrative of the week's items via DeepSeek (neutral, journalistic tone), with notable-case picks linked back to real posts
+- Categorizes posts by Danish keyword heuristics (efterlysninger, vidneappeller, anholdelser/sigtelser, øvrige)
+- Publishes to a GitHub Gist, commits static archive pages (`website/uge/{year}/{week}/`), and posts a link tweet (varied headline templates)
+- Scheduled Sunday 18:00 Danish (DST-aware) via a Hermes cron job → `python -m src.digest`; weeks 33–35 posted live
+- ⚠️ Open gap: the original "disclosed as AI-generated" bullet — the narrative and tweet carry no AI disclosure label today
 
 ## Phase 4 — Website ✅
 - Landing page explaining what PolitiUpdate is and how to use it
