@@ -1,0 +1,202 @@
+{
+  "week": 36,
+  "year": 2026,
+  "total_posts": 18,
+  "categories": {
+    "missing_person": 1,
+    "witness_appeal": 0,
+    "arrest": 5,
+    "other": 12
+  },
+  "narrative": "Ugens vigtigste sag er efterlysningen af en savnet person fra Åbenrå, som politiet fortsat leder efter. Derudover har der været flere demonstrationer i København, og politiet har undersøgt mistænkelige forhold i Kolding. En 59-årig mand blev sigtet for brandstiftelse, men er siden løsladt. Desuden har der været en personpåkørsel ved Humlebæk Station, og en politibåd var involveret i et sammenstød med en anden båd.",
+  "narrative_html": "Ugens vigtigste sag er efterlysningen af <a href=\"https://x.com/PolitiUpdate/status/2096553324577427882\" target=\"_blank\" rel=\"noopener\">en savnet person fra Åbenrå</a>, som politiet fortsat leder efter. Derudover har der været flere demonstrationer i København, og politiet har undersøgt mistænkelige forhold i Kolding. En 59-årig mand blev sigtet for brandstiftelse, men er siden løsladt. Desuden har der været en personpåkørsel ved Humlebæk Station, og en politibåd var involveret i et sammenstød med en anden båd.",
+  "notable": [
+    {
+      "title": "59-årig mand sigtet for brandstiftelse er løsladt",
+      "summary": "En 59-årig mand blev sigtet for brandstiftelse, men er efterfølgende løsladt.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2096529947787747657"
+    },
+    {
+      "title": "Politibåd i sammenstød med anden båd",
+      "summary": "En politibåd var involveret i et sammenstød med en anden båd.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2096247606930538816"
+    },
+    {
+      "title": "Personpåkørsel Humlebæk st.",
+      "summary": "En person blev påkørt ved Humlebæk Station.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2096123556761587889"
+    }
+  ],
+  "category_items": {
+    "missing_person": [
+      {
+        "title": "Savnet Åbenrå",
+        "url": "https://x.com/PolitiUpdate/status/2096553324577427882"
+      }
+    ],
+    "witness_appeal": [],
+    "arrest": [
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096257349736603757"
+      },
+      {
+        "title": "Politiet undersøger mistænkeligt forhold i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2096260687823831397"
+      },
+      {
+        "title": "Politiet undersøger mistænkeligt forhold i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2096298142824288329"
+      },
+      {
+        "title": "59-årig mand sigtet for brandstiftelse er løsladt",
+        "url": "https://x.com/PolitiUpdate/status/2096529947787747657"
+      },
+      {
+        "title": "59-årig mand sigtet for brandstiftelse er løsladt",
+        "url": "https://x.com/PolitiUpdate/status/2096530465629057325"
+      }
+    ],
+    "other": [
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096123556761587889"
+      },
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096123559253017050"
+      },
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096129701182116187"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096175083572408801"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096188411904483415"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096192283796496466"
+      },
+      {
+        "title": "Politibåd i sammenstød med anden båd",
+        "url": "https://x.com/PolitiUpdate/status/2096247606930538816"
+      },
+      {
+        "title": "Togtrafikken standset København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2096265300815810789"
+      },
+      {
+        "title": "Politibåd i sammenstød med anden båd",
+        "url": "https://x.com/PolitiUpdate/status/2096265573726613915"
+      },
+      {
+        "title": "Togtrafikken standset København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2096272238601437475"
+      },
+      {
+        "title": "Mistænkeligt forhold",
+        "url": "https://x.com/PolitiUpdate/status/2096543562775359966"
+      },
+      {
+        "title": "Fremstilling Retten i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2096555644459565398"
+      }
+    ]
+  },
+  "region_items": {
+    "Sydjylland": [
+      {
+        "title": "Savnet Åbenrå",
+        "url": "https://x.com/PolitiUpdate/status/2096553324577427882"
+      },
+      {
+        "title": "59-årig mand sigtet for brandstiftelse er løsladt",
+        "url": "https://x.com/PolitiUpdate/status/2096529947787747657"
+      },
+      {
+        "title": "59-årig mand sigtet for brandstiftelse er løsladt",
+        "url": "https://x.com/PolitiUpdate/status/2096530465629057325"
+      },
+      {
+        "title": "Fremstilling Retten i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2096555644459565398"
+      }
+    ],
+    "København": [
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096257349736603757"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096175083572408801"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096188411904483415"
+      },
+      {
+        "title": "Flere demonstrationer i København",
+        "url": "https://x.com/PolitiUpdate/status/2096192283796496466"
+      },
+      {
+        "title": "Politibåd i sammenstød med anden båd",
+        "url": "https://x.com/PolitiUpdate/status/2096247606930538816"
+      },
+      {
+        "title": "Togtrafikken standset København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2096265300815810789"
+      },
+      {
+        "title": "Politibåd i sammenstød med anden båd",
+        "url": "https://x.com/PolitiUpdate/status/2096265573726613915"
+      },
+      {
+        "title": "Togtrafikken standset København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2096272238601437475"
+      },
+      {
+        "title": "Mistænkeligt forhold",
+        "url": "https://x.com/PolitiUpdate/status/2096543562775359966"
+      }
+    ],
+    "Sydøstjylland": [
+      {
+        "title": "Politiet undersøger mistænkeligt forhold i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2096260687823831397"
+      },
+      {
+        "title": "Politiet undersøger mistænkeligt forhold i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2096298142824288329"
+      }
+    ],
+    "Nordsjælland": [
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096123556761587889"
+      },
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096123559253017050"
+      },
+      {
+        "title": "Personpåkørsel Humlebæk st.",
+        "url": "https://x.com/PolitiUpdate/status/2096129701182116187"
+      }
+    ]
+  },
+  "prev_week": {
+    "year": 2026,
+    "week": 35
+  },
+  "next_week": null,
+  "generated_at": "2026-09-06T16:00:47.668930+00:00"
+}
