@@ -3,6 +3,13 @@
 These verify that the pipeline (fetch → extract → format) produces expected
 output for specific, known pages. If the page HTML changes or our parser breaks,
 these tests catch it before deployment.
+
+Live-content fragility: these tests fetch the *live* press release pages.
+Police routinely edit releases after publication — most notably, missing-person
+("Efterlysning") posts are updated when the person is found and the identifying
+details (name, description) are scrubbed. Assert only on stable,
+identity-independent keywords (district, "eftersøgningen", "114", locations);
+never on the person's name, which disappears the moment the case is resolved.
 """
 
 import os
@@ -21,8 +28,10 @@ REGRESSION_CASES = [
         "https://via.ritzau.dk/pressemeddelelse/15073728/efterlysning-78-arige-henning-savnes-naer-korsoer",
         "Sydsjællands og Lolland-Falsters Politi",
         2,
-        ["Henning", "eftersøgningen", "Korsør", "114"],
-        "Missing person (Henning) — multi-update, public appeal",
+        # The person was since found; police scrubbed the name "Henning", so we
+        # assert only on stable keywords, never the (now-removed) name.
+        ["eftersøgningen", "Korsør", "114"],
+        "Missing person (found) — multi-update, public appeal",
     ),
     (
         "https://via.ritzau.dk/pressemeddelelse/15073120/grundlovsforhor-i-retten-i-randers-kl-1600",
