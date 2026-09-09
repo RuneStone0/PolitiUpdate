@@ -357,6 +357,19 @@ body {
   text-align: center;
 }
 
+/* Newsletter (Brevo embed) */
+.newsletter-embed {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: #ffffff;
+  margin-top: 8px;
+}
+.newsletter-embed iframe {
+  display: block;
+  border: 0;
+}
+
 /* digest-mobile shows only when the grid is single-column (mobile) */
 .digest-mobile { display: none; }
 .digest-desktop { display: flex; }

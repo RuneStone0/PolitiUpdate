@@ -96,6 +96,7 @@ tests/              Unit + regression + e2e tests (146 tests, 99% coverage)
   - Jutland: Nordjylland, Midt/Vestjylland, Østjylland, Sydøstjylland, Sydjylland
   - Fyn: Fyn
   - National: Rigspolitiet, NSK, Politiskolen
+  - *Progress (2026-09-09):* region-map (`src/common/regions.py`) + the `python -m src.newsletter --dry-run` pipeline (DB → region group → per-region briefing, national auto-included) are built & tested (19 tests pass). The Brevo send (`src/newsletter/sender.py`) is a stub pending `BREVO_API_KEY` + the `region` contact attribute.
 - **Distribution: Reddit + Danish communities** — post the weekly digest to r/Denmark / r/Europe / Danish FB groups with a mention back; the fastest organic follower lever, zero code risk.
 - **Correction: English is NOT a bilingual mirror** — X native translation already covers comprehension; dual-language posts risk duplicate/spam flagging and double the API cost. English value lives only in the curated briefing (discoverability + original content), not as a parallel feed. (Supersedes the old "English summaries" lever below.)
 - English *discoverability* within the briefing, for the international audience (see correction above; folded into the newsletter briefing)
