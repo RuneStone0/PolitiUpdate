@@ -28,6 +28,7 @@ Build a service that pulls short messages from the Danish police RSS feed (Polit
 - Behavior: posts title + message with district prefix (e.g. "Sydsjælland/L-F |"), update messages prefixed 🔄️
 - Speed measurement (2026-08-03): posts ~23–93s after RSS pubDate (avg ~60s) → their poll interval ≈ 60–90s
 - Implication: we can beat them with 30–60s polling (expected ~15–45s latency)
+- Competitive watch: Ritzau/police launched a region-specific iOS/Android app (Sept 2026) surfacing district-filtered updates — validates regional demand. Our e-mail newsletter is a different channel (passive weekly, no app install), so build it regardless; watch the app's feature set.
 
 ## Strategy decisions
 - **Post in Danish as-is** — no translation. X auto-translates on the viewer side; translation is NOT a differentiator.
