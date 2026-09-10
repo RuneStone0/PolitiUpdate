@@ -14,6 +14,9 @@ DB_PATH = os.getenv("DB_PATH", "data/politiupdate.db")
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
 BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "")
 BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "PolitiUpdate")
+# Name of the Brevo contact attribute that stores a subscriber's region
+# (values match src.common.regions labels). Override if named differently.
+BREVO_REGION_ATTRIBUTE = os.getenv("BREVO_REGION_ATTRIBUTE", "REGION")
 
 # Optional: override the ISO week number to generate (e.g. "36" for testing)
 NEWSLETTER_WEEK_OVERRIDE = os.getenv("NEWSLETTER_WEEK_OVERRIDE", "").strip()

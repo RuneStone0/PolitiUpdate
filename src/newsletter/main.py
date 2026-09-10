@@ -40,9 +40,6 @@ def run(week: int, year: int, dry_run: bool) -> None:
         {k: len(v) for k, v in data["regions"].items()},
     )
 
-    # NOTE: subscriber targeting by region is wired once the Brevo ``region``
-    # contact attribute + a subscriber source exist. For now we preview every
-    # region in dry-run; real per-region sends need the recipient list.
     results = []
     for region_label, posts in data["regions"].items():
         brief = generator.generate(region_label, posts, week, year)
@@ -50,7 +47,16 @@ def run(week: int, year: int, dry_run: bool) -> None:
         print(brief["subject"])
         print(brief["text"])
         print("---")
-        res = sender.send_region(region_label, [], brief["subject"], brief["text"], dry_run=dry_run)
+        if not brief["text"]:
+            # Nothing for this region (no local and no national posts) — skip
+            # rather than email subscribers an empty "0 opdateringer" briefing.
+            logger.info("Skipping %r — no posts this week", region_label)
+            results.append({"region": region_label, "sent": 0, "dry_run": dry_run, "note": "no-posts"})
+            continue
+        # Real mode pulls the region's subscribers from Brevo (REGION contact
+        # attribute); dry-run previews with an empty list.
+        subscribers = [] if dry_run else sender.fetch_region_contacts(region_label)
+        res = sender.send_region(region_label, subscribers, brief["subject"], brief["text"], dry_run=dry_run)
         results.append(res)
 
     if not dry_run:
