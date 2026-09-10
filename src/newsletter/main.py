@@ -1,13 +1,16 @@
 """Weekly region-filtered newsletter orchestrator.
 
 Run with:
-    python -m src.newsletter              # build + send (needs BREVO_API_KEY)
+    python -m src.newsletter              # build + send campaigns (needs BREVO_API_KEY)
     python -m src.newsletter --dry-run    # print region briefings, send nothing
     python -m src.newsletter --week 36    # override the ISO week (current year)
+
+Per region it (1) syncs the region's contacts into that region's Brevo list,
+then (2) creates + sends a Brevo *email campaign* to that list (campaigns carry
+the unsubscribe link + stats that transactional email doesn't).
 """
 
 import argparse
-import json
 import logging
 import sys
 from datetime import datetime, timezone
@@ -47,23 +50,34 @@ def run(week: int, year: int, dry_run: bool) -> None:
         print(brief["subject"])
         print(brief["text"])
         print("---")
+
         if not brief["text"]:
             # Nothing for this region (no local and no national posts) — skip
             # rather than email subscribers an empty "0 opdateringer" briefing.
             logger.info("Skipping %r — no posts this week", region_label)
-            results.append({"region": region_label, "sent": 0, "dry_run": dry_run, "note": "no-posts"})
+            results.append({"region": region_label, "sent": False, "dry_run": dry_run, "note": "no-posts"})
             continue
-        # Real mode pulls the region's subscribers from Brevo (REGION contact
-        # attribute); dry-run previews with an empty list.
-        subscribers = [] if dry_run else sender.fetch_region_contacts(region_label)
-        res = sender.send_region(region_label, subscribers, brief["subject"], brief["text"], dry_run=dry_run)
+
+        campaign_name = f"PolitiUpdate · {region_label} · uge {week}, {year}"
+        if dry_run:
+            res = sender.send_region_campaign(
+                region_label, brief["subject"], brief["html"], name=campaign_name, dry_run=True
+            )
+        else:
+            # Populate the region list from the REGION attribute before sending,
+            # so the campaign reaches everyone who picked this region.
+            synced = sender.sync_region_lists(region_label)
+            res = sender.send_region_campaign(
+                region_label, brief["subject"], brief["html"], name=campaign_name
+            )
+            res["synced_contacts"] = synced
         results.append(res)
 
     if not dry_run:
         # Persist the sent marker only after a real (non-preview) send.
         state.write({"last_sent_week": week_key})
 
-    logger.info("Done — built %d region briefings (dry_run=%s)", len(results), dry_run)
+    logger.info("Done — processed %d region briefings (dry_run=%s)", len(results), dry_run)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -84,7 +98,7 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         run(week, year, dry_run=args.dry_run)
-    except Exception as exc:
+    except Exception:
         logger.exception("Newsletter generation failed")
         sys.exit(1)
 

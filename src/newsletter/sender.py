@@ -1,19 +1,21 @@
-"""Send a region's briefing to its subscribers via Brevo.
+"""Send a region's briefing to its subscribers via Brevo *email campaigns*.
 
-The Brevo REST integration is gated: in ``--dry-run`` it never touches the
-network and just prints what it *would* send; otherwise it requires a
-``BREVO_API_KEY`` and an authenticated ``BREVO_SENDER_EMAIL`` (a verified
-sending domain). Until then it surfaces a clear error instead of failing
-silently.
+Why campaigns and not transactional email: a newsletter is consent-based
+marketing, so every send must carry a working unsubscribe link + a
+List-Unsubscribe header and should offer open/click stats. Brevo's
+transactional ``POST /v3/smtp/email`` adds no unsubscribe footer, so it is the
+wrong tool for a newsletter — campaigns are.
 
-Sender details (Brevo v3 API):
-- ``fetch_region_contacts`` pulls a region's subscribers via
-  ``GET /v3/contacts`` filtered on the region contact attribute (documented
-  ``equals(ATTRIBUTE,"value")`` filter syntax).
-- ``_brevo_send`` dispatches ONE transactional email per subscriber via
-  ``POST /v3/smtp/email`` — one call per recipient so no subscriber's address
-  is exposed to the others (GDPR-safe), and well within the free plan's
-  300 emails/day.
+Flow per region:
+1. ``sync_region_lists`` makes sure every contact whose ``REGION`` attribute
+   equals the region is a member of that region's Brevo list. (The public
+   signup form can only target one list, so membership is derived here from the
+   attribute.)
+2. ``send_region_campaign`` creates an email campaign targeting that list and
+   sends it immediately (``POST /emailCampaigns`` -> ``POST /emailCampaigns/{id}/sendNow``).
+
+Gated: in ``--dry-run`` nothing touches the network; a real send requires
+``BREVO_API_KEY`` and an authenticated ``BREVO_SENDER_EMAIL``.
 """
 
 import logging
@@ -26,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 BREVO_API = "https://api.brevo.com/v3"
 CONTACTS_PAGE_LIMIT = 1000
+BATCH_CHUNK = 100  # Brevo's /contacts/batch accepts a limited batch per call
 
 
 def _headers() -> dict:
@@ -36,32 +39,64 @@ def _headers() -> dict:
     }
 
 
-def send_region(
+def list_id_for_region(region_label: str) -> int | None:
+    """Return the Brevo list id mapped to a region label (None if unmapped)."""
+    return config.BREVO_REGION_LISTS.get(region_label)
+
+
+def campaign_payload(
     region_label: str,
-    subscriber_emails: list[str],
     subject: str,
-    text: str,
+    html: str,
+    list_id: int,
+    name: str | None = None,
+) -> dict:
+    """Build the ``POST /v3/emailCampaigns`` body for one region.
+
+    The campaign targets exactly one region list. A custom unsubscribe page is
+    attached when ``BREVO_UNSUB_PAGE_ID`` is set (otherwise Brevo's default
+    unsubscribe page is used).
+    """
+    payload = {
+        "name": name or f"PolitiUpdate - {region_label} - {subject}",
+        "sender": {"name": config.BREVO_SENDER_NAME, "email": config.BREVO_SENDER_EMAIL},
+        "subject": subject,
+        "htmlContent": html,
+        "recipients": {"listIds": [list_id]},
+    }
+    if config.BREVO_UNSUB_PAGE_ID:
+        payload["unsubscriptionPageId"] = config.BREVO_UNSUB_PAGE_ID
+    return payload
+
+
+def send_region_campaign(
+    region_label: str,
+    subject: str,
+    html: str,
+    name: str | None = None,
     dry_run: bool = False,
 ) -> dict:
-    """Send (or, in dry-run, preview) a single region's briefing.
+    """Create + immediately send one region's campaign.
 
-    If there are no subscribers, this is a no-op. In dry-run it returns the
-    payload it would send without posting.
+    In dry-run it returns what it *would* do and never touches the network.
     """
-    if not subscriber_emails:
-        return {"region": region_label, "sent": 0, "dry_run": dry_run, "note": "no-subscribers"}
+    list_id = list_id_for_region(region_label)
+    if list_id is None:
+        raise RuntimeError(
+            "No Brevo list mapped for region %r — check BREVO_REGION_LISTS." % region_label
+        )
+
+    payload = campaign_payload(region_label, subject, html, list_id, name=name)
 
     if dry_run:
         logger.info(
-            "[dry-run] Would email %d subscriber(s) for %r: %s",
-            len(subscriber_emails), region_label, subject,
+            "[dry-run] Would create+send campaign %r -> list %s", payload["name"], list_id
         )
-        return {"region": region_label, "sent": len(subscriber_emails), "dry_run": True}
+        return {"region": region_label, "list_id": list_id, "dry_run": True, "sent": False}
 
     if not config.BREVO_API_KEY:
         raise RuntimeError(
-            "BREVO_API_KEY is not set — can't send region %r. Wire the Brevo account "
-            "+ key, or run with --dry-run." % region_label
+            "BREVO_API_KEY is not set — can't send region %r. Use --dry-run." % region_label
         )
     if not config.BREVO_SENDER_EMAIL:
         raise RuntimeError(
@@ -69,47 +104,26 @@ def send_region(
             "sender address (e.g. nyhedsbrev@mail.politiupdate.com)." % region_label
         )
 
-    return _brevo_send(region_label, subscriber_emails, subject, text)
+    created = requests.post(
+        f"{BREVO_API}/emailCampaigns", headers=_headers(), json=payload, timeout=30
+    )
+    created.raise_for_status()
+    campaign_id = created.json().get("id")
 
+    sent = requests.post(
+        f"{BREVO_API}/emailCampaigns/{campaign_id}/sendNow", headers=_headers(), timeout=30
+    )
+    sent.raise_for_status()
 
-def _brevo_send(region_label: str, emails: list[str], subject: str, text: str) -> dict:
-    """Dispatch one transactional email per subscriber via Brevo.
-
-    One ``POST /v3/smtp/email`` call per recipient keeps each subscriber's
-    address private (no cross-recipient exposure in the To header). Returns the
-    collected message IDs.
-    """
-    message_ids: list[str] = []
-    for email in emails:
-        payload = {
-            "sender": {
-                "name": config.BREVO_SENDER_NAME,
-                "email": config.BREVO_SENDER_EMAIL,
-            },
-            "to": [{"email": email}],
-            "subject": subject,
-            "textContent": text,
-        }
-        resp = requests.post(
-            f"{BREVO_API}/smtp/email",
-            headers=_headers(),
-            json=payload,
-            timeout=30,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        message_ids.append(data.get("messageId") or data.get("messageIds"))
-
-    logger.info("Sent %d email(s) for region %r", len(emails), region_label)
-    return {"region": region_label, "sent": len(emails), "message_ids": message_ids}
+    logger.info("Campaign %s sent for region %r (list %s)", campaign_id, region_label, list_id)
+    return {"region": region_label, "list_id": list_id, "campaign_id": campaign_id, "sent": True}
 
 
 def fetch_region_contacts(region_label: str) -> list[str]:
-    """Return the subscriber email addresses for a region.
+    """Return the email addresses whose REGION attribute equals ``region_label``.
 
-    Queries ``GET /v3/contacts`` with the documented ``equals`` filter on the
-    region contact attribute (e.g. ``equals(REGION,"Jylland")``), paginating
-    through the full result set.
+    Uses the documented ``equals(ATTRIBUTE,"value")`` filter on
+    ``GET /v3/contacts``, paginating through the full result set.
     """
     if not config.BREVO_API_KEY:
         raise RuntimeError("BREVO_API_KEY is not set — can't fetch region contacts.")
@@ -141,3 +155,37 @@ def fetch_region_contacts(region_label: str) -> list[str]:
 
     logger.info("Fetched %d subscriber(s) for region %r", len(emails), region_label)
     return emails
+
+
+def sync_region_lists(region_label: str, dry_run: bool = False) -> int:
+    """Ensure every contact with ``REGION == region_label`` is in that region's list.
+
+    Campaigns target lists, and the signup form only ever adds contacts to one
+    list, so we map attribute -> list membership here before sending.
+    Returns the number of contacts synced.
+    """
+    list_id = list_id_for_region(region_label)
+    if list_id is None:
+        raise RuntimeError("No Brevo list mapped for region %r." % region_label)
+
+    emails = fetch_region_contacts(region_label)
+    if not emails:
+        return 0
+    if dry_run:
+        logger.info(
+            "[dry-run] Would add %d contact(s) to list %s (%r)", len(emails), list_id, region_label
+        )
+        return len(emails)
+
+    for start in range(0, len(emails), BATCH_CHUNK):
+        chunk = emails[start:start + BATCH_CHUNK]
+        resp = requests.post(
+            f"{BREVO_API}/contacts/batch",
+            headers=_headers(),
+            json={"contacts": [{"email": e, "listIds": [list_id]} for e in chunk]},
+            timeout=60,
+        )
+        resp.raise_for_status()
+
+    logger.info("Synced %d contact(s) into list %s (%r)", len(emails), list_id, region_label)
+    return len(emails)

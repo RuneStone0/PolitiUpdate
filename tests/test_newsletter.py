@@ -12,6 +12,7 @@ import pytest
 from src.common import regions as region_map
 from src.newsletter import builder
 from src.newsletter import config as nconfig
+from src.newsletter import generator, sender
 
 
 def _make_db(path, rows):
@@ -97,3 +98,62 @@ def test_unknown_district_bucketed_separately(seed_db):
     assert len(data["national"]) == 0
     # Unknown posts are NOT injected into regions.
     assert len(data["regions"][region_map.REGION_HOVEDSTADEN]) == 1
+
+
+# --- Brevo campaign send (region lists + unsubscribe) ------------------------
+
+
+def test_region_list_mapping_covers_every_region():
+    for label in [*region_map.REGIONS, region_map.REGION_NATIONAL]:
+        assert sender.list_id_for_region(label), f"no Brevo list mapped for {label!r}"
+    assert sender.list_id_for_region("Findes ikke") is None
+
+
+def test_campaign_payload_shape(monkeypatch):
+    monkeypatch.setattr(nconfig, "BREVO_SENDER_EMAIL", "nyhedsbrev@mail.politiupdate.com")
+    monkeypatch.setattr(nconfig, "BREVO_SENDER_NAME", "PolitiUpdate")
+    monkeypatch.setattr(nconfig, "BREVO_UNSUB_PAGE_ID", "")
+    payload = sender.campaign_payload(
+        region_map.REGION_JYLLAND, "Emne", "<p>Hej</p>", 5, name="Navn"
+    )
+    assert payload["name"] == "Navn"
+    assert payload["subject"] == "Emne"
+    assert payload["htmlContent"] == "<p>Hej</p>"
+    assert payload["recipients"] == {"listIds": [5]}
+    assert payload["sender"] == {"name": "PolitiUpdate", "email": "nyhedsbrev@mail.politiupdate.com"}
+    assert "unsubscriptionPageId" not in payload
+
+
+def test_campaign_payload_attaches_custom_unsub_page(monkeypatch):
+    monkeypatch.setattr(nconfig, "BREVO_UNSUB_PAGE_ID", "abc123def456")
+    payload = sender.campaign_payload(region_map.REGION_FYN, "S", "<p>x</p>", 6)
+    assert payload["unsubscriptionPageId"] == "abc123def456"
+
+
+def test_send_region_campaign_dry_run_never_touches_network(monkeypatch):
+    def boom(*_a, **_k):  # any HTTP call fails the test
+        raise AssertionError("network call made during dry-run")
+
+    monkeypatch.setattr(sender.requests, "post", boom)
+    res = sender.send_region_campaign(region_map.REGION_JYLLAND, "S", "<p>x</p>", dry_run=True)
+    assert res["dry_run"] is True
+    assert res["list_id"] == 5
+    assert res["sent"] is False
+
+
+def test_generate_html_has_title_link_and_region():
+    posts = [
+        {
+            "title": "Efterlysning",
+            "district": "Fyns Politi",
+            "body": "Første linje\nAnden linje",
+            "x_post_id": "123",
+        }
+    ]
+    brief = generator.generate(region_map.REGION_FYN, posts, 36, 2026)
+    assert brief["subject"]
+    assert "Efterlysning" in brief["html"]
+    assert "https://x.com/PolitiUpdate/status/123" in brief["html"]
+    assert "Fyn" in brief["html"]
+    assert "Efterlysning" in brief["text"]
+

@@ -26,55 +26,91 @@ def set_creds(monkeypatch):
     monkeypatch.setattr(nconfig, "BREVO_SENDER_NAME", "PolitiUpdate")
 
 
-def test_send_region_no_subscribers_is_noop():
-    res = sender.send_region("Jylland", [], "subj", "text")
-    assert res["sent"] == 0
-    assert res["note"] == "no-subscribers"
-
-
-def test_send_region_dry_run_previews_without_network():
-    res = sender.send_region("Jylland", ["a@example.com"], "subj", "text", dry_run=True)
+def test_send_region_campaign_dry_run_skips_network(set_creds):
+    with mock.patch("src.newsletter.sender.requests.post") as post:
+        res = sender.send_region_campaign("Jylland", "subj", "<p>x</p>", dry_run=True)
     assert res["dry_run"] is True
-    assert res["sent"] == 1
+    assert res["sent"] is False
+    assert res["list_id"] == nconfig.BREVO_REGION_LISTS["Jylland"]
+    assert post.call_count == 0
 
 
-def test_send_region_requires_api_key(monkeypatch):
+def test_send_region_campaign_requires_api_key(monkeypatch):
     monkeypatch.setattr(nconfig, "BREVO_API_KEY", "")
+    monkeypatch.setattr(nconfig, "BREVO_SENDER_EMAIL", "nyhedsbrev@mail.politiupdate.com")
     with pytest.raises(RuntimeError, match="BREVO_API_KEY"):
-        sender.send_region("Jylland", ["a@example.com"], "subj", "text")
+        sender.send_region_campaign("Jylland", "subj", "<p>x</p>")
 
 
-def test_send_region_requires_sender_email(monkeypatch):
+def test_send_region_campaign_requires_sender_email(monkeypatch):
     monkeypatch.setattr(nconfig, "BREVO_API_KEY", "k")
     monkeypatch.setattr(nconfig, "BREVO_SENDER_EMAIL", "")
     with pytest.raises(RuntimeError, match="BREVO_SENDER_EMAIL"):
-        sender.send_region("Jylland", ["a@example.com"], "subj", "text")
+        sender.send_region_campaign("Jylland", "subj", "<p>x</p>")
 
 
-def test_brevo_send_one_email_per_recipient(set_creds):
-    resp = _mock_response(payload={"messageId": "msg-1"})
-    with mock.patch("src.newsletter.sender.requests.post", return_value=resp) as post:
-        result = sender._brevo_send(
-            "Jylland", ["a@example.com", "b@example.com"], "subj", "text"
-        )
+def test_send_region_campaign_unmapped_region_raises(set_creds):
+    with pytest.raises(RuntimeError, match="No Brevo list mapped"):
+        sender.send_region_campaign("Nordpolen", "subj", "<p>x</p>")
 
-    assert result["sent"] == 2
+
+def test_send_region_campaign_creates_then_sends(set_creds):
+    created = _mock_response(status=201, payload={"id": 42})
+    sent = _mock_response(status=204)
+    with mock.patch(
+        "src.newsletter.sender.requests.post", side_effect=[created, sent]
+    ) as post:
+        res = sender.send_region_campaign("Jylland", "subj", "<p>x</p>", name="nm")
+
+    assert res["campaign_id"] == 42
+    assert res["sent"] is True
     assert post.call_count == 2
-    # Each call targets exactly one recipient (privacy — no cross-exposure).
-    first_payload = post.call_args_list[0].kwargs["json"]
-    assert first_payload["to"] == [{"email": "a@example.com"}]
-    assert first_payload["sender"]["email"] == "nyhedsbrev@mail.politiupdate.com"
-    assert first_payload["sender"]["name"] == "PolitiUpdate"
-    assert first_payload["subject"] == "subj"
-    assert first_payload["textContent"] == "text"
-    assert post.call_args_list[0].args[0].endswith("/v3/smtp/email")
+    # 1) create the campaign targeting the region list
+    assert post.call_args_list[0].args[0].endswith("/v3/emailCampaigns")
+    payload = post.call_args_list[0].kwargs["json"]
+    assert payload["name"] == "nm"
+    assert payload["subject"] == "subj"
+    assert payload["htmlContent"] == "<p>x</p>"
+    assert payload["recipients"] == {"listIds": [nconfig.BREVO_REGION_LISTS["Jylland"]]}
+    assert payload["sender"]["email"] == "nyhedsbrev@mail.politiupdate.com"
+    # 2) send it immediately
+    assert post.call_args_list[1].args[0].endswith("/v3/emailCampaigns/42/sendNow")
+    assert post.call_args_list[1].kwargs["headers"]["api-key"] == "test-key"
 
 
-def test_brevo_send_uses_api_key_header(set_creds):
-    resp = _mock_response(payload={"messageId": "msg-1"})
-    with mock.patch("src.newsletter.sender.requests.post", return_value=resp) as post:
-        sender._brevo_send("Jylland", ["a@example.com"], "subj", "text")
-    assert post.call_args.kwargs["headers"]["api-key"] == "test-key"
+def test_send_region_campaign_attaches_unsub_page(set_creds, monkeypatch):
+    monkeypatch.setattr(nconfig, "BREVO_UNSUB_PAGE_ID", "unsub-1")
+    created = _mock_response(status=201, payload={"id": 7})
+    sent = _mock_response(status=204)
+    with mock.patch("src.newsletter.sender.requests.post", side_effect=[created, sent]) as post:
+        sender.send_region_campaign("Fyn", "s", "<p>x</p>")
+    assert post.call_args_list[0].kwargs["json"]["unsubscriptionPageId"] == "unsub-1"
+
+
+def test_sync_region_lists_batches_contacts(set_creds):
+    page = _mock_response(
+        payload={"contacts": [{"email": f"u{i}@x.dk"} for i in range(3)], "count": 3}
+    )
+    batch = _mock_response(status=204)
+    with mock.patch("src.newsletter.sender.requests.get", return_value=page), mock.patch(
+        "src.newsletter.sender.requests.post", return_value=batch
+    ) as post:
+        n = sender.sync_region_lists("Jylland")
+
+    assert n == 3
+    assert post.call_args.args[0].endswith("/v3/contacts/batch")
+    body = post.call_args.kwargs["json"]["contacts"]
+    assert {"email": "u0@x.dk", "listIds": [nconfig.BREVO_REGION_LISTS["Jylland"]]} in body
+
+
+def test_sync_region_lists_dry_run_skips_network(set_creds):
+    page = _mock_response(payload={"contacts": [{"email": "a@x.dk"}], "count": 1})
+    with mock.patch("src.newsletter.sender.requests.get", return_value=page), mock.patch(
+        "src.newsletter.sender.requests.post"
+    ) as post:
+        n = sender.sync_region_lists("Jylland", dry_run=True)
+    assert n == 1
+    assert post.call_count == 0
 
 
 def test_fetch_region_contacts_filters_by_region_attribute(set_creds):
