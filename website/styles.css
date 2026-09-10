@@ -357,17 +357,61 @@ body {
   text-align: center;
 }
 
-/* Newsletter (Brevo embed) */
-.newsletter-embed {
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background: #ffffff;
-  margin-top: 8px;
+/* Newsletter (Brevo native form, themed to match the site) */
+.panel-newsletter .sib-form {
+  background: transparent !important;
+  text-align: left !important;
 }
-.newsletter-embed iframe {
-  display: block;
-  border: 0;
+.panel-newsletter .sib-form-container,
+.panel-newsletter #sib-container {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+.panel-newsletter #sib-container {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+.panel-newsletter .sib-text-form-block p,
+.panel-newsletter .sib-form-block p,
+.panel-newsletter .sib-form-block {
+  color: #cbd5e1 !important;
+  font-family: inherit !important;
+}
+.panel-newsletter .entry__label {
+  color: #dbe7f0 !important;
+  font-family: inherit !important;
+}
+.panel-newsletter .entry__specification {
+  color: #7f93ad !important;
+  font-family: inherit !important;
+}
+.panel-newsletter .input {
+  background: #0b1d33 !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  color: #e2e8f0 !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+}
+.panel-newsletter .input::placeholder {
+  color: #7f93ad !important;
+}
+.panel-newsletter .entry__error {
+  border-radius: 8px !important;
+}
+.panel-newsletter .sib-form-block__button {
+  width: 100% !important;
+  background: #0b5ed7 !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  color: #e7eff7 !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+.panel-newsletter .sib-form-block__button:hover:not([disabled]) {
+  background: #0a51bb !important;
 }
 
 /* digest-mobile shows only when the grid is single-column (mobile) */
