@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 
 GITHUB_API = "https://api.github.com"
 
+# Public site root — used for canonical/Open Graph URLs on the archive pages so
+# a shared digest link renders a proper preview card (Reddit, Facebook, X).
+SITE_BASE_URL = "https://runestone0.github.io/PolitiUpdate"
+
 CATEGORY_LABELS = {
     "missing_person": "Efterlysninger/savnede",
     "witness_appeal": "Vidneappeller",
@@ -212,6 +216,15 @@ def _render_archive_html(digest: dict) -> str:
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Uge {week}, {year} — PolitiUpdate</title>
+          <meta name="description" content="Ugens overblik over politiets opdateringer: {total} meddelelser i uge {week}, {year} — efterlysninger, anholdelser og øvrige sager fra hele Danmark.">
+          <link rel="canonical" href="{SITE_BASE_URL}/uge/{year}/{week}/">
+          <meta property="og:type" content="article">
+          <meta property="og:site_name" content="PolitiUpdate">
+          <meta property="og:locale" content="da_DK">
+          <meta property="og:title" content="Uge {week}, {year} — PolitiUpdate">
+          <meta property="og:description" content="Ugens overblik over politiets opdateringer: {total} meddelelser fra hele Danmark.">
+          <meta property="og:url" content="{SITE_BASE_URL}/uge/{year}/{week}/">
+          <meta name="twitter:card" content="summary">
           <link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
           <link rel="stylesheet" href="../../../styles.css">
           <link rel="stylesheet" href="../../digest.css">
