@@ -1,6 +1,6 @@
 # Growth — distribution playbook
 
-_Maintained by the daily self-improvement routine. Last updated 2026-09-11._
+_Maintained by the daily self-improvement routine. Last updated 2026-09-12._
 
 **One-line thesis:** the product works and the pipeline is built; the constraint is that
 **nobody sees the output** (27 X followers ≈ zero organic reach). Distribution first —
@@ -12,7 +12,7 @@ new features raise a ceiling nobody reaches.
 | --- | --- | --- |
 | X followers | **27** | public profile API `api.fxtwitter.com/PolitiUpdate` (no X creds needed) |
 | Followers 5 days earlier | 22 (2026-09-06) | our own x-stats gist — +5, i.e. it does grow |
-| Posts / following / joined | 1,080 / 69 / 2025-10-26 | public profile API |
+| Posts / following / joined | 1,099 / 69 / 2025-10-26 | public profile API (re-verified 2026-09-12) |
 | X verified (blue check) | **no** | public profile API (`verification.verified = false`) |
 | Bio website link | `https://runestone0.github.io/PolitiUpdate/` ✅ | public profile API |
 | Engagement, week 36 (18 posts) | 16 posts 0 likes / 0 replies; 1 × 2 replies; 1 × 1 retweet | per-tweet fetch of the week's archive |
@@ -42,6 +42,18 @@ Same-day verification changed *how* that account has to be worked:
 - Credentials live in `/opt/data/private/reddit-politiupdate.env` — never in this repo.
 - Let a brand-new account age a day or two (and subscribe to r/Denmark) before the modmail;
   a zero-age account with no history is the most likely to be filtered.
+- ⚠️ **UPDATE 2026-09-12 — the OAuth/script-app plan is DEAD.** Reddit **closed self-service
+  API app creation** under the *Responsible Builder Policy* (announced by u/redtaboo on
+  r/redditdev, late 2025: *"Starting today, self-service access to Reddit's public data API
+  will be closed... you will need to request approval before gaining access"*). In practice the
+  `reddit.com/prefs/apps` **"create app" button no longer creates an app — it just routes to
+  the policy** (confirmed live 2026-06-17, and by Rune 2026-09-12). So the script-app + creds
+  step in ES-2203 **cannot be completed**; `/opt/data/private/reddit-politiupdate.env` stays
+  unfilled by design, not by omission. The only remaining API path is a **Data Access Request**
+  (manual review, ~2–4 weeks, no SLA, and posting/bot use is precisely what the policy is built
+  to refuse — a read-only request has better odds). **Conclusion: Reddit posting must be
+  MANUAL** (a human, in a browser) — the modmail and the weekly self-post need no app. Reading
+  via RSS / `.json` is possible in principle, but reddit.com is WAF-blocked (403) from this host.
 
 Rules fetched live 2026-09-11 from `https://www.reddit.com/r/Denmark/about/rules.json`:
 
@@ -143,24 +155,43 @@ pitch. Method, not blasting:
 
 ## 7. Pre-flight before any share push
 
-1. **Link previews.** A shared link that renders as a bare URL loses clicks. Staged
-   2026-09-11 (locally, **not deployed**): `website/index.html` meta description + Open
-   Graph/Twitter card, the digest archive template in `src/digest/publisher.py`, plus
-   `website/robots.txt` and `website/sitemap.xml`. Deploy = commit + push to `main`, then
-   verify with `curl -s https://runestone0.github.io/PolitiUpdate/ | grep -c 'og:title'`.
+1. **Link previews.** ✅ **Deployed 2026-09-12** (commit `3943547`): landing page +
+   digest-archive template carry meta description, Open Graph/Twitter card and canonical;
+   `robots.txt`/`sitemap.xml` are live. ⚠️ Two gaps found on 2026-09-12 and fixed locally
+   (awaiting the next push):
+   - archives **33–36 and `/uge/` had no meta at all** — the publisher template only applies
+     to *future* weeks, so every already-published week page still rendered as a bare link;
+     the five existing pages are backfilled now.
+   - **no `og:image` existed**, so every card rendered text-only. Added
+     `website/og-image.png` (1200×630, regenerable with `scripts/make-og-image.py`) and
+     `twitter:card=summary_large_image` everywhere.
+   - A new CI gate (`tests/test_share_meta.py`) fails if any published page loses its OG
+     metadata, uses a relative URL, points `og:image` at a missing file, or the card stops
+     being a 1200×630 PNG.
+   Deploy = commit + push to `main`, then verify with
+   `curl -s https://runestone0.github.io/PolitiUpdate/ | grep -c 'og:image'`.
 2. **Measurement.** The site has **no analytics**, so today we cannot tell whether Reddit,
    Facebook, or the X bio actually sends traffic, nor whether the signup form converts.
-   Options: GoatCounter / Umami free tier (account needed → Rune) or self-hosted Umami on the
-   UmbrelOS host (Docker, no third party). Required before spending more effort on channels.
+   *Assessed 2026-09-12:* **self-hosting Umami on the UmbrelOS host does NOT work** for this
+   site — the host is not publicly reachable, so the tracking script would never load for a
+   GitHub Pages visitor. Analytics therefore requires a SaaS account; **GoatCounter free** is
+   the lean pick (one email account, one script tag, no cookies, EU-friendly). Rune-only step.
 3. **UTM tags** on every shared link (`?utm_source=reddit&utm_medium=social`) so the first
-   channel that works is identifiable.
-4. Grow the tracked image asset set: an `og:image` (a 1200×630 card) is still missing — cards
-   without an image render small.
+   channel that works is identifiable — useful the moment analytics exists, harmless before.
+4. **Tracked image asset** ✅ staged 2026-09-12 — `og:image` (1200×630) now exists and is
+   wired in (see §7.1).
 
 ## 8. Measurement & cadence
 
 Per run, append to `data/growth_metrics.jsonl`: date, followers, signups, share-push status.
 Channel rule: two attempts with no measurable effect → drop the channel and say so out loud.
+
+**Attribution while there is no analytics (adopted 2026-09-12):** push **one channel at a
+time** and log the push window (start date, channel, exact copy) in the same metrics file.
+Read the effect from two public signals only: the Brevo contact list (`GET /v3/contacts` →
+`createdAt` timestamps) and `api.fxtwitter.com/PolitiUpdate` followers. Sequential pushes make
+a channel attributable without pageviews; a channel that produces **no** new contact and no
+follower movement in its window is dropped, not "kept warm".
 
 ## 9. Asks (things only Rune can do)
 
@@ -171,5 +202,15 @@ Channel rule: two attempts with no measurable effect → drop the channel and sa
    `/opt/data/private/reddit-politiupdate.env`.
 2. ~~Approve deploying the staged link-preview/meta changes~~ — **APPROVED and DEPLOYED
    2026-09-12** (commit `3943547`): `og:title` verified in the served HTML, `robots.txt` and
-   `sitemap.xml` both 200. Still outstanding from pre-flight: an `og:image` (1200×630) does not
-   exist, so cards render without a picture, and there is still no analytics.
+   `sitemap.xml` both 200.
+3. **Reddit channel unblock** (routed to Alfred 2026-09-12; ⚠️ **re-scoped 2026-09-12**): the
+   **account is created ✅**, but the **script app cannot be created** — Reddit closed
+   self-service API app creation (see the §2 update). ES-2203 as written (script app + client
+   id/secret handover) is therefore **not executable**. Remaining realistic path = **manual
+   posting**: Rune posts the r/Denmark modmail (§6A) and the weekly self-post (§6B) from the
+   dedicated account — no app, no API. Optionally file a **Data Access Request** as a separate,
+   low-priority ticket (low odds for posting, ~2–4 weeks).
+4. **Staged share-card push** — `og:image` + the archive meta backfill are committed-ready but
+   local; needs the same go-ahead + push as item 2, then a curl re-check.
+5. **Analytics account** (GoatCounter free — see §7.2) whenever Rune wants channel-level truth;
+   until then §8's sequential attribution is the method.
