@@ -27,6 +27,22 @@ live posting account before spending anything else.
 
 ## 2. Channel 1 — Reddit (largest reach per unit of effort, but gated)
 
+**Rune's decision 2026-09-12: use a DEDICATED PolitiUpdate account**, not his personal one.
+Same-day verification changed *how* that account has to be worked:
+
+- **reddit.com's web UI is WAF-blocked from the Hermes/Umbrel host.** Both `www.reddit.com`
+  and `old.reddit.com` return *"You've been blocked by network security"* to the browser, and
+  anonymous JSON (`/r/Denmark/about.json`) returns the same 403 page. Egress IP
+  `192.74.128.119`.
+- **The OAuth API is reachable from the same host:** `POST /api/v1/access_token` answers
+  normally (HTTP 401 on dummy credentials) — so a **script-type app + OAuth** is the working
+  path for modmail and posting, *not* a logged-in browser session.
+- Therefore: the **signup is a human step** (CAPTCHA, from Rune's own browser), and so is
+  creating the app. After that this channel should run through the API.
+- Credentials live in `/opt/data/private/reddit-politiupdate.env` — never in this repo.
+- Let a brand-new account age a day or two (and subscribe to r/Denmark) before the modmail;
+  a zero-age account with no history is the most likely to be filtered.
+
 Rules fetched live 2026-09-11 from `https://www.reddit.com/r/Denmark/about/rules.json`:
 
 - **Rule 5 (Selvpromovering):** *"Spam, selvpromovering, køb/salg, indsamlinger og referral
@@ -148,7 +164,12 @@ Channel rule: two attempts with no measurable effect → drop the channel and sa
 
 ## 9. Asks (things only Rune can do)
 
-1. **Which account posts to Reddit** — his personal account, or create a dedicated
-   PolitiUpdate account and hand the credentials over (the sub rules still require the modmail
-   first, which I can send once I have an account).
-2. Approve deploying the staged link-preview/meta changes.
+1. ~~Which account posts to Reddit~~ — **DECIDED 2026-09-12: a dedicated PolitiUpdate
+   account.** Remaining human steps (blocked on Rune's own browser, see §2): create the
+   account (username candidates in order: `PolitiUpdate`, `PolitiUpdateDK`, `politiupdate_dk`),
+   then a **script**-type app at `reddit.com/prefs/apps`, and paste both values into
+   `/opt/data/private/reddit-politiupdate.env`.
+2. ~~Approve deploying the staged link-preview/meta changes~~ — **APPROVED and DEPLOYED
+   2026-09-12** (commit `3943547`): `og:title` verified in the served HTML, `robots.txt` and
+   `sitemap.xml` both 200. Still outstanding from pre-flight: an `og:image` (1200×630) does not
+   exist, so cards render without a picture, and there is still no analytics.
