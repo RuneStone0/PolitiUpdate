@@ -1,0 +1,1111 @@
+{
+  "week": 37,
+  "year": 2026,
+  "total_posts": 128,
+  "categories": {
+    "missing_person": 4,
+    "witness_appeal": 6,
+    "arrest": 46,
+    "other": 72
+  },
+  "narrative": "Efterlysningen af Sara var ugens mest omtalte sag, hvor politiet bad offentligheden om hjælp til at finde hende. I Frederikshavn blev en 18-årig mand efterlyst, men efterlysningen blev senere aflyst. Også en 33-årig kvinde var efterlyst, men efterlysningen er aflyst. Ud over disse sager behandlede politiet et større antal anholdelser og sigtelser, herunder flere grundlovsforhør og domme for blandt andet vold, voldtægt og narkotikakriminalitet. Der var også flere færdselsuheld og andre hændelser i trafikken samt enkelte brande og eksplosioner.",
+  "narrative_html": "<a href=\"https://x.com/PolitiUpdate/status/2097301670527140263\" target=\"_blank\" rel=\"noopener\">Efterlysningen af Sara</a> var ugens mest omtalte sag, hvor politiet bad offentligheden om hjælp til at finde hende. I Frederikshavn blev <a href=\"https://x.com/PolitiUpdate/status/2097023132750233972\" target=\"_blank\" rel=\"noopener\">en 18-årig mand</a> efterlyst, men efterlysningen blev senere aflyst. Også en <a href=\"https://x.com/PolitiUpdate/status/2097326166374060494\" target=\"_blank\" rel=\"noopener\">33-årig kvinde</a> var efterlyst, men efterlysningen er aflyst. Ud over disse sager behandlede politiet et større antal anholdelser og sigtelser, herunder flere grundlovsforhør og domme for blandt andet vold, voldtægt og narkotikakriminalitet. Der var også flere færdselsuheld og andre hændelser i trafikken samt enkelte brande og eksplosioner.",
+  "notable": [
+    {
+      "title": "28-årig mand varetægtsfængslet i sag om omfattende handel med opioider",
+      "summary": "En 28-årig mand blev varetægtsfængslet i en sag om omfattende handel med opioider.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2096923104903909445"
+    },
+    {
+      "title": "Grundlovsforhør vedrørende drabsforsøg i Vildbjerg",
+      "summary": "Der blev afholdt grundlovsforhør vedrørende et drabsforsøg i Vildbjerg.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2097614731674878095"
+    },
+    {
+      "title": "Statsadvokaten i København anker dom om ruskevold mod spædbarn",
+      "summary": "Statsadvokaten i København har anket en dom om ruskevold mod et spædbarn.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2096916437629878371"
+    },
+    {
+      "title": "Nordsjællands Politi søger særligt vidne i syv år gammel sag",
+      "summary": "Nordsjællands Politi søger et særligt vidne i en syv år gammel sag.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2096925689996103738"
+    }
+  ],
+  "category_items": {
+    "missing_person": [
+      {
+        "title": "Savnet 18 årig mand i Frederikshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097023132750233972"
+      },
+      {
+        "title": "Aflysning efterlysning Frederikshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097050813483061356"
+      },
+      {
+        "title": "Efterlysning af 33 årig kvinde ( Aflyst )",
+        "url": "https://x.com/PolitiUpdate/status/2097326166374060494"
+      },
+      {
+        "title": "Efterlysning af 33 årig kvinde ( Aflyst )",
+        "url": "https://x.com/PolitiUpdate/status/2097326943591166271"
+      }
+    ],
+    "witness_appeal": [
+      {
+        "title": "Har du set Sara?",
+        "url": "https://x.com/PolitiUpdate/status/2097301670527140263"
+      },
+      {
+        "title": "Har du set Sara?",
+        "url": "https://x.com/PolitiUpdate/status/2097318395150790777"
+      },
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097320763003162818"
+      },
+      {
+        "title": "Nordsjællands Politi efterlyser mistænkt for kontaktbedrageri",
+        "url": "https://x.com/PolitiUpdate/status/2097595871923949980"
+      },
+      {
+        "title": "Mangler du denne fliseskærer?",
+        "url": "https://x.com/PolitiUpdate/status/2097604081833656504"
+      },
+      {
+        "title": "Røveri i Esbjerg.",
+        "url": "https://x.com/PolitiUpdate/status/2098777708369166529"
+      }
+    ],
+    "arrest": [
+      {
+        "title": "36-årig mand idømt et års fængsel",
+        "url": "https://x.com/PolitiUpdate/status/2096846841786884259"
+      },
+      {
+        "title": "To personer varetægtsfængslet for indbrud",
+        "url": "https://x.com/PolitiUpdate/status/2096857599442649528"
+      },
+      {
+        "title": "To mænd fængslet til 1 oktober",
+        "url": "https://x.com/PolitiUpdate/status/2096901310440411587"
+      },
+      {
+        "title": "28-årig mand varetægtsfængslet i sag om omfattende handel med opioider",
+        "url": "https://x.com/PolitiUpdate/status/2096923104903909445"
+      },
+      {
+        "title": "23 klip efter morgenindsats i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2096932622366872052"
+      },
+      {
+        "title": "Målrettet færdselskontrol på Amager",
+        "url": "https://x.com/PolitiUpdate/status/2096951595674247359"
+      },
+      {
+        "title": "Fangeflugt",
+        "url": "https://x.com/PolitiUpdate/status/2096969661305025017"
+      },
+      {
+        "title": "Fangeflugt",
+        "url": "https://x.com/PolitiUpdate/status/2096994542490902738"
+      },
+      {
+        "title": "Målrettet indsats mod trick- og lommetyverier",
+        "url": "https://x.com/PolitiUpdate/status/2097218967224176765"
+      },
+      {
+        "title": "54-årig kvinde sigtet for cykeltyveri",
+        "url": "https://x.com/PolitiUpdate/status/2097243350873301406"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus - formentligt kl. 12.00",
+        "url": "https://x.com/PolitiUpdate/status/2097249005290086757"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 14.00",
+        "url": "https://x.com/PolitiUpdate/status/2097277199846125840"
+      },
+      {
+        "title": "Kvinde sigtet for kørsel i narkopåvirket tilstand",
+        "url": "https://x.com/PolitiUpdate/status/2097284912579797016"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 14.00",
+        "url": "https://x.com/PolitiUpdate/status/2097308871329300717"
+      },
+      {
+        "title": "To mænd varetægtsfængslet for forsøg på tyveri",
+        "url": "https://x.com/PolitiUpdate/status/2097318916330799287"
+      },
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097319703496847432"
+      },
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097320236097867984"
+      },
+      {
+        "title": "Politiet har afgivet varselsskud nær Ringsted",
+        "url": "https://x.com/PolitiUpdate/status/2097453958474387704"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.45",
+        "url": "https://x.com/PolitiUpdate/status/2097572980436193440"
+      },
+      {
+        "title": "Fremstilling kl 9.30 af mistænkt i sag fra Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097577610360631327"
+      },
+      {
+        "title": "Fremstilling kl 9.30 af mistænkt i sag fra Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097611773998452743"
+      },
+      {
+        "title": "Grundlovsforhør vedrørende drabsforsøg i Vildbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097614731674878095"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Roskilde",
+        "url": "https://x.com/PolitiUpdate/status/2097656033342833123"
+      },
+      {
+        "title": "Grundlovsforhør vedrørende drabsforsøg i Vildbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097676520588497077"
+      },
+      {
+        "title": "Straksdom: 23-årig dømt for våben og hash",
+        "url": "https://x.com/PolitiUpdate/status/2097681025786855446"
+      },
+      {
+        "title": "26 cyklister fik bøder på Østerbro",
+        "url": "https://x.com/PolitiUpdate/status/2097683090818904553"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Roskilde",
+        "url": "https://x.com/PolitiUpdate/status/2097698517267738679"
+      },
+      {
+        "title": "31-årig mand sigtet for flere indbrud",
+        "url": "https://x.com/PolitiUpdate/status/2097960671560474892"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2097965570050367978"
+      },
+      {
+        "title": "Sigtet for besiddelse af to pistoler",
+        "url": "https://x.com/PolitiUpdate/status/2098002115419685115"
+      },
+      {
+        "title": "Knivstikkeri i Herlev",
+        "url": "https://x.com/PolitiUpdate/status/2098032382351983036"
+      },
+      {
+        "title": "Fire personer fængslet efter fund af kokain",
+        "url": "https://x.com/PolitiUpdate/status/2098038032138178779"
+      },
+      {
+        "title": "21-årig kvinde idømt fængsel i 3 år og 6 måneder ved straksdom",
+        "url": "https://x.com/PolitiUpdate/status/2098038823171268776"
+      },
+      {
+        "title": "44-årig mand idømt 3,5 års fængsel for voldtægt og grov vold i Skive",
+        "url": "https://x.com/PolitiUpdate/status/2098063976580211173"
+      },
+      {
+        "title": "Mistænkt anholdt i sag om hændelse på skole i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098073490876481729"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2098285287898284156"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2098289910591668412"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098310433983869319"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098322998944280997"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2098330451836604835"
+      },
+      {
+        "title": "Politi beslaglægger 1651 puffbars efter borgertip",
+        "url": "https://x.com/PolitiUpdate/status/2098345351652815070"
+      },
+      {
+        "title": "Varetægtsfængsling i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098373213025919054"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098408621147349477"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098765532065620332"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2099007879357616397"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2099060939580678250"
+      }
+    ],
+    "other": [
+      {
+        "title": "Afspærring - Øresundsmotorvejen i retning mod Danmark",
+        "url": "https://x.com/PolitiUpdate/status/2096834542543991104"
+      },
+      {
+        "title": "Afspærring - Øresundsmotorvejen i retning mod Danmark",
+        "url": "https://x.com/PolitiUpdate/status/2096843491947270593"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen ved Gevninge",
+        "url": "https://x.com/PolitiUpdate/status/2096845037384704037"
+      },
+      {
+        "title": "Mistænkeligt forhold",
+        "url": "https://x.com/PolitiUpdate/status/2096847613731742058"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen ved Gevninge",
+        "url": "https://x.com/PolitiUpdate/status/2096852986521944510"
+      },
+      {
+        "title": "Fremstilling Retten i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2096900006875902208"
+      },
+      {
+        "title": "Statsadvokaten i København anker dom om ruskevold mod spædbarn",
+        "url": "https://x.com/PolitiUpdate/status/2096916437629878371"
+      },
+      {
+        "title": "Nordsjællands Politi søger særligt vidne i syv år gammel sag",
+        "url": "https://x.com/PolitiUpdate/status/2096925689996103738"
+      },
+      {
+        "title": "Vestre Landsret idømmer lastbilchauffør dagbøder og betinget frakendelse af førerretten for uagtsomt manddrab",
+        "url": "https://x.com/PolitiUpdate/status/2096971470442578431"
+      },
+      {
+        "title": "Mindre eksplosion ved Janderup skole i Varde",
+        "url": "https://x.com/PolitiUpdate/status/2096988128909398218"
+      },
+      {
+        "title": "Færdseluheld Isterødvejen/Gadevangsvej, Hillerød",
+        "url": "https://x.com/PolitiUpdate/status/2096988902280311202"
+      },
+      {
+        "title": "Færdselsuheld Isterødvejen/Gadevangsvej, Hillerød",
+        "url": "https://x.com/PolitiUpdate/status/2096989417336615336"
+      },
+      {
+        "title": "Alvorligt færdselsuheld spærre Sorøvej ved Ruds Vedby i begge retninger",
+        "url": "https://x.com/PolitiUpdate/status/2097026459462438924"
+      },
+      {
+        "title": "Opfølgning på syrebombe sprængning på Janderup skole i Varde",
+        "url": "https://x.com/PolitiUpdate/status/2097043631727427769"
+      },
+      {
+        "title": "Borgerekspedition i Toftlund lukket",
+        "url": "https://x.com/PolitiUpdate/status/2097201269601693876"
+      },
+      {
+        "title": "Fyns Politi anholder 40-årig mand i sag om blufærdighedskrænkelser ved skoler i Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097233080901902729"
+      },
+      {
+        "title": "139 km/t på Sottrupvej – bilist står til betinget frakendelse",
+        "url": "https://x.com/PolitiUpdate/status/2097279010170720502"
+      },
+      {
+        "title": "Færdselsuheld ved Limfjordstunnelen i Nørresundby",
+        "url": "https://x.com/PolitiUpdate/status/2097296969274388780"
+      },
+      {
+        "title": "Trafikken normaliseret efter færdselsuheld ved Limfjordstunnelen i Nørresundby",
+        "url": "https://x.com/PolitiUpdate/status/2097297740070011191"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097303975003603143"
+      },
+      {
+        "title": "Dømt for vold og voldtægt af kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2097306814467670280"
+      },
+      {
+        "title": "Målrettet indsats mod trick- og lommetyverier",
+        "url": "https://x.com/PolitiUpdate/status/2097317861832474697"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097319177908547946"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097327974278373810"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097346064710074549"
+      },
+      {
+        "title": "Bare rolig - det er bare en øvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097573505579856075"
+      },
+      {
+        "title": "Aarhus: Bare rolig - det er bare en øvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097578902084583804"
+      },
+      {
+        "title": "26-årig kvinde idømt fængsel for knivstik i Fredericia",
+        "url": "https://x.com/PolitiUpdate/status/2097579168544510104"
+      },
+      {
+        "title": "Dømt for at sælge alkohol til ung kontrolkøber",
+        "url": "https://x.com/PolitiUpdate/status/2097587643416748380"
+      },
+      {
+        "title": "Frifindelse i Esbjerg ankes ikke",
+        "url": "https://x.com/PolitiUpdate/status/2097640914068120053"
+      },
+      {
+        "title": "Telefonsystem ude af drift",
+        "url": "https://x.com/PolitiUpdate/status/2097665770813796799"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097686432639033784"
+      },
+      {
+        "title": "Telefonsystem virker igen",
+        "url": "https://x.com/PolitiUpdate/status/2097686438154575949"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097692860145693006"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097702122657828969"
+      },
+      {
+        "title": "Indsats på København Syd Station",
+        "url": "https://x.com/PolitiUpdate/status/2097738898189533336"
+      },
+      {
+        "title": "Indsats på København Syd Station",
+        "url": "https://x.com/PolitiUpdate/status/2097748383641567352"
+      },
+      {
+        "title": "Fsrtkontrol Vardevej Bramming",
+        "url": "https://x.com/PolitiUpdate/status/2097777835624804780"
+      },
+      {
+        "title": "Mobil politistation i Værløse efter skyderi fredag",
+        "url": "https://x.com/PolitiUpdate/status/2097920648068887005"
+      },
+      {
+        "title": "Knippelsbro spærret i retning mod Christianshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097937557489438914"
+      },
+      {
+        "title": "Rettelse: Knippelsbro spærret i retning mod Christianshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097941669517947202"
+      },
+      {
+        "title": "Rettelse: Christians Brygge spærret i den ene retning",
+        "url": "https://x.com/PolitiUpdate/status/2097941937303302575"
+      },
+      {
+        "title": "Mindre spild ved Koppers ved Nyborg - der er ingen fare, kun ubehagelig lugt",
+        "url": "https://x.com/PolitiUpdate/status/2097961705372553321"
+      },
+      {
+        "title": "Dom i sag om røveri, grov vold og frihedsberøvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097962872420876289"
+      },
+      {
+        "title": "Christians Brygge spærret efter uheld",
+        "url": "https://x.com/PolitiUpdate/status/2097963007179661575"
+      },
+      {
+        "title": "Anmeldelse om udslip ved Bella Center",
+        "url": "https://x.com/PolitiUpdate/status/2097970300306718938"
+      },
+      {
+        "title": "Christians Brygge åben igen efter uheld",
+        "url": "https://x.com/PolitiUpdate/status/2097971333250654718"
+      },
+      {
+        "title": "Mangler du denne fliseskærer?",
+        "url": "https://x.com/PolitiUpdate/status/2097980312320131136"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold på Tornbjergvej i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098013381538328800"
+      },
+      {
+        "title": "Dømt for stalking af ex-kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2098029034898866383"
+      },
+      {
+        "title": "Anmeldelser om truende opkald",
+        "url": "https://x.com/PolitiUpdate/status/2098038043743768754"
+      },
+      {
+        "title": "Knivstikkeri i Herlev",
+        "url": "https://x.com/PolitiUpdate/status/2098044734891872694"
+      },
+      {
+        "title": "Hvem mangler denne hund i Varde?",
+        "url": "https://x.com/PolitiUpdate/status/2098071681797689473"
+      },
+      {
+        "title": "Togulykke uden personskade",
+        "url": "https://x.com/PolitiUpdate/status/2098113260574880176"
+      },
+      {
+        "title": "Bygningsbrand i etageejendom i Sønderborg.",
+        "url": "https://x.com/PolitiUpdate/status/2098136596512198793"
+      },
+      {
+        "title": "16 bilister fik bøde for at bruge mobiltelefonen",
+        "url": "https://x.com/PolitiUpdate/status/2098305297039364102"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098336869885087754"
+      },
+      {
+        "title": "14 fik klip for tætkørsel ved motorvejskontrol i trekantsområdet",
+        "url": "https://x.com/PolitiUpdate/status/2098359587661615572"
+      },
+      {
+        "title": "Personpåkørsel i Nykøbing Sjælland",
+        "url": "https://x.com/PolitiUpdate/status/2098370630265770263"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098372688108810751"
+      },
+      {
+        "title": "Mindre brand i Nyborg Fængsel er slukket",
+        "url": "https://x.com/PolitiUpdate/status/2098378100367344084"
+      },
+      {
+        "title": "Hastighedskontrol i Nybøl ved Sønderborg resulterer i 176 sager",
+        "url": "https://x.com/PolitiUpdate/status/2098398618281717877"
+      },
+      {
+        "title": "Personpåkørsel i Nykøbing Sjælland",
+        "url": "https://x.com/PolitiUpdate/status/2098416305225531481"
+      },
+      {
+        "title": "Brand i Mern",
+        "url": "https://x.com/PolitiUpdate/status/2098507125303738642"
+      },
+      {
+        "title": "Fartkontrol Høgevej",
+        "url": "https://x.com/PolitiUpdate/status/2098507899324735498"
+      },
+      {
+        "title": "Brand i Mern",
+        "url": "https://x.com/PolitiUpdate/status/2098554755966747014"
+      },
+      {
+        "title": "Alvorligt færdselsuheld på Østjyske Motorvej",
+        "url": "https://x.com/PolitiUpdate/status/2098676267700953293"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098709193297727565"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098711764431196180"
+      },
+      {
+        "title": "Røveri i Esbjerg.",
+        "url": "https://x.com/PolitiUpdate/status/2098777985189052868"
+      },
+      {
+        "title": "Færdselsuheld Kalundborgvej i Holbæk",
+        "url": "https://x.com/PolitiUpdate/status/2099069413974835692"
+      },
+      {
+        "title": "Mindre bygningsbrand på Stejlbjergvej i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2099086072907210861"
+      }
+    ]
+  },
+  "region_items": {
+    "Nordjylland": [
+      {
+        "title": "Savnet 18 årig mand i Frederikshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097023132750233972"
+      },
+      {
+        "title": "Aflysning efterlysning Frederikshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097050813483061356"
+      },
+      {
+        "title": "28-årig mand varetægtsfængslet i sag om omfattende handel med opioider",
+        "url": "https://x.com/PolitiUpdate/status/2096923104903909445"
+      },
+      {
+        "title": "21-årig kvinde idømt fængsel i 3 år og 6 måneder ved straksdom",
+        "url": "https://x.com/PolitiUpdate/status/2098038823171268776"
+      },
+      {
+        "title": "Færdselsuheld ved Limfjordstunnelen i Nørresundby",
+        "url": "https://x.com/PolitiUpdate/status/2097296969274388780"
+      },
+      {
+        "title": "Trafikken normaliseret efter færdselsuheld ved Limfjordstunnelen i Nørresundby",
+        "url": "https://x.com/PolitiUpdate/status/2097297740070011191"
+      }
+    ],
+    "Midt/Vestjylland": [
+      {
+        "title": "Efterlysning af 33 årig kvinde ( Aflyst )",
+        "url": "https://x.com/PolitiUpdate/status/2097326166374060494"
+      },
+      {
+        "title": "Efterlysning af 33 årig kvinde ( Aflyst )",
+        "url": "https://x.com/PolitiUpdate/status/2097326943591166271"
+      },
+      {
+        "title": "Har du set Sara?",
+        "url": "https://x.com/PolitiUpdate/status/2097301670527140263"
+      },
+      {
+        "title": "Har du set Sara?",
+        "url": "https://x.com/PolitiUpdate/status/2097318395150790777"
+      },
+      {
+        "title": "Mangler du denne fliseskærer?",
+        "url": "https://x.com/PolitiUpdate/status/2097604081833656504"
+      },
+      {
+        "title": "Grundlovsforhør vedrørende drabsforsøg i Vildbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097614731674878095"
+      },
+      {
+        "title": "Grundlovsforhør vedrørende drabsforsøg i Vildbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097676520588497077"
+      },
+      {
+        "title": "44-årig mand idømt 3,5 års fængsel for voldtægt og grov vold i Skive",
+        "url": "https://x.com/PolitiUpdate/status/2098063976580211173"
+      },
+      {
+        "title": "Dom i sag om røveri, grov vold og frihedsberøvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097962872420876289"
+      },
+      {
+        "title": "Mangler du denne fliseskærer?",
+        "url": "https://x.com/PolitiUpdate/status/2097980312320131136"
+      },
+      {
+        "title": "Togulykke uden personskade",
+        "url": "https://x.com/PolitiUpdate/status/2098113260574880176"
+      }
+    ],
+    "Kbh Vestegn": [
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097320763003162818"
+      },
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097319703496847432"
+      },
+      {
+        "title": "Fængslet for stalking",
+        "url": "https://x.com/PolitiUpdate/status/2097320236097867984"
+      },
+      {
+        "title": "Straksdom: 23-årig dømt for våben og hash",
+        "url": "https://x.com/PolitiUpdate/status/2097681025786855446"
+      },
+      {
+        "title": "Knivstikkeri i Herlev",
+        "url": "https://x.com/PolitiUpdate/status/2098032382351983036"
+      },
+      {
+        "title": "Knivstikkeri i Herlev",
+        "url": "https://x.com/PolitiUpdate/status/2098044734891872694"
+      }
+    ],
+    "Nordsjælland": [
+      {
+        "title": "Nordsjællands Politi efterlyser mistænkt for kontaktbedrageri",
+        "url": "https://x.com/PolitiUpdate/status/2097595871923949980"
+      },
+      {
+        "title": "Politi beslaglægger 1651 puffbars efter borgertip",
+        "url": "https://x.com/PolitiUpdate/status/2098345351652815070"
+      },
+      {
+        "title": "Nordsjællands Politi søger særligt vidne i syv år gammel sag",
+        "url": "https://x.com/PolitiUpdate/status/2096925689996103738"
+      },
+      {
+        "title": "Færdseluheld Isterødvejen/Gadevangsvej, Hillerød",
+        "url": "https://x.com/PolitiUpdate/status/2096988902280311202"
+      },
+      {
+        "title": "Færdselsuheld Isterødvejen/Gadevangsvej, Hillerød",
+        "url": "https://x.com/PolitiUpdate/status/2096989417336615336"
+      },
+      {
+        "title": "Mobil politistation i Værløse efter skyderi fredag",
+        "url": "https://x.com/PolitiUpdate/status/2097920648068887005"
+      }
+    ],
+    "Sydjylland": [
+      {
+        "title": "Røveri i Esbjerg.",
+        "url": "https://x.com/PolitiUpdate/status/2098777708369166529"
+      },
+      {
+        "title": "To mænd fængslet til 1 oktober",
+        "url": "https://x.com/PolitiUpdate/status/2096901310440411587"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098310433983869319"
+      },
+      {
+        "title": "Varetægtsfængsling i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098373213025919054"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098765532065620332"
+      },
+      {
+        "title": "Fremstilling Retten i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2096900006875902208"
+      },
+      {
+        "title": "Mindre eksplosion ved Janderup skole i Varde",
+        "url": "https://x.com/PolitiUpdate/status/2096988128909398218"
+      },
+      {
+        "title": "Opfølgning på syrebombe sprængning på Janderup skole i Varde",
+        "url": "https://x.com/PolitiUpdate/status/2097043631727427769"
+      },
+      {
+        "title": "Borgerekspedition i Toftlund lukket",
+        "url": "https://x.com/PolitiUpdate/status/2097201269601693876"
+      },
+      {
+        "title": "139 km/t på Sottrupvej – bilist står til betinget frakendelse",
+        "url": "https://x.com/PolitiUpdate/status/2097279010170720502"
+      },
+      {
+        "title": "Frifindelse i Esbjerg ankes ikke",
+        "url": "https://x.com/PolitiUpdate/status/2097640914068120053"
+      },
+      {
+        "title": "Fsrtkontrol Vardevej Bramming",
+        "url": "https://x.com/PolitiUpdate/status/2097777835624804780"
+      },
+      {
+        "title": "Hvem mangler denne hund i Varde?",
+        "url": "https://x.com/PolitiUpdate/status/2098071681797689473"
+      },
+      {
+        "title": "Bygningsbrand i etageejendom i Sønderborg.",
+        "url": "https://x.com/PolitiUpdate/status/2098136596512198793"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098372688108810751"
+      },
+      {
+        "title": "Hastighedskontrol i Nybøl ved Sønderborg resulterer i 176 sager",
+        "url": "https://x.com/PolitiUpdate/status/2098398618281717877"
+      },
+      {
+        "title": "Fartkontrol Høgevej",
+        "url": "https://x.com/PolitiUpdate/status/2098507899324735498"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098709193297727565"
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2098711764431196180"
+      },
+      {
+        "title": "Røveri i Esbjerg.",
+        "url": "https://x.com/PolitiUpdate/status/2098777985189052868"
+      }
+    ],
+    "Sydøstjylland": [
+      {
+        "title": "36-årig mand idømt et års fængsel",
+        "url": "https://x.com/PolitiUpdate/status/2096846841786884259"
+      },
+      {
+        "title": "To personer varetægtsfængslet for indbrud",
+        "url": "https://x.com/PolitiUpdate/status/2096857599442649528"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 14.00",
+        "url": "https://x.com/PolitiUpdate/status/2097277199846125840"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 14.00",
+        "url": "https://x.com/PolitiUpdate/status/2097308871329300717"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2097965570050367978"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2098285287898284156"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2098289910591668412"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Horsens kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2098330451836604835"
+      },
+      {
+        "title": "26-årig kvinde idømt fængsel for knivstik i Fredericia",
+        "url": "https://x.com/PolitiUpdate/status/2097579168544510104"
+      },
+      {
+        "title": "14 fik klip for tætkørsel ved motorvejskontrol i trekantsområdet",
+        "url": "https://x.com/PolitiUpdate/status/2098359587661615572"
+      },
+      {
+        "title": "Alvorligt færdselsuheld på Østjyske Motorvej",
+        "url": "https://x.com/PolitiUpdate/status/2098676267700953293"
+      },
+      {
+        "title": "Mindre bygningsbrand på Stejlbjergvej i Kolding",
+        "url": "https://x.com/PolitiUpdate/status/2099086072907210861"
+      }
+    ],
+    "Østjylland": [
+      {
+        "title": "23 klip efter morgenindsats i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2096932622366872052"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus - formentligt kl. 12.00",
+        "url": "https://x.com/PolitiUpdate/status/2097249005290086757"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.45",
+        "url": "https://x.com/PolitiUpdate/status/2097572980436193440"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2099007879357616397"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.00",
+        "url": "https://x.com/PolitiUpdate/status/2099060939580678250"
+      },
+      {
+        "title": "Bare rolig - det er bare en øvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097573505579856075"
+      },
+      {
+        "title": "Aarhus: Bare rolig - det er bare en øvelse",
+        "url": "https://x.com/PolitiUpdate/status/2097578902084583804"
+      }
+    ],
+    "København": [
+      {
+        "title": "Målrettet færdselskontrol på Amager",
+        "url": "https://x.com/PolitiUpdate/status/2096951595674247359"
+      },
+      {
+        "title": "Målrettet indsats mod trick- og lommetyverier",
+        "url": "https://x.com/PolitiUpdate/status/2097218967224176765"
+      },
+      {
+        "title": "54-årig kvinde sigtet for cykeltyveri",
+        "url": "https://x.com/PolitiUpdate/status/2097243350873301406"
+      },
+      {
+        "title": "Kvinde sigtet for kørsel i narkopåvirket tilstand",
+        "url": "https://x.com/PolitiUpdate/status/2097284912579797016"
+      },
+      {
+        "title": "To mænd varetægtsfængslet for forsøg på tyveri",
+        "url": "https://x.com/PolitiUpdate/status/2097318916330799287"
+      },
+      {
+        "title": "26 cyklister fik bøder på Østerbro",
+        "url": "https://x.com/PolitiUpdate/status/2097683090818904553"
+      },
+      {
+        "title": "31-årig mand sigtet for flere indbrud",
+        "url": "https://x.com/PolitiUpdate/status/2097960671560474892"
+      },
+      {
+        "title": "Sigtet for besiddelse af to pistoler",
+        "url": "https://x.com/PolitiUpdate/status/2098002115419685115"
+      },
+      {
+        "title": "Fire personer fængslet efter fund af kokain",
+        "url": "https://x.com/PolitiUpdate/status/2098038032138178779"
+      },
+      {
+        "title": "Afspærring - Øresundsmotorvejen i retning mod Danmark",
+        "url": "https://x.com/PolitiUpdate/status/2096834542543991104"
+      },
+      {
+        "title": "Afspærring - Øresundsmotorvejen i retning mod Danmark",
+        "url": "https://x.com/PolitiUpdate/status/2096843491947270593"
+      },
+      {
+        "title": "Mistænkeligt forhold",
+        "url": "https://x.com/PolitiUpdate/status/2096847613731742058"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097303975003603143"
+      },
+      {
+        "title": "Målrettet indsats mod trick- og lommetyverier",
+        "url": "https://x.com/PolitiUpdate/status/2097317861832474697"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097319177908547946"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097327974278373810"
+      },
+      {
+        "title": "S-togtrafikken standset på København Syd St.",
+        "url": "https://x.com/PolitiUpdate/status/2097346064710074549"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097686432639033784"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097692860145693006"
+      },
+      {
+        "title": "Færdselsuheld på Amagermotorvejen",
+        "url": "https://x.com/PolitiUpdate/status/2097702122657828969"
+      },
+      {
+        "title": "Indsats på København Syd Station",
+        "url": "https://x.com/PolitiUpdate/status/2097738898189533336"
+      },
+      {
+        "title": "Indsats på København Syd Station",
+        "url": "https://x.com/PolitiUpdate/status/2097748383641567352"
+      },
+      {
+        "title": "Knippelsbro spærret i retning mod Christianshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097937557489438914"
+      },
+      {
+        "title": "Rettelse: Knippelsbro spærret i retning mod Christianshavn",
+        "url": "https://x.com/PolitiUpdate/status/2097941669517947202"
+      },
+      {
+        "title": "Rettelse: Christians Brygge spærret i den ene retning",
+        "url": "https://x.com/PolitiUpdate/status/2097941937303302575"
+      },
+      {
+        "title": "Christians Brygge spærret efter uheld",
+        "url": "https://x.com/PolitiUpdate/status/2097963007179661575"
+      },
+      {
+        "title": "Anmeldelse om udslip ved Bella Center",
+        "url": "https://x.com/PolitiUpdate/status/2097970300306718938"
+      },
+      {
+        "title": "Christians Brygge åben igen efter uheld",
+        "url": "https://x.com/PolitiUpdate/status/2097971333250654718"
+      },
+      {
+        "title": "Anmeldelser om truende opkald",
+        "url": "https://x.com/PolitiUpdate/status/2098038043743768754"
+      },
+      {
+        "title": "16 bilister fik bøde for at bruge mobiltelefonen",
+        "url": "https://x.com/PolitiUpdate/status/2098305297039364102"
+      }
+    ],
+    "Midt/Vestsjælland": [
+      {
+        "title": "Fangeflugt",
+        "url": "https://x.com/PolitiUpdate/status/2096969661305025017"
+      },
+      {
+        "title": "Fangeflugt",
+        "url": "https://x.com/PolitiUpdate/status/2096994542490902738"
+      },
+      {
+        "title": "Politiet har afgivet varselsskud nær Ringsted",
+        "url": "https://x.com/PolitiUpdate/status/2097453958474387704"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen ved Gevninge",
+        "url": "https://x.com/PolitiUpdate/status/2096845037384704037"
+      },
+      {
+        "title": "Færdselsuheld på motorvejen ved Gevninge",
+        "url": "https://x.com/PolitiUpdate/status/2096852986521944510"
+      },
+      {
+        "title": "Personpåkørsel i Nykøbing Sjælland",
+        "url": "https://x.com/PolitiUpdate/status/2098370630265770263"
+      },
+      {
+        "title": "Personpåkørsel i Nykøbing Sjælland",
+        "url": "https://x.com/PolitiUpdate/status/2098416305225531481"
+      },
+      {
+        "title": "Færdselsuheld Kalundborgvej i Holbæk",
+        "url": "https://x.com/PolitiUpdate/status/2099069413974835692"
+      }
+    ],
+    "Fyn": [
+      {
+        "title": "Fremstilling kl 9.30 af mistænkt i sag fra Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097577610360631327"
+      },
+      {
+        "title": "Fremstilling kl 9.30 af mistænkt i sag fra Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097611773998452743"
+      },
+      {
+        "title": "Mistænkt anholdt i sag om hændelse på skole i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098073490876481729"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098322998944280997"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098408621147349477"
+      },
+      {
+        "title": "Fyns Politi anholder 40-årig mand i sag om blufærdighedskrænkelser ved skoler i Aarup og Glamsbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2097233080901902729"
+      },
+      {
+        "title": "Mindre spild ved Koppers ved Nyborg - der er ingen fare, kun ubehagelig lugt",
+        "url": "https://x.com/PolitiUpdate/status/2097961705372553321"
+      },
+      {
+        "title": "Vi undersøger mistænkeligt forhold på Tornbjergvej i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098013381538328800"
+      },
+      {
+        "title": "19-årig mand fremstilles i grundlovsfør i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2098336869885087754"
+      },
+      {
+        "title": "Mindre brand i Nyborg Fængsel er slukket",
+        "url": "https://x.com/PolitiUpdate/status/2098378100367344084"
+      }
+    ],
+    "Anklagemyndigheden ved Midt-": [
+      {
+        "title": "Grundlovsforhør ved Retten i Roskilde",
+        "url": "https://x.com/PolitiUpdate/status/2097656033342833123"
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Roskilde",
+        "url": "https://x.com/PolitiUpdate/status/2097698517267738679"
+      },
+      {
+        "title": "Dømt for vold og voldtægt af kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2097306814467670280"
+      },
+      {
+        "title": "Dømt for at sælge alkohol til ung kontrolkøber",
+        "url": "https://x.com/PolitiUpdate/status/2097587643416748380"
+      },
+      {
+        "title": "Dømt for stalking af ex-kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2098029034898866383"
+      }
+    ],
+    "Statsadvokaten i København": [
+      {
+        "title": "Statsadvokaten i København anker dom om ruskevold mod spædbarn",
+        "url": "https://x.com/PolitiUpdate/status/2096916437629878371"
+      }
+    ],
+    "Statsadvokaten i Viborg": [
+      {
+        "title": "Vestre Landsret idømmer lastbilchauffør dagbøder og betinget frakendelse af førerretten for uagtsomt manddrab",
+        "url": "https://x.com/PolitiUpdate/status/2096971470442578431"
+      }
+    ],
+    "Sydsjælland/L-F": [
+      {
+        "title": "Alvorligt færdselsuheld spærre Sorøvej ved Ruds Vedby i begge retninger",
+        "url": "https://x.com/PolitiUpdate/status/2097026459462438924"
+      },
+      {
+        "title": "Brand i Mern",
+        "url": "https://x.com/PolitiUpdate/status/2098507125303738642"
+      },
+      {
+        "title": "Brand i Mern",
+        "url": "https://x.com/PolitiUpdate/status/2098554755966747014"
+      }
+    ],
+    "Anklagemyndigheden": [
+      {
+        "title": "Telefonsystem ude af drift",
+        "url": "https://x.com/PolitiUpdate/status/2097665770813796799"
+      },
+      {
+        "title": "Telefonsystem virker igen",
+        "url": "https://x.com/PolitiUpdate/status/2097686438154575949"
+      }
+    ]
+  },
+  "prev_week": {
+    "year": 2026,
+    "week": 36
+  },
+  "next_week": null,
+  "generated_at": "2026-09-13T16:00:18.624753+00:00"
+}
