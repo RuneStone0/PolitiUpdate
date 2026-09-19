@@ -29,13 +29,97 @@ class TestDistrictPrefix:
     def test_returns_empty_for_empty_string(self):
         assert formatter._district_prefix("") == ""
 
-    def test_fallback_takes_first_part_before_comma(self):
-        result = formatter._district_prefix("Ukendt, og mere, Politi")
-        assert result == "Ukendt"
-
-    def test_fallback_strips_og(self):
+    def test_fallback_joins_compound_halves(self):
+        """' og ' is a conjunction inside the name, not the end of it — the old
+        fallback cut at the first ' og ' and produced headers like
+        'Anklagemyndigheden ved Midt-:'."""
         result = formatter._district_prefix("X og Y Politi")
-        assert result == "X"
+        assert result == "X/Y"
+
+    def test_fallback_keeps_first_part_before_comma(self):
+        result = formatter._district_prefix("Ukendt, og mere, Politi")
+        assert result == "Ukendt/mere"
+
+    def test_maps_prosecution_authority_districts(self):
+        """Prosecution releases arrive as 'Anklagemyndigheden ved <district>'
+        (sometimes without the trailing 'Politi') and used to fall through to
+        the naive fallback. All real prod variants must resolve to the same
+        prefix as the district itself."""
+        cases = [
+            ("Anklagemyndigheden ved Midt- og Vestsjælland", "Midt/Vestsjælland"),
+            ("Anklagemyndigheden ved Midt- og Vestjyllands Politi", "Midt/Vestjylland"),
+            ("Anklagemyndigheden ved Sydøstjyllands Politi", "Sydøstjylland"),
+            ("Anklagemyndigheden ved Østjyllands Politi", "Østjylland"),
+            ("Anklagemyndigheden ved Fyns Politi", "Fyn"),
+            ("Anklagemyndigheden ved Københavns Politi", "København"),
+            ("Anklagemyndigheden ved Københavns Vestegns Politi", "Kbh Vestegn"),
+            ("Anklagemyndigheden ved Nordjyllands Politi", "Nordjylland"),
+            ("Anklagemyndigheden ved Syd- og Sønderjyllands Politi", "Sydjylland"),
+            ("Statsadvokaten i Viborg", "Statsadv. Viborg"),
+            ("Statsadvokaten i København", "Statsadv. København"),
+            ("Rigsadvokaten", "Rigsadvokaten"),
+        ]
+        for full, expected in cases:
+            assert formatter._district_prefix(full) == expected, full
+
+    def test_never_leaves_a_dangling_token(self):
+        """A prefix may never end on 'og', 'ved', '-' or similar — that is the
+        shape of the bug this guards."""
+        for name in (
+            "Midt- og Vestsjælland",
+            "X og Y Politi",
+            "Ukendt, og mere, Politi",
+            "Nordøst- og Sydvestjyllands Politi",
+            "En meget lang og mærkelig Distriktsbetegnelse Politi",
+            "   ",
+        ):
+            prefix = formatter._district_prefix(name)
+            assert not prefix.endswith(("-", "/", ",", " og", " ved")), (name, prefix)
+
+    def test_fallback_fits_long_compound_names_without_dangling(self):
+        for name in (
+            "Sydvest- og Nordøstsjællands Politi",
+            "Sydsjællands og Lolland-Falsters Politi",
+        ):
+            result = formatter._district_prefix(name)
+            assert len(result) <= formatter.MAX_FALLBACK_PREFIX_CHARS, result
+            assert " og " not in result
+            assert not result.endswith(("-", "/", " og")), result
+
+
+class TestHeader:
+    def test_prefix_dropped_when_title_already_names_the_authority(self):
+        header = formatter._build_header(
+            "Statsadvokaten i Viborg anker dommen", "Statsadvokaten i Viborg"
+        )
+        assert header == "Statsadvokaten i Viborg anker dommen"
+
+    def test_prefix_dropped_when_title_already_names_the_district(self):
+        header = formatter._build_header(
+            "Fyns Politi advarer mod svindel", "Fyns Politi"
+        )
+        assert header == "Fyns Politi advarer mod svindel"
+
+    def test_prefix_kept_for_a_normal_title(self):
+        header = formatter._build_header("Dømt for vold", "Fyns Politi")
+        assert header == "Fyn: Dømt for vold"
+
+    def test_no_prefix_for_unknown_blank_district(self):
+        assert formatter._build_header("Kun titel", "") == "Kun titel"
+
+    def test_regression_prosecution_post_is_not_garbled(self):
+        """The reported post (2026-09-18): the district was reported as
+        'Anklagemyndigheden ved Midt- og Vestsjælland' and posted with the
+        broken prefix 'Anklagemyndigheden ved Midt-'."""
+        post = formatter.format_post(
+            "Anholdt for bedrageri over for ni gange Kirsten",
+            "Anklagemyndigheden ved Midt- og Vestsjælland",
+            "Manden er nu fængslet for fire uger ved et lukket grundlovsforhør.",
+        )
+        assert post.startswith(
+            "Midt/Vestsjælland: Anholdt for bedrageri over for ni gange Kirsten"
+        )
+        assert "Anklagemyndigheden ved Midt-" not in post
 
 
 class TestTruncate:

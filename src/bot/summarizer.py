@@ -17,6 +17,8 @@ SYSTEM_PROMPT = (
     "- Bevar ALLE fakta: navne, aldre, steder, tidspunkter, signalementer, "
     "telefonnumre (114), gadenavne, byer, retssteder, sigtelser, kendelser.\n"
     "- Bevar datoer og klokkeslæt uændret.\n"
+    "- Skriv tal med cifre i stedet for bogstaver (fx '4 uger', '17-årig', "
+    "'84.000 kr.'), det sparer tegn.\n"
     "- Fjern fyldord og gentagelser, men tilføj ALDRIG nye oplysninger.\n"
     "- Hvis teksten indeholder en opfordring (fx 'kontakt politiet på 114'), "
     "skal den bevares.\n"
