@@ -21,8 +21,13 @@ def reset_counter():
 @pytest.fixture(autouse=True)
 def no_dup_guid():
     """By default, nothing is a known duplicate — individual tests can
-    override find_posted_guid's return value to exercise that path."""
+    override find_posted_guid's return value to exercise that path.
+
+    find_recent_similar_post is patched too: it reads config.DB_PATH, which in
+    this module is not a temp DB, so leaving it live would compare against
+    whatever real database happens to sit in the checkout."""
     with mock.patch.object(db, "find_posted_guid", return_value=None), \
+         mock.patch.object(db, "find_recent_similar_post", return_value=None), \
          mock.patch.object(db, "record_posted_texts"):
         yield
 
@@ -159,6 +164,68 @@ class TestProcessItem:
                                 mock_post.assert_not_called()
                                 kw = mock_save.call_args_list[-1][1]
                                 assert kw["status"] == "skipped"
+
+    def test_skips_near_duplicate_content_posted_under_another_release(self):
+        """The feed re-publishes the same update under a new pressemeddelelse
+        id. The text differs (different district prefix), so the exact-text
+        check misses it — the body comparison must catch it."""
+        similar = {
+            "guid": "https://x/15170166/a#sm-1",
+            "title": "Titel",
+            "posted_at": "2026-09-18T08:46:03+00:00",
+            "x_post_id": "111",
+            "similarity": 1.0,
+        }
+        with mock.patch.object(db, "is_known", return_value=False):
+            items = [{"body": "Samme tekst", "sm_id": ""}]
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("Anklagemyndigheden ved Midt- og Vestsjælland", items)):
+                with mock.patch("src.bot.main.format_post", return_value="P"):
+                    with mock.patch.object(db, "find_recent_similar_post",
+                                            return_value=similar):
+                        with mock.patch("src.bot.main.post_thread") as mock_post:
+                            with mock.patch.object(db, "save_post") as mock_save:
+                                main._process_item({
+                                    "guid": "https://x/15170297/b#sm-2",
+                                    "title": "T",
+                                    "link": "http://x",
+                                })
+                                mock_post.assert_not_called()
+                                kw = mock_save.call_args_list[-1][1]
+                                assert kw["status"] == "skipped"
+
+    def test_posts_when_content_dedupe_is_disabled(self):
+        with mock.patch.object(db, "is_known", return_value=False):
+            items = [{"body": "Samme tekst", "sm_id": ""}]
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post", return_value="P"):
+                    with mock.patch("src.bot.main.post_thread",
+                                    return_value=["999"]) as mock_post:
+                        with mock.patch.object(db, "save_post"):
+                            with mock.patch.object(main, "CONTENT_DEDUPE_ENABLED", False):
+                                main._process_item({
+                                    "guid": "g6",
+                                    "title": "T",
+                                    "link": "http://x",
+                                })
+                                mock_post.assert_called_once()
+
+    def test_content_dedupe_uses_the_configured_window_and_threshold(self):
+        with mock.patch.object(db, "find_recent_similar_post",
+                               return_value=None) as mock_similar:
+            main._content_duplicate("En body", "g7")
+
+            kw = mock_similar.call_args[1]
+            assert kw["within_hours"] == main.CONTENT_DEDUPE_HOURS
+            assert kw["threshold"] == main.CONTENT_DEDUPE_THRESHOLD
+            assert mock_similar.call_args[0] == ("En body", "g7")
+
+    def test_content_dedupe_disabled_never_queries_the_db(self):
+        with mock.patch.object(db, "find_recent_similar_post") as mock_similar:
+            with mock.patch.object(main, "CONTENT_DEDUPE_ENABLED", False):
+                assert main._content_duplicate("En body", "g7") is None
+            mock_similar.assert_not_called()
 
     def test_saves_failed_when_posting_returns_empty_ids(self):
         with mock.patch.object(db, "is_known", return_value=False):
@@ -319,6 +386,34 @@ class TestRetryFailed:
                             assert result == 1
                             kw = mock_save.call_args_list[-1][1]
                             assert kw["status"] == "failed"
+
+    def test_retry_skips_near_duplicate_content(self):
+        """A retry whose body is near-identical to one already posted under
+        another press release gives up instead of double-posting the story."""
+        fresh_iso = datetime.now(timezone.utc).isoformat()
+        failed = [{"guid": "f10", "title": "Fail 10", "pub_date": fresh_iso}]
+        items = [{"body": "B"}]
+        similar = {
+            "guid": "https://x/other",
+            "title": "Titel",
+            "posted_at": "2026-09-18T08:46:03+00:00",
+            "x_post_id": "111",
+            "similarity": 1.0,
+        }
+
+        with mock.patch.object(db, "get_failed_posts", return_value=failed):
+            with mock.patch("src.bot.main.fetch_press_release",
+                            return_value=("D", items)):
+                with mock.patch("src.bot.main.format_post", return_value="P"):
+                    with mock.patch.object(db, "find_recent_similar_post",
+                                            return_value=similar):
+                        with mock.patch("src.bot.main.post_thread") as mock_post:
+                            with mock.patch.object(db, "save_post") as mock_save:
+                                result = main._retry_failed()
+                                assert result == 1
+                                mock_post.assert_not_called()
+                                kw = mock_save.call_args_list[-1][1]
+                                assert kw["status"] == "skipped"
 
     def test_retry_skips_when_content_already_posted(self):
         """A retry whose formatted text matches an already-posted tweet

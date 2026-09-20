@@ -2,6 +2,7 @@
 
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -203,6 +204,115 @@ class TestPostedTexts:
         db.record_posted_texts("g2", [("Same text", "1002")])
         # First writer wins — the original guid stays the source of truth.
         assert db.find_posted_guid("Same text") == "g1"
+
+
+# Real bodies from prod history, used to pin the dedupe threshold to measured
+# behaviour rather than a guess.
+KIRSTEN_UPDATE = (
+    "Manden er nu fængslet for fire uger ved et lukket grundlovsforhør. Han "
+    "nægter sig skyldig og afviste at udtale sig. Der blev taget forbehod for "
+    "eventuel kære af fængslingen. Dommeren fængslede ham pga. risikoen for at "
+    "han på fri fod ville begå ny kriminalitet."
+)
+SARA_NAMED = (
+    "Vi er bekymret for Sara, som i nedtrykt tilstand har forladt bopælen i "
+    "Hammerum ved Herning i dag ca. kl. 1250. Hun beskrives som dansk kvinde, "
+    "33 år, 175-180 cm. høj, spinkel af bygning, mørkt/rødt hår, iført rød t- "
+    "shirt, blå cowboybukser, mørke sko, medbragt tøj i bæreposer. Har du set "
+    "Sara vil Midt- og Vestjyllands Politi gerne kontaktes på 114."
+)
+SARA_SCRUBBED = (
+    "Vi er bekymret for X, som i nedtrykt tilstand har forladt bopælen i "
+    "Hammerum ved Herning i dag ca. kl. 1250. X beskrives som dansk kvinde, "
+    "33 år, X cm høj, spinkel af bygning, X hår, iført rød t- shirt, blå "
+    "cowboybukser, mørke sko, medbragt tøj i bæreposer. Har du set X vil Midt- "
+    "og Vestjyllands Politi gerne kontaktes på 114."
+)
+
+
+def _age_post(guid, hours, status="posted"):
+    """Backdate a row's posted_at (save_post always stamps 'now')."""
+    conn = db.get_conn()
+    conn.execute(
+        "UPDATE posts SET posted_at = ?, status = ? WHERE guid = ?",
+        (
+            (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat(),
+            status,
+            guid,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+class TestFindRecentSimilarPost:
+    def test_none_for_empty_body(self, db_path):
+        assert db.find_recent_similar_post("", "g2") is None
+        assert db.find_recent_similar_post("   ", "g2") is None
+
+    def test_none_when_nothing_posted(self, db_path):
+        assert db.find_recent_similar_post("Anything", "g2") is None
+
+    def test_identical_body_under_a_different_release_is_a_duplicate(self, db_path):
+        # The Kirsten case: the feed published the same update twice, under two
+        # pressemeddelelse ids, rendered with different district prefixes.
+        db.save_post("https://x/15170166/a#sm-1", "Titel", KIRSTEN_UPDATE,
+                     status="posted", x_post_id="111")
+        dup = db.find_recent_similar_post(
+            KIRSTEN_UPDATE, "https://x/15170297/b#sm-2"
+        )
+        assert dup is not None
+        assert dup["x_post_id"] == "111"
+        assert dup["similarity"] == 1.0
+
+    def test_same_release_is_never_a_duplicate(self, db_path):
+        # Another update on the same press release is a legitimate thread item.
+        db.save_post("https://x/15170166/a#sm-1", "Titel", KIRSTEN_UPDATE,
+                     status="posted", x_post_id="111")
+        assert db.find_recent_similar_post(
+            KIRSTEN_UPDATE, "https://x/15170166/a#sm-2"
+        ) is None
+
+    def test_only_posted_rows_count(self, db_path):
+        db.save_post("https://x/15170166/a#sm-1", "Titel", KIRSTEN_UPDATE,
+                     status="failed")
+        assert db.find_recent_similar_post(KIRSTEN_UPDATE, "https://x/other") is None
+
+    def test_outside_the_window_is_not_a_duplicate(self, db_path):
+        db.save_post("https://x/15170166/a#sm-1", "Titel", KIRSTEN_UPDATE,
+                     status="posted", x_post_id="111")
+        _age_post("https://x/15170166/a#sm-1", hours=30)
+        assert db.find_recent_similar_post(
+            KIRSTEN_UPDATE, "https://x/other", within_hours=24
+        ) is None
+        assert db.find_recent_similar_post(
+            KIRSTEN_UPDATE, "https://x/other", within_hours=48
+        ) is not None
+
+    def test_scrubbed_name_republication_still_posts(self, db_path):
+        """Measured at 0.95 similarity: the police re-publish a missing-person
+        appeal with the name removed after the person is found. That is a
+        correction, not a duplicate — the default threshold must let it through."""
+        db.save_post("https://x/sara-named", "Har du set Sara?", SARA_NAMED,
+                     status="posted", x_post_id="222")
+        assert db.find_recent_similar_post(
+            SARA_SCRUBBED, "https://x/sara-anon"
+        ) is None
+
+    def test_threshold_is_configurable(self, db_path):
+        db.save_post("https://x/sara-named", "Har du set Sara?", SARA_NAMED,
+                     status="posted", x_post_id="222")
+        dup = db.find_recent_similar_post(
+            SARA_SCRUBBED, "https://x/sara-anon", threshold=0.90
+        )
+        assert dup is not None and dup["x_post_id"] == "222"
+
+    def test_whitespace_differences_do_not_hide_a_duplicate(self, db_path):
+        db.save_post("https://x/a#sm-1", "Titel", KIRSTEN_UPDATE,
+                     status="posted", x_post_id="111")
+        assert db.find_recent_similar_post(
+            KIRSTEN_UPDATE.replace(" ", "\n"), "https://x/b#sm-2"
+        ) is not None
 
 
 class TestGetConn:

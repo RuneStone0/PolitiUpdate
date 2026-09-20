@@ -14,6 +14,9 @@ from .config import (
     MAX_NEW_ITEMS_PER_POLL,
     MAX_ARTICLE_AGE_HOURS,
     HEALTH_PORT,
+    CONTENT_DEDUPE_ENABLED,
+    CONTENT_DEDUPE_HOURS,
+    CONTENT_DEDUPE_THRESHOLD,
 )
 from .fetcher import fetch_feed, fetch_press_release
 from .formatter import format_post
@@ -51,6 +54,23 @@ def _handle_signal(signum: int, frame: object) -> None:
 def _article_age_hours(pub_dt: datetime) -> float:
     """Return how many hours old an article is relative to now (UTC)."""
     return (datetime.now(timezone.utc) - pub_dt).total_seconds() / 3600
+
+
+def _content_duplicate(body: str, guid: str) -> dict | None:
+    """Return a recently posted near-identical row for `body`, or None.
+
+    The Ritzau feed re-publishes the same update under a new pressemeddelelse
+    id, which `is_known()` (guid) and `find_posted_guid()` (exact tweet text)
+    both miss. See db.find_recent_similar_post() for the comparison rules.
+    """
+    if not CONTENT_DEDUPE_ENABLED:
+        return None
+    return db.find_recent_similar_post(
+        body,
+        guid,
+        within_hours=CONTENT_DEDUPE_HOURS,
+        threshold=CONTENT_DEDUPE_THRESHOLD,
+    )
 
 
 def _process_item(raw: dict) -> None:
@@ -98,6 +118,21 @@ def _process_item(raw: dict) -> None:
                      district=district)
         logger.info(
             "Skipping %r (sm_id=%s) — already posted as %s", title, sm_id, dup_guid
+        )
+        return
+
+    similar = _content_duplicate(latest_body, guid)
+    if similar:
+        # Same *content* under a new pressemeddelelse id. The text check above
+        # only catches byte-identical tweets, and the two entries often render
+        # with a different district prefix ("Midt/Vestsjælland: …" vs "Fyn: …"),
+        # so without this the same story went out twice within minutes.
+        db.save_post(guid, title, latest_body, status="skipped", pub_date=pub_date_iso,
+                     district=district)
+        logger.info(
+            "Skipping %r (sm_id=%s) — body %.0f%% identical to %s posted %s",
+            title, sm_id, similar["similarity"] * 100, similar["x_post_id"],
+            similar["posted_at"],
         )
         return
 
@@ -196,6 +231,17 @@ def _retry_failed() -> int:
                 logger.info(
                     "Retry found %r (sm_id=%s) already posted as %s, giving up",
                     title, sm_id, dup_guid,
+                )
+                retried += 1
+                continue
+
+            similar = _content_duplicate(thread_items[0]["body"], guid)
+            if similar:
+                db.save_post(guid, title, thread_items[0]["body"], status="skipped")
+                logger.info(
+                    "Retry found %r (sm_id=%s) %.0f%% identical to %s posted %s, giving up",
+                    title, sm_id, similar["similarity"] * 100, similar["x_post_id"],
+                    similar["posted_at"],
                 )
                 retried += 1
                 continue

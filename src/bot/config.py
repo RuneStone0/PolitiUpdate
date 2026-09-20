@@ -50,5 +50,24 @@ MAX_NEW_ITEMS_PER_POLL = int(os.getenv("MAX_NEW_ITEMS_PER_POLL", "5"))
 # Skip articles older than this many hours (prevents burst-posting stale backlog)
 MAX_ARTICLE_AGE_HOURS = int(os.getenv("MAX_ARTICLE_AGE_HOURS", "1"))
 
+# Content dedupe: the Ritzau feed re-publishes the same update under a *new*
+# pressemeddelelse id (new guid, and often a different district prefix, so even
+# the tweet text differs). The guid and exact-text checks both miss that, and
+# the same story goes out twice within minutes. A scraped body at or above this
+# similarity to one posted under a *different* press release inside the window
+# is skipped as a duplicate.
+# The default is deliberately near-identity, measured against every posted pair
+# in prod history (2026-09-19):
+#   >= 0.997  byte-identical reposts → duplicates, suppress
+#   0.95-0.97 a person's name scrubbed / a withdrawn appeal re-published
+#             ("Kjeld" → "xx", "Sara" → "X") → a *correction*, must still post
+#   0.80-0.94 genuine follow-up updates ("nu fængslet", "Rettelse:", a new
+#             grundlovsforhør time) → must still post
+# Suppressing a correction is worse than posting a near-duplicate, so the
+# threshold stays high on purpose. Lower it only with fresh measurements.
+CONTENT_DEDUPE_ENABLED = os.getenv("CONTENT_DEDUPE_ENABLED", "1").lower() in ("1", "true", "yes")
+CONTENT_DEDUPE_HOURS = float(os.getenv("CONTENT_DEDUPE_HOURS", "24"))
+CONTENT_DEDUPE_THRESHOLD = float(os.getenv("CONTENT_DEDUPE_THRESHOLD", "0.98"))
+
 # Health check HTTP server port (0 = disabled)
 HEALTH_PORT = int(os.getenv("HEALTH_PORT", "8080"))

@@ -1,9 +1,10 @@
 """SQLite database for deduplication and post tracking."""
 
+import difflib
 import os
 import sqlite3
 from collections.abc import Iterable
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from . import config
 
@@ -143,3 +144,71 @@ def get_failed_posts(limit: int = 5) -> list[dict]:
     ).fetchall()
     conn.close()
     return [{"guid": r[0], "title": r[1], "pub_date": r[2]} for r in rows]
+
+
+def page_id(guid: str) -> str:
+    """The press-release page a guid points at, ignoring its #sm-XXXXX update
+    fragment. Two updates on one page are a thread, not duplicates."""
+    return guid.split("#", 1)[0]
+
+
+def _normalize_body(body: str) -> str:
+    return " ".join(body.split()).lower()
+
+
+def find_recent_similar_post(
+    body: str,
+    exclude_guid: str,
+    within_hours: float = 24,
+    threshold: float = 0.95,
+) -> dict | None:
+    """Find a recently posted row whose body is near-identical to `body`.
+
+    Compares the *scraped body*, not the tweet text: when the feed re-publishes
+    an update under a new pressemeddelelse id, the two entries share the body
+    but can differ in the district prefix, so the exact-tweet-text check in
+    `find_posted_guid()` misses them and the story posts twice.
+
+    Rows from the same press release (`exclude_guid`'s page) are ignored — those
+    are the legitimate updates/replies of one thread.
+
+    `threshold` defaults to near-identity on purpose: below ~0.98 the matches
+    include re-published *corrections* (a missing person's name scrubbed after
+    they are found), which must not be suppressed. See config.CONTENT_DEDUPE_*.
+
+    Returns a dict with the matching row and `similarity`, or None.
+    """
+    if not body or not body.strip():
+        return None
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=within_hours)).isoformat()
+    page = page_id(exclude_guid)
+    needle = _normalize_body(body)
+
+    conn = get_conn()
+    rows = conn.execute(
+        """
+        SELECT guid, title, body, posted_at, x_post_id FROM posts
+        WHERE status = 'posted' AND posted_at >= ?
+        ORDER BY posted_at DESC
+        """,
+        (cutoff,),
+    ).fetchall()
+    conn.close()
+
+    for guid, title, other_body, posted_at, x_post_id in rows:
+        if page_id(guid) == page or not other_body:
+            continue
+        ratio = difflib.SequenceMatcher(
+            None, needle, _normalize_body(other_body), autojunk=False
+        ).ratio()
+        if ratio >= threshold:
+            return {
+                "guid": guid,
+                "title": title,
+                "posted_at": posted_at,
+                "x_post_id": x_post_id,
+                "similarity": ratio,
+            }
+
+    return None
