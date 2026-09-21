@@ -7,7 +7,7 @@
 ## Features
 
 - **Fast** — posts within ~30s of publication (competitor averages ~60s)
-- **Complete** — covers all 14 Danish police districts with full message text (X Premium for >280 chars)
+- **Complete coverage** — all 14 Danish police districts; multi-entry releases post as full threads. Releases over 280 characters are AI-condensed to fit X's limit unless Premium long posts are enabled (`X_PRO=1`)
 - **Threaded updates** — multi-entry press releases post as X threads (newest first, older as replies)
 - **Smart summaries** — optional LLM condensation of long posts via DeepSeek, preserving key facts
 - **Del gerne 🔁** — auto-appends a retweet prompt on public appeals (missing persons, witness calls)

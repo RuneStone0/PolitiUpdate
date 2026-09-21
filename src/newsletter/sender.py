@@ -10,7 +10,10 @@ Flow per region:
 1. ``sync_region_lists`` makes sure every contact whose ``REGION`` attribute
    equals the region is a member of that region's Brevo list. (The public
    signup form can only target one list, so membership is derived here from the
-   attribute.)
+   attribute.) The country-wide list ("Hele landet") is the *fallback* audience:
+   it collects every contact that routes to none of the four regional
+   briefings, so a subscriber who has not picked a region still gets mail
+   (``src/newsletter/routing.py``).
 2. ``send_region_campaign`` creates an email campaign targeting that list and
    sends it immediately (``POST /emailCampaigns`` -> ``POST /emailCampaigns/{id}/sendNow``).
 
@@ -22,7 +25,9 @@ import logging
 
 import requests
 
-from . import config
+from src.common import regions as region_map
+
+from . import config, routing
 
 logger = logging.getLogger(__name__)
 
@@ -157,18 +162,72 @@ def fetch_region_contacts(region_label: str) -> list[str]:
     return emails
 
 
+def fetch_unassigned_contacts() -> list[str]:
+    """Return the emails of contacts whose REGION maps to the country-wide briefing.
+
+    This is the default-list audience. The signup form captures the e-mail
+    address only (a region picker has to be added in Brevo's *form editor*, and
+    Brevo has no public Forms API), so a fresh subscriber has an empty
+    ``REGION``. Those subscribers must still receive the weekly briefing — the
+    country-wide one — instead of silently getting nothing.
+
+    Deliberately not a ``filter=equals(REGION,"")`` query: whether Brevo matches
+    an *empty* attribute is unspecified, so we page through the contacts and
+    route each one locally with the same rule the send uses
+    (``routing.briefing_region``).
+    """
+    if not config.BREVO_API_KEY:
+        raise RuntimeError("BREVO_API_KEY is not set — can't fetch contacts.")
+
+    emails: list[str] = []
+    offset = 0
+    while True:
+        resp = requests.get(
+            f"{BREVO_API}/contacts",
+            headers=_headers(),
+            params={"limit": CONTACTS_PAGE_LIMIT, "offset": offset},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        contacts = data.get("contacts", [])
+        for contact in contacts:
+            attributes = contact.get("attributes") or {}
+            value = attributes.get(config.BREVO_REGION_ATTRIBUTE)
+            if routing.briefing_region(value) != region_map.REGION_NATIONAL:
+                continue
+            email = contact.get("email")
+            if email:
+                emails.append(email)
+        count = data.get("count", len(contacts))
+        offset += len(contacts)
+        if not contacts or offset >= count:
+            break
+
+    logger.info("Fetched %d subscriber(s) without a region (country-wide list)", len(emails))
+    return emails
+
+
 def sync_region_lists(region_label: str, dry_run: bool = False) -> int:
     """Ensure every contact with ``REGION == region_label`` is in that region's list.
 
     Campaigns target lists, and the signup form only ever adds contacts to one
     list, so we map attribute -> list membership here before sending.
     Returns the number of contacts synced.
+
+    ``region_label == "Hele landet"`` (the country-wide briefing) is special: it
+    is the fallback audience, so it collects every contact that does *not* route
+    to one of the four regional briefings (empty or unrecognised ``REGION``),
+    not just contacts whose attribute literally equals the label.
     """
     list_id = list_id_for_region(region_label)
     if list_id is None:
         raise RuntimeError("No Brevo list mapped for region %r." % region_label)
 
-    emails = fetch_region_contacts(region_label)
+    if region_label == region_map.REGION_NATIONAL:
+        emails = fetch_unassigned_contacts()
+    else:
+        emails = fetch_region_contacts(region_label)
     if not emails:
         return 0
     if dry_run:

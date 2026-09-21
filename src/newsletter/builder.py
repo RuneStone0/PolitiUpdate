@@ -45,6 +45,7 @@ def build(year: int, week: int) -> dict:
     regional: dict[str, list[dict]] = {}
     national: list[dict] = []
     unknown: list[dict] = []
+    all_posts: list[dict] = []
 
     for title, body, posted_at, x_post_id, district in rows:
         post = {
@@ -55,6 +56,7 @@ def build(year: int, week: int) -> dict:
             "district": district,
         }
         reg = region_map.district_to_region(district)
+        all_posts.append(post)
         if reg == region_map.REGION_NATIONAL:
             national.append(post)
         elif reg is None:
@@ -76,6 +78,10 @@ def build(year: int, week: int) -> dict:
         "regions": regions_out,
         "national": national,
         "unknown": unknown,
+        # Every release of the week, in posting order — the country-wide
+        # briefing. Subscribers without a region receive this one instead of
+        # nothing (see ``src/newsletter/routing.py``).
+        "everything": all_posts,
         "national_label": region_map.REGION_NATIONAL,
         "unknown_label": UNKNOWN_REGION,
     }

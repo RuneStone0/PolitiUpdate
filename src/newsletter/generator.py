@@ -11,6 +11,7 @@ deterministic keeps ``--dry-run`` testable with no API key.
 import html as _html
 
 from src.bot.formatter import _district_prefix as district_short_name
+from src.common import regions as region_map
 
 X_TWEET_URL = "https://x.com/PolitiUpdate/status/{id}"
 
@@ -25,7 +26,7 @@ def generate(region_label: str, posts: list[dict], week: int, year: int) -> dict
             "html": "",
         }
 
-    heading = f"PolitiUpdate — ugens overblik for {region_label} (uge {week}, {year})"
+    heading = _heading(region_label, week, year)
     lines = [heading, ""]
     for post in posts:
         title = post.get("title", "")
@@ -52,6 +53,19 @@ def _subject(region_label: str, week: int, year: int, count: int) -> str:
     return f"PolitiUpdate · {region_label} · uge {week}, {year} ({count} opdateringer)"
 
 
+def _heading(region_label: str, week: int, year: int, include_week: bool = True) -> str:
+    """Human heading for one briefing.
+
+    The country-wide briefing serves subscribers who have not picked a region,
+    so "for Hele landet" would read like a region name — phrase it plainly.
+    """
+    if region_label == region_map.REGION_NATIONAL:
+        base = "PolitiUpdate — ugens overblik fra hele landet"
+    else:
+        base = f"PolitiUpdate — ugens overblik for {region_label}"
+    return f"{base} (uge {week}, {year})" if include_week else base
+
+
 def _to_html(region_label: str, posts: list[dict], week: int, year: int) -> str:
     """Render the briefing as simple, inbox-safe HTML (for the Brevo campaign)."""
     items = []
@@ -69,7 +83,7 @@ def _to_html(region_label: str, posts: list[dict], week: int, year: int) -> str:
         item.append("</li>")
         items.append("".join(item))
 
-    heading = _html.escape(f"PolitiUpdate — ugens overblik for {region_label}")
+    heading = _html.escape(_heading(region_label, week, year, include_week=False))
     return (
         '<div style="font-family:Helvetica,Arial,sans-serif;color:#1f2937;line-height:1.5">'
         f"<h2>{heading}</h2>"

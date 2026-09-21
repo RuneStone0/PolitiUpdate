@@ -24,7 +24,10 @@ than staying up like `bot`.
    page and front-page widget can fetch live data without a redeploy.
 4. **`publisher`** — commits a static archive page
    (`website/uge/{year}/{week}/index.html` + `digest.json`) to the repo via
-   the GitHub Contents API. Pushing to `main` triggers the Pages deploy.
+   the GitHub Contents API, and adds the week to `website/sitemap.xml` in the
+   same batch (`update_sitemap` — additive and idempotent, so a published week
+   is always listed for crawlers and re-runs commit nothing). Pushing to `main`
+   triggers the Pages deploy.
 5. **`poster`** — posts a link tweet pointing at the archive page.
 
 If no posts are found for the target week, the run aborts after step 1

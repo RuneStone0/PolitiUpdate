@@ -8,6 +8,12 @@ Run with:
 Per region it (1) syncs the region's contacts into that region's Brevo list,
 then (2) creates + sends a Brevo *email campaign* to that list (campaigns carry
 the unsubscribe link + stats that transactional email doesn't).
+
+Five briefings go out: Hovedstaden, Sjælland, Jylland, Fyn and — last — the
+country-wide one ("Hele landet"), which is the fallback audience for
+subscribers who have not picked a region (``src/newsletter/routing.py``). A
+briefing whose audience is empty is skipped instead of sending a campaign to
+nobody.
 """
 
 import argparse
@@ -15,7 +21,9 @@ import logging
 import sys
 from datetime import datetime, timezone
 
-from . import builder, config, generator, sender, state
+from src.common import regions as region_map
+
+from . import builder, config, generator, routing, sender, state
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,8 +51,12 @@ def run(week: int, year: int, dry_run: bool) -> None:
         {k: len(v) for k, v in data["regions"].items()},
     )
 
+    briefings = dict(data["regions"])
+    briefings[region_map.REGION_NATIONAL] = data["everything"]
+
     results = []
-    for region_label, posts in data["regions"].items():
+    for region_label in routing.send_order():
+        posts = briefings[region_label]
         brief = generator.generate(region_label, posts, week, year)
         print("\n=== %s ===" % region_label)
         print(brief["subject"])
@@ -67,6 +79,19 @@ def run(week: int, year: int, dry_run: bool) -> None:
             # Populate the region list from the REGION attribute before sending,
             # so the campaign reaches everyone who picked this region.
             synced = sender.sync_region_lists(region_label)
+            if synced == 0:
+                # An empty audience would be a campaign sent to nobody (and a
+                # wasted Brevo campaign credit). The country-wide briefing is the
+                # fallback, so an empty region here is expected early on.
+                logger.info(
+                    "Skipping %r — no subscribers on list %s",
+                    region_label, sender.list_id_for_region(region_label),
+                )
+                results.append({
+                    "region": region_label, "sent": False, "dry_run": False,
+                    "note": "no-subscribers", "synced_contacts": 0,
+                })
+                continue
             res = sender.send_region_campaign(
                 region_label, brief["subject"], brief["html"], name=campaign_name
             )

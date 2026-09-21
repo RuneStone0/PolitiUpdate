@@ -157,3 +157,110 @@ def test_generate_html_has_title_link_and_region():
     assert "Fyn" in brief["html"]
     assert "Efterlysning" in brief["text"]
 
+
+# --- Default audience: no subscriber state may end up with no briefing -------
+#
+# Regression guard for a funnel that collected signups and delivered nothing:
+# the live Brevo form captures e-mail only, so every real contact has an empty
+# REGION attribute, matched no region list, and would have received no briefing
+# at all. Whatever the attribute value, a subscriber must land on exactly one
+# briefing — the country-wide one when nothing else matches.
+
+
+def test_routing_maps_every_subscriber_state_to_a_briefing():
+    from src.newsletter import routing
+
+    assert routing.briefing_region("Jylland") == region_map.REGION_JYLLAND
+    assert routing.briefing_region("  Hovedstaden  ") == region_map.REGION_HOVEDSTADEN
+    for value in ("", None, "   ", "Nordpolen", "Hele landet"):
+        assert routing.briefing_region(value) == region_map.REGION_NATIONAL
+
+
+def test_send_order_puts_the_country_wide_briefing_last():
+    from src.newsletter import routing
+
+    assert routing.send_order() == [*region_map.REGIONS, region_map.REGION_NATIONAL]
+
+
+def test_builder_exposes_every_release_for_the_country_wide_briefing(seed_db):
+    t = _time_near_week_start()
+    _make_db(
+        seed_db,
+        [
+            _row("k1", "København opdatering", "Københavns Politi", t),
+            _row("n1", "National opdatering", "Rigspolitiet", t),
+            _row("u1", "Ukendt opdatering", "Et helt ukendt distrikt", t),
+        ],
+    )
+
+    data = builder.build(2026, 36)
+
+    assert data["total_posts"] == 3
+    assert len(data["everything"]) == 3
+    assert {p["title"] for p in data["everything"]} == {
+        "København opdatering",
+        "National opdatering",
+        "Ukendt opdatering",
+    }
+    # It is a briefing of its own, not one of the four regional buckets.
+    assert region_map.REGION_NATIONAL not in data["regions"]
+
+
+def test_country_wide_heading_reads_plainly():
+    posts = [{"title": "T", "district": "Rigspolitiet", "body": "B", "x_post_id": "1"}]
+    brief = generator.generate(region_map.REGION_NATIONAL, posts, 36, 2026)
+    assert "PolitiUpdate — ugens overblik fra hele landet" in brief["text"]
+    assert "for Hele landet" not in brief["text"]
+    assert "for Hele landet" not in brief["html"]
+
+
+def test_run_sends_five_briefings_with_the_country_wide_one_last(seed_db, monkeypatch, capsys):
+    from src.newsletter import main
+
+    t = _time_near_week_start()
+    _make_db(
+        seed_db,
+        [
+            _row("k1", "København opdatering", "Københavns Politi", t),
+            _row("n1", "National opdatering", "Rigspolitiet", t),
+        ],
+    )
+    sent = []
+
+    def fake_send(label, *_a, **_k):
+        sent.append(label)
+        return {"region": label, "dry_run": True, "sent": False}
+
+    monkeypatch.setattr(main.sender, "send_region_campaign", fake_send)
+    main.run(36, 2026, dry_run=True)
+    capsys.readouterr()
+
+    assert sent == [*region_map.REGIONS, region_map.REGION_NATIONAL]
+
+
+def test_run_skips_briefings_without_subscribers(seed_db, tmp_path, monkeypatch, capsys):
+    from src.newsletter import main
+
+    t = _time_near_week_start()
+    _make_db(seed_db, [_row("k1", "København opdatering", "Københavns Politi", t)])
+    monkeypatch.setattr(nconfig, "NEWSLETTER_STATE_PATH", str(tmp_path / "nl_state.json"))
+
+    def fake_sync(label, dry_run=False):
+        # Only the fallback audience has subscribers (the real state today).
+        return 1 if label == region_map.REGION_NATIONAL else 0
+
+    campaigns = []
+
+    def fake_send(label, *_a, **_k):
+        campaigns.append(label)
+        return {"region": label, "sent": True}
+
+    monkeypatch.setattr(main.sender, "sync_region_lists", fake_sync)
+    monkeypatch.setattr(main.sender, "send_region_campaign", fake_send)
+
+    main.run(36, 2026, dry_run=False)
+    capsys.readouterr()
+
+    # No campaign is created for an empty list; the country-wide one still goes.
+    assert campaigns == [region_map.REGION_NATIONAL]
+

@@ -99,6 +99,87 @@
   margin-bottom: 16px;
 }
 
+/* Newsletter signup block — present on every archive page (published weeks are
+   backfilled by scripts/backfill-archive-pages.py; future weeks carry it from
+   src/digest/publisher.py). The Brevo form is hidden-until-proven: its message
+   panels must stay hidden until its own script reveals them. */
+.digest-signup {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(15, 23, 42, 0.72));
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 20px;
+  padding: 24px 28px;
+}
+
+.digest-signup .eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  font-weight: 700;
+}
+
+.digest-signup h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  color: #dbe7f0;
+}
+
+.digest-signup-copy {
+  margin: 0 0 16px;
+  color: #9fb6ca;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.digest-signup .sib-form {
+  margin-top: 4px;
+}
+
+.digest-signup .sib-form .input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(2, 6, 23, 0.6);
+  color: #dbe7f0;
+  font-size: 1rem;
+}
+
+.digest-signup .entry__label,
+.digest-signup .entry__specification {
+  display: block;
+  margin-bottom: 6px;
+  color: #9fb6ca;
+  font-size: 0.85rem;
+}
+
+.digest-signup .sib-form-block__button {
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #38bdf8;
+  color: #04121f;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.digest-signup .sib-form-block__button:hover {
+  background: #7dd3fc;
+}
+
+:where(.sib-form-message-panel) {
+  display: none;
+}
+
+#sib-container a {
+  text-decoration: underline;
+  color: #7dd3fc;
+}
+
 .stats-header {
   display: flex;
   align-items: center;

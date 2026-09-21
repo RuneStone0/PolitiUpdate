@@ -150,3 +150,46 @@ def test_fetch_region_contacts_requires_key(monkeypatch):
     monkeypatch.setattr(nconfig, "BREVO_API_KEY", "")
     with pytest.raises(RuntimeError, match="BREVO_API_KEY"):
         sender.fetch_region_contacts("Jylland")
+
+
+def test_fetch_unassigned_contacts_routes_region_less_contacts(set_creds):
+    """E-mail-only signups (empty REGION) must land on the country-wide briefing."""
+    page = _mock_response(
+        payload={
+            "contacts": [
+                {"email": "noattr@x.dk"},
+                {"email": "empty@x.dk", "attributes": {"REGION": ""}},
+                {"email": "jylland@x.dk", "attributes": {"REGION": "Jylland"}},
+                {"email": "nordpolen@x.dk", "attributes": {"REGION": "Nordpolen"}},
+            ],
+            "count": 4,
+        }
+    )
+    with mock.patch("src.newsletter.sender.requests.get", return_value=page) as get:
+        emails = sender.fetch_unassigned_contacts()
+
+    assert emails == ["noattr@x.dk", "empty@x.dk", "nordpolen@x.dk"]
+    # Not a filter query: whether Brevo matches an empty attribute is unspecified.
+    assert "filter" not in get.call_args.kwargs["params"]
+
+
+def test_fetch_unassigned_contacts_requires_key(monkeypatch):
+    monkeypatch.setattr(nconfig, "BREVO_API_KEY", "")
+    with pytest.raises(RuntimeError, match="BREVO_API_KEY"):
+        sender.fetch_unassigned_contacts()
+
+
+def test_sync_country_wide_list_uses_the_fallback_audience(set_creds):
+    page = _mock_response(
+        payload={"contacts": [{"email": "new@x.dk", "attributes": {}}], "count": 1}
+    )
+    batch = _mock_response(status=204)
+    with mock.patch("src.newsletter.sender.requests.get", return_value=page), mock.patch(
+        "src.newsletter.sender.requests.post", return_value=batch
+    ) as post:
+        n = sender.sync_region_lists("Hele landet")
+
+    assert n == 1
+    assert post.call_args.kwargs["json"]["contacts"] == [
+        {"email": "new@x.dk", "listIds": [nconfig.BREVO_REGION_LISTS["Hele landet"]]}
+    ]
