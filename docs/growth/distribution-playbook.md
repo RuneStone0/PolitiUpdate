@@ -14,7 +14,7 @@ new features raise a ceiling nobody reaches.
 | Followers 5 days earlier | 22 (2026-09-06) | our own x-stats gist — +5, i.e. it does grow |
 | Posts / following / joined | 1,099 / 69 / 2025-10-26 | public profile API (re-verified 2026-09-12) |
 | X verified (blue check) | **no** | public profile API (`verification.verified = false`) |
-| Bio website link | `https://runestone0.github.io/PolitiUpdate/` ✅ | public profile API |
+| Bio website link | `https://runestone0.github.io/PolitiUpdate/` ⚠️ — 301s to the live `https://politiupdates.dk/`; the bio itself is still the old URL (Rune-only edit, 2026-09-22) | public profile API |
 | Engagement, week 36 (18 posts) | 16 posts 0 likes / 0 replies; 1 × 2 replies; 1 × 1 retweet | per-tweet fetch of the week's archive |
 | Post quality | district prefix, 128–271 chars, link-free, no truncation artifacts | sampled live tweets |
 | Newsletter signups | **1 / 10** (domain + ES-2190 trigger) | Brevo `GET /v3/contacts` |

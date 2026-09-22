@@ -74,7 +74,7 @@ def published_dir(tmp_path):
     return root
 
 
-BASE = "https://runestone0.github.io/PolitiUpdate"
+BASE = "https://politiupdates.dk"
 
 
 # --- loader ---------------------------------------------------------------

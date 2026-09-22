@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://runestone0.github.io/PolitiUpdate/sitemap.xml
+Sitemap: https://politiupdates.dk/sitemap.xml

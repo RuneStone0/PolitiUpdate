@@ -13,6 +13,7 @@ import base64
 import html
 import json
 import logging
+import os
 import re
 import textwrap
 from datetime import date
@@ -27,7 +28,14 @@ GITHUB_API = "https://api.github.com"
 
 # Public site root — used for canonical/Open Graph URLs on the archive pages so
 # a shared digest link renders a proper preview card (Reddit, Facebook, X).
-SITE_BASE_URL = "https://runestone0.github.io/PolitiUpdate"
+#
+# Since 2026-09-22 the site's canonical address is the custom domain
+# `politiupdates.dk` (delegated at the .dk registry, HTTPS enforced, serving 200
+# with a valid certificate); the old `runestone0.github.io/PolitiUpdate` URLs
+# 301 here. `os.getenv` mirrors src/distribute/config.py so a preview/dry run can
+# point the template at another host.
+DEFAULT_SITE_BASE_URL = "https://politiupdates.dk"
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", DEFAULT_SITE_BASE_URL).rstrip("/")
 
 # --- Sitemap -----------------------------------------------------------------
 # The sitemap used to be hand-maintained, so it rotted the same way every

@@ -9,8 +9,9 @@ key and no network.
 import os
 
 # Public site base (no trailing slash). Mirrors src.digest.publisher's
-# SITE_BASE_URL; switches to https://politiupdates.dk when the domain is live.
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://runestone0.github.io/PolitiUpdate")
+# SITE_BASE_URL. The domain went live 2026-09-22, so the canonical base is now
+# https://politiupdates.dk (the old github.io URLs 301 there).
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://politiupdates.dk")
 
 # Where the digest app commits its published archives.
 PUBLISHED_DIR = os.getenv("PUBLISHED_DIR", "website/uge")

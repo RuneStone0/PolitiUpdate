@@ -58,7 +58,11 @@ from pathlib import Path
 from urllib.request import urlopen
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SITE_BASE_URL = "https://runestone0.github.io/PolitiUpdate"
+SITE_BASE_URL = "https://politiupdates.dk"
+# The site's pre-custom-domain address. Pages 301s it to SITE_BASE_URL, so the
+# same page fetched from either host is the same content served at two URLs —
+# which is exactly why the two hosts must be interchangeable when diffing.
+LEGACY_SITE_BASE_URL = "https://runestone0.github.io/PolitiUpdate"
 
 # Paths that are never part of a push (secrets, runtime state, scratch).
 EXCLUDED_PREFIXES = ("data/", ".venv/", ".git/", ".preflight", "__pycache__")
@@ -120,6 +124,19 @@ def drift() -> tuple[int, int]:
     return int(left), int(right)
 
 
+def _canonical_host(text: str) -> str:
+    """Collapse the site's own host to a placeholder.
+
+    The pages carry absolute canonical/Open Graph URLs, so a canonical-host
+    switch (github.io -> politiupdates.dk) rewrites four lines per page without
+    touching a single piece of content. Comparing the normalized text keeps that
+    a *host* change rather than reporting it as four lost lines.
+    """
+    for base in (SITE_BASE_URL, LEGACY_SITE_BASE_URL):
+        text = text.replace(base, "{SITE}")
+    return text
+
+
 def _benign_removal(line: str, local_text: str) -> bool:
     """A line may vanish from a published archive page only in two benign ways.
 
@@ -129,7 +146,9 @@ def _benign_removal(line: str, local_text: str) -> bool:
        ``summary_large_image``.
     2. **Re-flow** — the *content* of the line is still in the page, just merged
        with a neighbour (the signup script tag now shares its line with
-       ``</body>``). Blank lines count as re-flow.
+       ``</body>``), or the line survives with only the site host rewritten
+       (canonical/``og:url``/``og:image`` after the custom-domain switch). Blank
+       lines count as re-flow.
 
     Anything else vanishing — a pager link, a nav link, a case item — is a
     regression, not a redesign.
@@ -138,6 +157,9 @@ def _benign_removal(line: str, local_text: str) -> bool:
     if not stripped:
         return True
     if stripped in local_text:
+        return True
+    normalized = _canonical_host(stripped)
+    if normalized != stripped and normalized in _canonical_host(local_text):
         return True
     return any(marker in stripped.lower() for marker in BENIGN_REMOVED_MARKERS)
 

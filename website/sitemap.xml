@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/</loc>
+    <loc>https://politiupdates.dk/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/</loc>
+    <loc>https://politiupdates.dk/uge/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/38/</loc>
+    <loc>https://politiupdates.dk/uge/2026/38/</loc>
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/37/</loc>
+    <loc>https://politiupdates.dk/uge/2026/37/</loc>
     <lastmod>2026-09-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/36/</loc>
+    <loc>https://politiupdates.dk/uge/2026/36/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/35/</loc>
+    <loc>https://politiupdates.dk/uge/2026/35/</loc>
     <lastmod>2026-08-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/34/</loc>
+    <loc>https://politiupdates.dk/uge/2026/34/</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://runestone0.github.io/PolitiUpdate/uge/2026/33/</loc>
+    <loc>https://politiupdates.dk/uge/2026/33/</loc>
     <lastmod>2026-08-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
