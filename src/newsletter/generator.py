@@ -401,7 +401,10 @@ def _to_html(context: dict) -> str:
         f'Se alle {count} opdateringer →</a></td></tr>'
     )
 
-    # The rest of the week as a scannable index, one line per story.
+    # The rest of the week as a scannable index, one line per case. Every line is
+    # a link, but the section must stay quiet: dark slate text, no underline, and
+    # a small muted arrow as the only cue — a column of blue links would drown the
+    # highlights above it.
     if shown:
         rows = []
         for entry in shown:
@@ -412,19 +415,23 @@ def _to_html(context: dict) -> str:
             label = (
                 f'<strong style="color:#0f172a">{_html.escape(district)}:</strong> ' if district else ""
             )
+            updates = (
+                f'<span style="color:#94a3b8;font-size:12px"> · {entry["updates"]} opdateringer</span>'
+                if entry["updates"] > 1 else ""
+            )
             rows.append(
                 '<tr><td style="padding:0 0 9px">'
                 f'<a href="{href}" style="color:#334155;font-size:14px;line-height:1.5;'
-                f'text-decoration:none">{label}{_html.escape(display_title(post.get("title", "")))}</a>'
-                + (f'<span style="color:#94a3b8;font-size:12px"> · {entry["updates"]} opdateringer</span>'
-                   if entry["updates"] > 1 else "")
+                f'text-decoration:none">{label}{_html.escape(display_title(post.get("title", "")))}'
+                '<span style="color:#b6c2d1;font-size:12px">&nbsp;&rarr;</span></a>'
+                + updates
                 + "</td></tr>"
             )
         more_line = ""
         if more > 0:
             more_line = (
                 f'<p style="margin:8px 0 0;color:#64748b;font-size:13px">… og {more} flere sager i '
-                f'<a href="{site}" style="color:#1d4ed8;text-decoration:none">hele ugens overblik</a>.</p>'
+                f'<a href="{site}" style="color:#475569;text-decoration:none">hele ugens overblik</a>.</p>'
             )
         parts.append(
             '<tr><td style="padding:26px 24px 6px">'

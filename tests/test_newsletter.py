@@ -405,6 +405,41 @@ def test_highlight_block_is_collapsed_for_repeats_and_never_duplicated():
     assert brief["html"].count(_FOOTBALL) == 1
 
 
+def test_index_lines_are_links_but_stay_visually_quiet():
+    """Rune 2026-09-27: the index must link, without a column of blue links.
+
+    Every index line is an <a> (the whole line, so the tap target is the row), in
+    dark slate with no underline, and the only affordance is a small muted arrow —
+    the section sits under the highlights and must not compete with them.
+    """
+    posts = _football_posts() + [
+        {"title": "Sprængning i Vorre ved Skødstrup - ingen kommet til skade",
+         "district": "Østjyllands Politi", "body": "Ingen personer kom til skade.",
+         "x_post_id": "92", "posted_at": "2026-09-17T05:00:00"}
+    ] + [
+        {"title": f"Kontrol af tung trafik gav {n} sager",
+         "district": "Nordjyllands Politi", "body": f"Der blev givet {n} bøder.",
+         "x_post_id": f"7{n}", "posted_at": f"2026-09-1{n}T06:00:00"}
+        for n in range(1, 5)
+    ]
+    # enough ranked cases that the Skødstrup case lands in the INDEX below the
+    # five highlights (it is the least read of them all)
+    brief = generator.generate(
+        region_map.REGION_HOVEDSTADEN, posts, 38, 2026,
+        views={"0": 172, "90": 120, "91": 110, "71": 100, "72": 90, "73": 80, "74": 70, "92": 50},
+    )
+    index_rows = [row for row in brief["html"].split("<tr>") if "status/" in row
+                  and "Sprængning" in row]
+    assert index_rows, "the index row for Skødstrup must exist"
+    assert "Læs hele opslaget" not in index_rows[0], "that must be an index row, not a highlight"
+    row = index_rows[0]
+    assert 'href="https://x.com/PolitiUpdate/status/92"' in row
+    assert "color:#334155" in row and "text-decoration:none" in row   # not blue
+    assert "#b6c2d1" in row and "&rarr;" in row                        # the quiet cue
+    # blue is reserved for the highlights' "Læs hele opslaget på X" reference
+    assert "#1d4ed8" not in brief["html"].split("Flere sager fra ugen")[1]
+
+
 def test_subject_leads_with_the_most_read_story_not_a_count():
     posts = _football_posts()
     views = {"0": 172, "90": 74}
