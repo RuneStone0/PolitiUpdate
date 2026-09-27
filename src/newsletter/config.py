@@ -48,6 +48,34 @@ BREVO_UNSUB_PAGE_ID = os.getenv("BREVO_UNSUB_PAGE_ID", "")
 # Optional: override the ISO week number to generate (e.g. "36" for testing)
 NEWSLETTER_WEEK_OVERRIDE = os.getenv("NEWSLETTER_WEEK_OVERRIDE", "").strip()
 
+# Public site base (no trailing slash). Mirrors src.digest.publisher's
+# SITE_BASE_URL / src.distribute.config: the domain went live 2026-09-22, so the
+# canonical base is https://politiupdates.dk (the old github.io URLs 301 there).
+# Every briefing links back to that week's published archive page — the owned
+# site carries the signup form, so a briefing with no site link is a dead end.
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://politiupdates.dk")
+
+# --- Copy shape -------------------------------------------------------------
+# A briefing is a hook, not the record: the week's full list lives on the
+# archive page it links to. The delivered week-38 campaign was 136 list items /
+# 44 KB of text, which nobody reads to the end. Now it leads with the few most
+# *read* stories and then a scannable one-line index, capped here.
+NEWSLETTER_HIGHLIGHTS = int(os.getenv("NEWSLETTER_HIGHLIGHTS", "5") or 5)
+NEWSLETTER_INDEX_LIMIT = int(os.getenv("NEWSLETTER_INDEX_LIMIT", "20") or 20)
+NEWSLETTER_SUMMARY_CHARS = int(os.getenv("NEWSLETTER_SUMMARY_CHARS", "200") or 200)
+
+# --- Reach (which stories were most read) -----------------------------------
+# View counts come from fxtwitter (see src/common/x_reach.py) and only decide
+# *ranking*; a failed lookup leaves the highlight block out instead of failing
+# the send. Set NEWSLETTER_REACH_ENABLED=0 to send the index-only briefing.
+REACH_ENABLED = os.getenv("NEWSLETTER_REACH_ENABLED", "1").strip().lower() not in (
+    "0",
+    "false",
+    "no",
+    "",
+)
+REACH_DEADLINE_S = float(os.getenv("NEWSLETTER_REACH_DEADLINE_S", "120") or 120)
+
 # Local state file (shared data volume) — which week was last sent, so a
 # re-run for the same week skips instead of double-sending.
 NEWSLETTER_STATE_PATH = os.getenv("NEWSLETTER_STATE_PATH", "data/newsletter_state.json")

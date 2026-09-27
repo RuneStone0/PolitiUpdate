@@ -211,6 +211,72 @@ def test_facebook_post_region_with_no_items():
     assert "1 opdatering i uge 37" in text
 
 
+def test_facebook_post_never_repeats_a_headline_in_its_bullets():
+    """A story the police updated N times is one headline, not N bullets.
+
+    The feed re-announces a page with a new ``#sm-XXXXX`` id per update, so the
+    week-38 draft listed "Savnet 86 årig Tysk mand …" twice. Verified against the
+    live DB: every repeat update carries the same title (106/106 repeats, 31% of
+    posted rows), so a title-level dedupe is exactly what the listing needs.
+    """
+    digest = _digest()
+    digest["region_items"]["København"] = [
+        {"title": "FODBOLDKAMP I BRØNDBY", "url": "u1"},
+        {"title": "FODBOLDKAMP I BRØNDBY", "url": "u2"},  # same page, later update
+        {"title": "FODBOLDKAMP I BRØNDBY", "url": "u3"},
+        {"title": "St. Kongensgade afspærret", "url": "u4"},
+    ]
+    text = generator.build_facebook_post(digest, BASE, generator.REGION_HOVEDSTADEN)
+    assert text.count("FODBOLDKAMP I BRØNDBY") == 1
+    # the count still reports the archive's real number of updates (4 København +
+    # Kbh Vestegn + Nordsjælland), even though only distinct headlines are listed
+    assert "6 opdateringer i uge 37" in text
+    assert "St. Kongensgade afspærret" in text
+
+
+def test_notable_bullets_never_repeat_a_headline():
+    digest = _digest()
+    digest["notable"] = [
+        {"title": "Anholdt for bedrageri", "summary": "Første opdatering."},
+        {"title": "Anholdt for bedrageri", "summary": "Senere opdatering."},
+        {"title": "Brand i Tirstrup", "summary": "Branden er slukket."},
+    ]
+    text = generator.build_reddit_post(digest, BASE)
+    assert text.count("Anholdt for bedrageri") == 1
+    assert "Brand i Tirstrup" in text
+    # dedupe happens before the limit, so a repeated title cannot eat a slot
+    assert generator._notable_bullets(digest, limit=2) == [
+        "- **Anholdt for bedrageri** — Første opdatering.",
+        "- **Brand i Tirstrup** — Branden er slukket.",
+    ]
+
+
+def test_build_summary_dedupes_notable_titles():
+    digest = _digest()
+    digest["notable"] = [
+        {"title": "Anholdt for bedrageri"},
+        {"title": "Anholdt for bedrageri"},
+        {"title": "Brand i Tirstrup"},
+    ]
+    assert generator.build_summary(digest, BASE)["notable"] == [
+        "Anholdt for bedrageri",
+        "Brand i Tirstrup",
+    ]
+
+
+def test_dedupe_by_title_preserves_first_and_drops_blank_titles():
+    items = [
+        {"title": "  Savnet 86 årig mand  "},
+        {"title": "savnet 86 ÅRIG MAND"},  # same title, different whitespace/case
+        {"title": ""},
+        {"title": "Brand i Tirstrup"},
+    ]
+    assert [i["title"] for i in generator._dedupe_by_title(items)] == [
+        "  Savnet 86 årig mand  ",
+        "Brand i Tirstrup",
+    ]
+
+
 def test_x_post_is_link_free_and_within_limit():
     text = generator.build_x_post(_digest(), BASE)
     assert len(text) <= generator.X_MAX_CHARS

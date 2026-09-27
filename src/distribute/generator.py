@@ -139,9 +139,32 @@ def region_with_most_items(digest: dict) -> str | None:
     return best if best_count > 0 else None
 
 
+def _dedupe_by_title(items) -> list[dict]:
+    """Keep the first entry per distinct title, preserving order.
+
+    The Ritzau feed re-announces one press-release page with a new ``#sm-XXXXX``
+    id every time the police update it, so a busy story appears several times
+    with the *same* headline. Measured against the live bot DB (2026-09-25):
+    106 of 340 posted rows (31%) are such repeat updates, and **every one of
+    them shares its title** with an earlier post. Those updates are legitimate
+    and must stay on the timeline — but a *listing* that prints one headline
+    five times reads like a broken feed (the week-38 Facebook draft literally
+    showed the same bullet twice), so listings show each headline once.
+    """
+    seen: set[str] = set()
+    out: list[dict] = []
+    for item in items:
+        key = " ".join((item.get("title") or "").split()).casefold()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
+
+
 def _notable_bullets(digest: dict, limit: int = 4) -> list[str]:
     bullets = []
-    for pick in (digest.get("notable") or [])[:limit]:
+    for pick in _dedupe_by_title(digest.get("notable") or [])[:limit]:
         title = (pick.get("title") or "").strip()
         summary = (pick.get("summary") or "").strip()
         if not title:
@@ -224,7 +247,7 @@ def build_facebook_post(digest: dict, site_base: str, region: str) -> str:
         f"opdatering{'er' if len(items) != 1 else ''} i uge {digest['week']}.",
         "",
     ]
-    titles = [i.get("title", "").strip() for i in items if i.get("title")][:5]
+    titles = [i.get("title", "").strip() for i in _dedupe_by_title(items) if i.get("title")][:5]
     if titles:
         parts += ["Blandt andet:", *[f"- {t}" for t in titles], ""]
     parts += [
@@ -264,7 +287,7 @@ def build_summary(digest: dict, site_base: str) -> dict:
         "week": digest["week"],
         "total_posts": digest["total_posts"],
         "categories": digest.get("categories", {}),
-        "notable": [p.get("title") for p in (digest.get("notable") or [])],
+        "notable": [p.get("title") for p in _dedupe_by_title(digest.get("notable") or [])],
         "generated_at": digest.get("generated_at"),
         "archive_url": f"{site_base.rstrip('/')}/uge/{digest['year']}/{digest['week']}/",
         "tagged_urls": {

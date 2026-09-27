@@ -1,6 +1,6 @@
 # Growth — distribution playbook
 
-_Maintained by the daily self-improvement routine. Last updated 2026-09-14._
+_Maintained by the daily self-improvement routine. Last updated 2026-09-26._
 
 **One-line thesis:** the product works and the pipeline is built; the constraint is that
 **nobody sees the output** (27 X followers ≈ zero organic reach). Distribution first —
@@ -14,7 +14,7 @@ new features raise a ceiling nobody reaches.
 | Followers 5 days earlier | 22 (2026-09-06) | our own x-stats gist — +5, i.e. it does grow |
 | Posts / following / joined | 1,099 / 69 / 2025-10-26 | public profile API (re-verified 2026-09-12) |
 | X verified (blue check) | **no** | public profile API (`verification.verified = false`) |
-| Bio website link | `https://runestone0.github.io/PolitiUpdate/` ⚠️ — 301s to the live `https://politiupdates.dk/`; the bio itself is still the old URL (Rune-only edit, 2026-09-22) | public profile API |
+| Bio website link | ✅ `https://politiupdates.dk/` — **Rune fixed it 2026-09-25** (was the github.io URL that only 301'd there); verified in the public profile API the same minute | public profile API |
 | Engagement, week 36 (18 posts) | 16 posts 0 likes / 0 replies; 1 × 2 replies; 1 × 1 retweet | per-tweet fetch of the week's archive |
 | Post quality | district prefix, 128–271 chars, link-free, no truncation artifacts | sampled live tweets |
 | Newsletter signups | **1 / 10** (domain + ES-2190 trigger) | Brevo `GET /v3/contacts` |
@@ -26,6 +26,34 @@ new features raise a ceiling nobody reaches.
 | Permanently dropped posts | 0 since 2026-09-06 (all 23 are from a 2026-09-03/04 window) | prod DB `posts.status='dropped_stale'` |
 | Digest-tweet reach (weeks 35/36/37) | **8 / 9 / 8 views, 0 likes, 0 replies, 0 retweets** | `api.fxtwitter.com/PolitiUpdate/status/<id>` per tweet (checked 2026-09-14) |
 | Prod bot config (re-checked 2026-09-14) | still `X_PRO` unset → `POST_MAX_CHARS=280`, `LLM_ENABLED=1`; 147 posted, longest text 279, **0 over 280** | `docker inspect bot` + prod DB (read-only, over SSH) |
+
+Watch list — **2026-09-24 refresh (re-verified live, not carried over):**
+
+| Metric | Value (2026-09-24) | How |
+| --- | --- | --- |
+| X followers / posts | **31 / 1,292** (flat WoW — no channel has been pushed) | `api.fxtwitter.com/PolitiUpdate` |
+| Newsletter signups | **1** (`rtk@rtk-cv.dk`, empty `REGION`, unchanged since 2026-09-09) | `politiupdate_brevo_domain_probe.py` |
+| Can the newsletter send? | **YES — verified by a real delivery 2026-09-25**: domain authenticated, our own sender `nyhedsbrev@politiupdates.dk` (id 2), campaign 6 delivered to the single subscriber; the weekly send runs with the Sunday digest | `politiupdate_brevo_campaign_status.py` + `GET /v3/contacts/<addr>` (`statistics.delivered`) |
+| Public site | **LIVE** at `https://politiupdates.dk` (HTTP 200, valid cert, og-image 1200×630, sitemap lists weeks 33–38) | `politiupdate_site_check.py` → VERDICT OK |
+| Site canonical host | ✅ **single host since 2026-09-25**: `5b1490b` is pushed and the served `sitemap.xml` + `robots.txt` advertise `politiupdates.dk` only | served `sitemap.xml` / `robots.txt` |
+| Prod bot | healthy (8,410 polls, 0 errors, heartbeat 05:00Z), `X_PRO` **unset** → `POST_MAX_CHARS=280`; 324 posted, 0 over 280 chars, 4.0% hard-truncated | `docker inspect bot` + prod DB over SSH |
+| Channel 3 (newsroom) | **artifact now exists**: `politiupdate_press_kit.py` → 13 verified desks, per-desk week numbers; nothing sent (Rune's action) | `politiupdate_press_kit.py --self-test` + generated `data/distribution/2026-W38-presse.md` |
+
+Watch list — **2026-09-26 refresh (re-verified live, not carried over):**
+
+| Metric | Value (2026-09-26) | How |
+| --- | --- | --- |
+| X followers / posts | **33 / 1,328** (+2 WoW, still with no channel pushed) | `api.fxtwitter.com/PolitiUpdate` |
+| Newsletter signups | **1** (`rtk@rtk-cv.dk`, empty `REGION`, unchanged since 2026-09-09) | `politiupdate_brevo_domain_probe.py` |
+| Can the newsletter send? | **YES** — `politiupdates.dk` `authenticated: true`, our sender id 2 active, and a real delivery on 2026-09-25 | same probe |
+| **The briefing's own copy** | ⛔ **dead end: 136 links, all `x.com`, 0 to `politiupdates.dk`** — and the fix is in the *unpushed* batch, while the next send is Sunday 16:00 UTC | `politiupdate_brevo_campaign_status.py --id 6 --audit` → `verdict=DEAD-END` |
+| Public site | **LIVE, single canonical host** — served `sitemap.xml`/`robots.txt` advertise `politiupdates.dk` only, no WARN left | `politiupdate_site_check.py` → VERDICT OK |
+| Prod bot | healthy — container revision `5b1490b` (= `origin/main`), 750 polls since the 2026-09-25T22:38Z restart, 0 errors, `X_PRO` **unset** → 280-char cap | `docker inspect bot` + prod DB over SSH |
+
+Consequence: **nothing off-platform is blocked by code or content any more** — the Reddit modmail,
+the weekly self-post and the Facebook regional post are all paste-ready, and the site they link
+to is live on a real domain. What is left is the push, the bio link, and the four DNS records
+(§9).
 
 Watch list — **RESOLVED 2026-09-13:** the account is not X-verified *and* the production bot
 runs with `X_PRO` unset, so **full-message posts are not live**: the corpus is capped at 280
@@ -65,6 +93,14 @@ Same-day verification changed *how* that account has to be worked:
   to refuse — a read-only request has better odds). **Conclusion: Reddit posting must be
   MANUAL** (a human, in a browser) — the modmail and the weekly self-post need no app. Reading
   via RSS / `.json` is possible in principle, but reddit.com is WAF-blocked (403) from this host.
+- ⚠️ **UPDATE 2026-09-23 — reading is NOT blocked, only the JSON/browser paths are.** From this
+  host, `curl -A "<browser UA>" "https://www.reddit.com/r/Denmark/new/.rss"` returns **200** with
+  titles/links/selftext (`/hot/.rss` likewise, and search via
+  `/r/Denmark/search.rss?q=<q>&restrict_sr=on&sort=new&t=week`). Use the **Atom feed** — `.json`
+  and `api.reddit.com` are still 403 and `web_extract` bounces off a login wall. **Space requests
+  45–75 s apart**: a burst returns **429 with an empty file**, which reads like a silent failure.
+  So the mods' rules, threads and tone can be checked from here before Rune sends anything; only
+  *writing* (modmail, post, comment) needs a human.
 
 Rules fetched live 2026-09-11 from `https://www.reddit.com/r/Denmark/about/rules.json`:
 
@@ -128,8 +164,8 @@ pitch. Method, not blasting:
 
 - Monitor Danish police-beat coverage (TV2, DR, BT, Ekstra Bladet, Jyllands-Posten, TV2
   regional, SN.dk local editions). When a story matches a release we mirrored **before** the
-  outlet published, reply/quote with the mirror link — the value is the complete text and the
-  timestamp, not our opinion.
+  outlet published, reply/quote with the mirror link — the value is the timestamp and the
+  lookup, not our opinion.
 - Keep it rare and useful (a handful per week), link-free posts become link-replies (the $0.20
   URL surcharge applies per post — budget it, don't do it in bulk).
 - Newsrooms also take tips through their own tip forms; use them when our dataset shows a
@@ -140,6 +176,53 @@ pitch. Method, not blasting:
   Sell what is actually true: 30-second polling, all 14 districts, a searchable archive, and a
   timestamped mirror. Claiming completeness we don't deliver is exactly the kind of
   over-claim that kills a newsroom's trust on first contact.
+
+### 4.1 The pitches are now generated — `politiupdate_press_kit.py` (2026-09-24)
+
+Channel 3 was the last one with **no artifact**: Reddit (§6B) and Facebook (§6C) have generated
+drafts, X has the bot, but a newsroom pitch was prose that had to be rewritten each week. A
+manual channel that costs a writing session per use does not get used.
+
+```bash
+python3 /opt/data/profiles/politiupdate/scripts/politiupdate_press_kit.py         # newest published week
+python3 /opt/data/profiles/politiupdate/scripts/politiupdate_press_kit.py --self-test   # offline, no network
+python3 /opt/data/profiles/politiupdate/scripts/politiupdate_press_kit.py --contacts    # validate the contact file
+```
+
+Writes `data/distribution/<year>-W<week>-presse.md` — a Danish pitch per desk, a short English
+version, the week's numbers, the verified contact table and a send log. It reads the
+**published** archive (`website/uge/<y>/<w>/digest.json` resolved out of `origin/main`, via the
+same helper the channel kit uses) and never touches the working tree, pulls, commits, posts or
+sends mail. It is also called by the weekly digest script (`politiupdate_weekly_digest.py`)
+right after a successful publish, so the kit exists every Sunday without anyone remembering.
+
+**Why per-desk numbers:** every regional station's patch is exactly one or more police
+districts (`TV 2 Kosmopol` = København/Vestegn/Nordsjælland, `TV2 ØST` = Midt- og
+Vestsjælland + Sydsjælland/L-F, `TV2 Østjylland` = Østjylland + Sydøstjylland, `TV MIDTVEST` =
+Midt- og Vestjylland, `TV2 Nord` = Nordjylland, `TV 2 Fyn` = Fyn, `tvSyd` = Sydjylland,
+`TV2 Bornholm` = Bornholm). The pitch therefore says *"this week produced N releases from your
+area"* — a claim the desk can check against the same public feed we mirror. An unverifiable
+"we mirror the police" mail reads as spam and is deleted.
+
+**Contacts are verified or absent, never guessed**: `press_contacts.json` (profile dir) lists
+an address only with a `source_url` on the outlet's **own** domain plus `verified_at`, and
+`--contacts` refuses a desk missing either. Verified 2026-09-24: DR `1212@dr.dk`, TV 2
+`1234@tv2.dk`, BT `tip@bt.dk`, Jyllands-Posten `kontakt@jp.dk`, Ekstra Bladet
+`redaktionen@eb.dk`, plus eight regional desks incl. `redaktion@tv2east.dk` — note TV 2 ØST's
+site is **tv2east.dk**, not tv2ost.dk (which no longer resolves). Politiken publishes no
+newsroom e-mail (phone only) and is recorded as excluded.
+
+**A snapshot needs a check, so there is one:** `--verify-contacts` re-fetches every `source_url`
+and asserts the address is still on the page — `OK` / `REGRESSION` (fetched fine, address
+gone → exit 1, fix before sending) / `UNREACHABLE` (non-200 → "could not re-confirm", never
+"the address is bad"). Run 2026-09-24: **13/13 re-confirmed live**. Worth knowing when
+extending it: the tv2reg station sites return **406 to `requests`/`curl`** with a browser
+User-Agent but **200 to `urllib`** with the same headers.
+
+**Rules that still apply:** the honesty gate is code (`assert_honest` — the kit refuses to be
+written if our own prose claims completeness; quoted source titles are blanked before the
+check, since a police headline is data, not our claim). Sending is Rune's action, one desk at a
+time, logged in the kit's send log, measured per §8. Nothing here posts or mails by itself.
 
 ## 5. Channel 4 — On-platform X (compounding, currently dead)
 
@@ -161,6 +244,19 @@ already generated). Don't hand-write them again: to change the wording, change t
 in `src/distribute/generator.py`, whose honesty gate then covers the change. The drafts
 below stay as the reference for *why* each channel reads the way it does; their week-36
 numbers are historical.
+⚠️ **Headlines repeat themselves — the listings must not (fixed 2026-09-25).** A story the
+police update N times is re-announced by the feed under a new id and posted N times with the
+**same title** (measured: 31% of all posted rows; 106/106 repeats share their title), so a
+listing that prints the archive verbatim shows one headline up to 5× — the week-38 Facebook
+draft did exactly that. `generator._dedupe_by_title()` now shows each headline once per
+listing, while the counts stay the archive's real number of updates. Regenerate the week's kit
+(`politiupdate_channel_kit.py`) after changing that helper; the archive page on the site still
+lists the repeats (see `docs/PLAN.md` for the pending fix).
+
+**Channel 3 (newsroom) drafts are generated too — since 2026-09-24:** `politiupdate_press_kit.py`
+writes `data/distribution/<year>-W<week>-presse.md` (one Danish pitch per desk with that desk's
+own week numbers, a short English version, the verified contact table, a send log). See §4.1.
+It runs automatically after each successful weekly digest.
 
 **A. r/Denmark modmail — one-time, sent manually by Rune (only after checking the rules).**
 
@@ -220,8 +316,12 @@ content, *then* send). It also flags two lines as Rune's decision.
      hid the one week that needed re-rendering. `src/digest` now writes the sitemap on every
      run (`publisher.update_sitemap`, additive + idempotent), the backfill probes past the
      newest listed week, and `tests/test_sitemap.py` fails if a published week is unlisted.
-   Deploy = commit + push to `main`, then verify with
-   `curl -s https://runestone0.github.io/PolitiUpdate/ | grep -c 'og:image'`.
+   Deploy = commit + push to `main`, then verify **on the canonical host** with
+   `python3 /opt/data/profiles/politiupdate/scripts/politiupdate_site_check.py` (visitor path, exit
+   1 = broken) or, for one marker, `curl -s https://politiupdates.dk/ | grep -c 'og:image'`.
+   ⚠️ **Do not verify on `runestone0.github.io` any more** — it 301s to the .dk host since
+   2026-09-22, so a marker count there measures a redirect, and the served `sitemap.xml`/
+   `robots.txt` on the .dk host still list github.io URLs (the unpushed host switch, §9.8).
    ⚠️ **Pull before pushing** — `src/digest` commits archive pages straight to `main` every
    Sunday, so the local tree goes stale and the pending share-card work touches the same
    week-36/37 files. The sequence is no longer a note to remember: **`python
@@ -256,13 +356,25 @@ Read the effect from two public signals only: the Brevo contact list (`GET /v3/c
 a channel attributable without pageviews; a channel that produces **no** new contact and no
 follower movement in its window is dropped, not "kept warm".
 
+**Audit the copy that was sent, not just the delivery (2026-09-26).** The owned channel had a
+green send (delivery proven from the recipient's own record) whose mail contained **136 links
+and not one of them to our own site** — a leak that the delivery counter, the test suite and
+Brevo's own statistics all reported as fine (`globalStats` still reads `sent=0` after a real
+delivery). So the weekly job now prints a per-campaign link audit next to the send
+confirmation (`politiupdate_brevo_campaign_status.py --id N --audit`; parser covered by
+`--self-test`), and the rule for any future e-mail: **an owned channel must contain an owned
+link.**
+
 ## 9. Asks (things only Rune can do)
 
 1. ~~Which account posts to Reddit~~ — **DECIDED 2026-09-12: a dedicated PolitiUpdate
-   account.** Remaining human steps (blocked on Rune's own browser, see §2): create the
-   account (username candidates in order: `PolitiUpdate`, `PolitiUpdateDK`, `politiupdate_dk`),
-   then a **script**-type app at `reddit.com/prefs/apps`, and paste both values into
-   `/opt/data/private/reddit-politiupdate.env`.
+   account**, and the account is **created** (subscribed to r/Denmark). ⛔ **The script-app
+   step is a dead path — do not ask for it again:** Reddit closed self-service API app
+   creation (`reddit.com/prefs/apps` only routes to the Responsible Builder Policy), so there
+   is **no client id/secret to obtain and no creds file to fill**; `/opt/data/private/reddit-politiupdate.env`
+   stays empty **by design**. Remaining human steps are purely manual: send the r/Denmark
+   **modmail** (§6A — canonical text in Alfred's copy) and, once the mods agree, the **weekly
+   self-post** (§6B, generated by the channel kit).
 2. ~~Approve deploying the staged link-preview/meta changes~~ — **APPROVED and DEPLOYED
    2026-09-12** (commit `3943547`): `og:title` verified in the served HTML, `robots.txt` and
    `sitemap.xml` both 200.
@@ -273,8 +385,10 @@ follower movement in its window is dropped, not "kept warm".
    posting**: Rune posts the r/Denmark modmail (§6A) and the weekly self-post (§6B) from the
    dedicated account — no app, no API. Optionally file a **Data Access Request** as a separate,
    low-priority ticket (low odds for posting, ~2–4 weeks).
-4. **Staged share-card push** — `og:image` + the archive meta backfill are committed-ready but
-   local; needs the same go-ahead + push as item 2, then a curl re-check.
+4. ~~Staged share-card push~~ — ✅ **SHIPPED 2026-09-21** as `1b84938` (og:image 1200×630,
+   archive meta backfill, archive signup CTA, sitemap repair). Verified live the same day:
+   `og-image.png` → HTTP 200 1200×630, week-38 archive carries `og:image` + `twitter:card` +
+   the signup block, served sitemap lists weeks 33–38. Superseded by item 8.
 5. **Analytics account** (GoatCounter free — see §7.2) whenever Rune wants channel-level truth;
    until then §8's sequential attribution is the method.
 6. **X Premium Basic for full-message posts** (NEW 2026-09-13, routed to Alfred): production
@@ -283,19 +397,45 @@ follower movement in its window is dropped, not "kept warm".
    bot env on the UmbrelOS host and re-verify a real >280-char post. Without this, every
    "complete text / full message" claim we make to Reddit mods, journalists and the newsletter
    list is false.
-7. **Domain `politiupdates.dk`** (ES-2190; ⚠️ re-verified **still unregistered** 2026-09-14 —
-   `politiupdates.dk` returns no A record and HTTPS is unreachable) — one purchase unblocks the
-   newsletter send (Brevo sender `authenticated=false`) *and* gives the Reddit channel a
-   credible Danish link instead of the github.io URL. The DNS/Brevo values are recorded in
-   `docs/PLAN.md`; the code side is one switch (`DIGEST_BASE_URL` + OG/canonical + the X bio
-   link), plus `--site-base` for the channel kit.
-   - ⚠️ **Verified 2026-09-19 against the live Brevo API: this is a HARD blocker, not a
-     nicety.** `POST /v3/emailCampaigns` with sender `nyhedsbrev@politiupdates.dk` returns
-     **HTTP 400 `invalid_parameter` "Sender is invalid / inactive"** — Brevo refuses to create
-     the campaign at all, so no briefing can be sent until the domain/sender exists. Everything
-     else on the send path is now rehearsed green against the live API (contact routing,
-     list-membership sync + read-back) by
-     `politiupdate_newsletter_rehearsal.py`; only the final `sendNow` is unexercised.
-   - The only active Brevo sender today is id 1 `rtk@rtk-cv.dk` under the name **"BrilliantR"**
-     — another project's sender identity; do not reuse it for PolitiUpdate, and do not rename it
+7. **Domain `politiupdates.dk`** — ✅ **DONE (site 2026-09-22, newsletter 2026-09-25).** The site is
+   LIVE on it (HTTP 200, valid Let's Encrypt cert, old github.io URL 301s here) **and** the mail
+   half is finished: Rune added the four Brevo records in One.com's zone, Brevo reports
+   `authenticated: true` after `PUT /senders/domains/politiupdates.dk/authenticate`, our own
+   sender `nyhedsbrev@politiupdates.dk` (id 2) exists, and the **first real briefing was
+   delivered** (campaign 6 → list 7; delivery read back from the contact's own record). The
+   weekly send now runs with the Sunday digest. Check state any time with
+   `politiupdate_brevo_domain_probe.py` (records/senders) and
+   `politiupdate_brevo_campaign_status.py` (what a send actually did).
+   - ⚠️ **Verified 2026-09-19 against the live Brevo API: this was a HARD blocker, not a
+     nicety.** `POST /v3/emailCampaigns` with an unauthenticated sender returned **HTTP 400
+     `invalid_parameter` "Sender is invalid / inactive"** — Brevo refused to create the campaign
+     at all, which is why "the domain is live" never meant "the newsletter can send".
+   - The other active Brevo sender is id 1 `rtk@rtk-cv.dk` under the name **"BrilliantR"** —
+     another project's sender identity; do not reuse it for PolitiUpdate, and do not rename it
      in place.
+8. ✅ **DONE — one canonical host everywhere (2026-09-25).** `5b1490b`
+   is pushed and verified in the served site: `canonical`/`og:url` on the landing page and every
+   archive page, `sitemap.xml` and `robots.txt` all advertise `https://politiupdates.dk` only,
+   so crawlers and link previews no longer split across two hosts. **And the X bio link is fixed too (Rune, 2026-09-25):** the profile's website field now reads `https://politiupdates.dk/` (verified via `api.fxtwitter.com/PolitiUpdate` immediately after he changed it), so every lane of the funnel — bio, tweets, sitemap, canonicals, briefing e-mails — now points at one host.
+9. **Send the first newsroom pitch (NEW 2026-09-24).** Channel 3 (journalist/citation outreach)
+   now has a generated kit (§4.1) — nothing is blocking it, but the send is a human action from
+   a human identity, so it is Rune's. Smallest useful step: pick **one** regional desk from
+   `data/distribution/2026-W38-presse.md`, copy its pitch, send. Suggested first target is the
+   desk covering the patch Rune knows best; then log the date in the kit's send log and read the
+   effect per §8 (Brevo `createdAt` + `api.fxtwitter.com` followers) before a second send. The
+   addresses are verified against the outlets' own domains — no guessing, no mass-mail.
+10. **⏰ Push the pending batch — before Sunday 2026-09-27 16:00 UTC (NEW 2026-09-26).** Eight
+   files, **+440/−41**, docs/tooling plus two newsletter fixes: `src/newsletter/generator.py`
+   (`archive_url` + `dedupe_visible`) + `config.py` (`SITE_BASE_URL`) put **one link to that
+   week's archive on `politiupdates.dk`** into every briefing — exactly what the delivered
+   campaign 6 lacks (136 links, all `x.com`, zero owned → `verdict=DEAD-END`) — and stop the
+   briefing from printing a verbatim repeat (week 38: 136 → 133 items, i.e. the 3 duplicate
+   entries in the delivered mail; week 39: 77 → 76). The next **automated** send is the Sunday
+   digest run, and it executes `-m src.newsletter` from the *image built from `main`*, so the
+   first subscriber-visible briefing of the new cycle repeats both defects unless the batch
+   ships. Evidence that it is shippable unchanged: `preflight-push.py --compare-live` →
+   **8 files, no revert-risk, all six published pages re-render byte-identically vs the served
+   HTML, 460 passed / 1 skipped / 97.58%** → verdict **OK**. The batch also carries the
+   `src/distribute` headline dedupe and the docs updates. Low stakes at 1 subscriber; the
+   reason to do it now is that the fix and the send are a day apart, not that the audience is
+   large.

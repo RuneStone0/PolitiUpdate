@@ -22,6 +22,7 @@ import sys
 from datetime import datetime, timezone
 
 from src.common import regions as region_map
+from src.common import x_reach
 
 from . import builder, config, generator, routing, sender, state
 
@@ -32,7 +33,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run(week: int, year: int, dry_run: bool) -> None:
+def collect_reach(posts: list[dict], deadline_s: float | None = None) -> dict[str, int]:
+    """View counts for the week's posts (``{}`` if the lookup fails).
+
+    Reach only decides which stories lead the briefing — a failure here must
+    never stop a send, so it is logged and swallowed.
+    """
+    ids = [p.get("x_post_id") for p in posts if p.get("x_post_id")]
+    if not ids:
+        return {}
+    try:
+        views = x_reach.fetch_views(
+            ids, deadline_s=deadline_s or config.REACH_DEADLINE_S
+        )
+    except Exception as exc:  # noqa: BLE001 - best-effort presentation data
+        logger.warning("Reach lookup failed (%s) — sending the index-only briefing", exc)
+        return {}
+    logger.info("Reach: %d/%d of the week's posts have a view count", len(views), len(ids))
+    return views
+
+
+def run(week: int, year: int, dry_run: bool, reach: bool | None = None) -> None:
+    # A dry run must not touch the network unless reach was asked for
+    # explicitly (``--reach``); a real send always fetches it.
+    if reach is None:
+        reach = config.REACH_ENABLED and not dry_run
+
     week_key = f"{year}-W{week:02d}"
     if not dry_run and state.read().get("last_sent_week") == week_key:
         logger.info("Week %d/%d already sent — skipping", week, year)
@@ -51,17 +77,26 @@ def run(week: int, year: int, dry_run: bool) -> None:
         {k: len(v) for k, v in data["regions"].items()},
     )
 
+    # Fetch view counts once for the whole week and reuse for every briefing.
+    views = collect_reach(data["everything"]) if reach else {}
+
     briefings = dict(data["regions"])
     briefings[region_map.REGION_NATIONAL] = data["everything"]
 
     results = []
     for region_label in routing.send_order():
         posts = briefings[region_label]
-        brief = generator.generate(region_label, posts, week, year)
+        brief = generator.generate(region_label, posts, week, year, views=views)
         print("\n=== %s ===" % region_label)
         print(brief["subject"])
         print(brief["text"])
         print("---")
+        if brief["highlights"]:
+            logger.info(
+                "%s: leading with %s",
+                region_label,
+                ", ".join(f"{h['views']} views: {h['title'][:60]}" for h in brief["highlights"]),
+            )
 
         if not brief["text"]:
             # Nothing for this region (no local and no national posts) — skip
@@ -110,6 +145,20 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--dry-run", action="store_true", help="Print region briefings without sending.")
     parser.add_argument("--week", type=int, help="ISO week number (default: last completed week).")
     parser.add_argument("--year", type=int, help="Year for --week override (default: current year).")
+    reach = parser.add_mutually_exclusive_group()
+    reach.add_argument(
+        "--reach",
+        dest="reach",
+        action="store_true",
+        default=None,
+        help="Look up X view counts even in --dry-run (needs network), so the preview shows the review.",
+    )
+    reach.add_argument(
+        "--no-reach",
+        dest="reach",
+        action="store_false",
+        help="Skip the view-count lookup; send the index-only briefing.",
+    )
     args = parser.parse_args(argv)
 
     if args.week:
@@ -122,7 +171,7 @@ def main(argv: list[str] | None = None) -> None:
         year, week = builder.current_week()
 
     try:
-        run(week, year, dry_run=args.dry_run)
+        run(week, year, dry_run=args.dry_run, reach=args.reach)
     except Exception:
         logger.exception("Newsletter generation failed")
         sys.exit(1)

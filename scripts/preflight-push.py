@@ -20,7 +20,8 @@ worktree** and reports whether it still holds.
 What it does
 ------------
 1. ``git fetch`` and report the drift (behind/ahead of ``origin/main``).
-2. List the staged files (modified + untracked) and flag the ones ``origin/main``
+2. List the staged files (modified + untracked + whatever the local commits ahead
+   of ``origin/main`` already changed) and flag the ones ``origin/main``
    also touched — the revert-risk set.
 3. Create a detached worktree at ``origin/main`` and copy *only* the staged files
    into it (this is the post-``git pull`` state).
@@ -95,10 +96,26 @@ def git(*args: str, cwd: Path = REPO_ROOT) -> subprocess.CompletedProcess:
     return run(["git", *args], cwd=cwd)
 
 
+def merge_base() -> str:
+    proc = git("merge-base", "HEAD", "origin/main")
+    return proc.stdout.strip() or "HEAD"
+
+
 def staged_files() -> list[str]:
-    """Modified tracked files + untracked files, minus runtime/secret paths."""
+    """Every path this checkout would push onto ``origin/main``: uncommitted work
+    (modified tracked + untracked) **plus** whatever the local commits ahead of
+    ``origin/main`` already changed.
+
+    Why the second half: a reviewed batch is often *committed* locally and held
+    for Rune's go-ahead (2026-09-23: the canonical-host switch is commit
+    ``5b1490b``, "ahead 1"). Reading only the working tree described a 17-file
+    push as "2 files" — a gate that cannot see the thing it guards.
+    """
     out: list[str] = []
-    for args in (("diff", "--name-only", "HEAD"), ("ls-files", "--others", "--exclude-standard")):
+    base = merge_base()
+    for args in (("diff", "--name-only", "HEAD"),
+                 ("ls-files", "--others", "--exclude-standard"),
+                 ("diff", "--name-only", f"{base}..HEAD")):
         proc = git(*args)
         if proc.returncode != 0:
             raise SystemExit(f"git {' '.join(args)} failed: {proc.stderr.strip()}")
@@ -112,7 +129,16 @@ def staged_files() -> list[str]:
 
 
 def upstream_touched() -> set[str]:
-    proc = git("diff", "--name-only", "HEAD..origin/main")
+    """Files ``origin/main`` changed since the merge base — i.e. exactly what a
+    naive push of our local work would silently revert.
+
+    Use the merge base, not ``HEAD``: ``git diff --name-only HEAD origin/main``
+    is a two-tree diff, so it also lists *our own* local edits, which is the
+    opposite of a revert risk (and made the gate report the pending batch's own
+    files as overwritten upstream).
+    """
+    base = merge_base()
+    proc = git("diff", "--name-only", f"{base}..origin/main")
     if proc.returncode != 0:
         return set()
     return {line for line in proc.stdout.splitlines() if line.strip()}
