@@ -50,7 +50,9 @@ from __future__ import annotations
 
 import argparse
 import collections
+import html
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -86,6 +88,22 @@ BENIGN_REMOVED_MARKERS = (
     "digest-signup",
     "brevo",
 )
+
+# The 2026-09-27 archive restructure (Rune: "it should be structured more similar
+# to the email") *replaces* three lines a published page carried: the
+# ``<p class="digest-meta">93 Opdateringer</p>`` line became a dated count line,
+# ``<h2>Statistik</h2>`` became ``Alle ugens sager``, and the accordion badge now
+# counts cases instead of updates. Those are the redesign, not a regression — but
+# they are listed explicitly rather than by adding a marker like "digest-meta",
+# which would also excuse a genuinely lost meta line.
+RESTRUCTURE_REPLACED_MARKERS = (
+    '<p class="digest-meta">',
+    "<h2>statistik</h2>",
+    '<span class="cat-count">',
+)
+
+# A single update's own row on a page published before that restructure.
+_LEGACY_ROW_RE = re.compile(r'<li><a href="([^"]+)" target="_blank" rel="noopener">(.*?)</a></li>')
 
 
 def run(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
@@ -163,8 +181,37 @@ def _canonical_host(text: str) -> str:
     return text
 
 
-def _benign_removal(line: str, local_text: str) -> bool:
-    """A line may vanish from a published archive page only in two benign ways.
+def _digest_evidence(path: Path) -> str:
+    """Every string value in a week's ``digest.json``, one per line.
+
+    Parsed rather than read raw: the file escapes quotes and backslashes
+    (``"Vidner søges til overfald under \\"Rockbæk\\""``), so a raw-text search would
+    miss exactly the titles that need escaping. Searching the *values* means the
+    evidence is the fact itself, not its JSON encoding.
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+
+    found: list[str] = []
+
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+        elif isinstance(node, str):
+            found.append(node)
+
+    walk(data)
+    return "\n".join(found)
+
+
+def _benign_removal(line: str, local_text: str, digest_text: str = "") -> bool:
+    """A line may vanish from a published archive page only in three benign ways.
 
     1. **Template-level replacement** — Open Graph/Twitter metadata and the Brevo
        signup assets/block did not exist on pages published before the template
@@ -175,9 +222,16 @@ def _benign_removal(line: str, local_text: str) -> bool:
        ``</body>``), or the line survives with only the site host rewritten
        (canonical/``og:url``/``og:image`` after the custom-domain switch). Blank
        lines count as re-flow.
+    3. **Collapse (2026-09-27 restructure)** — a reader no longer gets one row per
+       *update*; a case's rows merged into its newest one. That is only benign
+       with evidence: the update's link **and** headline must still be in the
+       week's ``digest.json``, i.e. the page collapsed it rather than anything
+       dropping it. The three replaced lines (meta count, ``Statistik``, the
+       accordion badge) are listed explicitly in
+       ``RESTRUCTURE_REPLACED_MARKERS``.
 
-    Anything else vanishing — a pager link, a nav link, a case item — is a
-    regression, not a redesign.
+    Anything else vanishing — a pager link, a nav link, a case item that is gone
+    from the data too — is a regression, not a redesign.
     """
     stripped = line.strip()
     if not stripped:
@@ -187,7 +241,19 @@ def _benign_removal(line: str, local_text: str) -> bool:
     normalized = _canonical_host(stripped)
     if normalized != stripped and normalized in _canonical_host(local_text):
         return True
-    return any(marker in stripped.lower() for marker in BENIGN_REMOVED_MARKERS)
+    lowered = stripped.lower()
+    if any(marker in lowered for marker in BENIGN_REMOVED_MARKERS):
+        return True
+    if any(marker in lowered for marker in RESTRUCTURE_REPLACED_MARKERS):
+        return True
+    legacy_row = _LEGACY_ROW_RE.match(stripped)
+    if legacy_row and digest_text:
+        # The page escapes its titles (McDonald's -> McDonald&#x27;s, "Rockbæk" ->
+        # &quot;Rockbæk&quot;) while digest.json keeps the raw characters, so the
+        # evidence is compared after unescaping.
+        url, title = legacy_row.group(1), html.unescape(legacy_row.group(2))
+        return url in digest_text and title in digest_text
+    return False
 
 
 def compare_live(worktree: Path) -> tuple[bool, list[str]]:
@@ -203,11 +269,13 @@ def compare_live(worktree: Path) -> tuple[bool, list[str]]:
             print(f"  ? uge {week}/{year}: live page not comparable ({exc})")
             continue
         local = page.read_text(encoding="utf-8")
+        digest_path = page.parent / "digest.json"
+        digest_text = _digest_evidence(digest_path) if digest_path.exists() else ""
         removed_raw = [ln for ln, n in
                        (collections.Counter(live.splitlines()) - collections.Counter(local.splitlines())).items()
                        for _ in range(n)]
         added = sum((collections.Counter(local.splitlines()) - collections.Counter(live.splitlines())).values())
-        suspects = [ln.strip() for ln in removed_raw if not _benign_removal(ln, local)]
+        suspects = [ln.strip() for ln in removed_raw if not _benign_removal(ln, local, digest_text)]
         status = "additive only" if not suspects else f"⚠ {len(suspects)} unexplained removed line(s)"
         print(f"  = uge {week}/{year}: +{added} / -{len(removed_raw)} lines ({status})")
         for line in suspects[:5]:

@@ -16,11 +16,12 @@ import logging
 import os
 import re
 import textwrap
-from datetime import date
+from datetime import date, timedelta
 
 import requests
 
 from . import config
+from src.newsletter import cases as case_identity
 
 logger = logging.getLogger(__name__)
 
@@ -228,33 +229,152 @@ def _put_file(path: str, content: str, message: str) -> None:
     logger.info("Committed %s", path)
 
 
+DANISH_MONTHS = (
+    "januar", "februar", "marts", "april", "maj", "juni",
+    "juli", "august", "september", "oktober", "november", "december",
+)
+
+
+def week_range_label(year: int, week: int) -> str:
+    """``"21.–27. september 2026"`` — the span a reader can place, not an ISO week.
+
+    "Uge 39, 2026" is exact and useless: nobody knows which days that covers. The
+    mail has said "21.–27. september 2026" all along; the page now agrees.
+    """
+    try:
+        monday = date.fromisocalendar(year, week, 1)
+    except ValueError:  # pragma: no cover - a bad week number should not 500 the page
+        return ""
+    sunday = monday + timedelta(days=6)
+    if monday.month == sunday.month:
+        return f"{monday.day}.–{sunday.day}. {DANISH_MONTHS[monday.month - 1]} {sunday.year}"
+    # A week can straddle the new year (week 53 of 2026 ends 3 January 2027), so
+    # the year is printed with the day it belongs to rather than once at the end.
+    monday_year = f" {monday.year}" if monday.year != sunday.year else ""
+    return (
+        f"{monday.day}. {DANISH_MONTHS[monday.month - 1]}{monday_year} – "
+        f"{sunday.day}. {DANISH_MONTHS[sunday.month - 1]} {sunday.year}"
+    )
+
+
 def _render_cat_items(items: list[dict]) -> str:
+    """One row per case, not per update, and quiet about it.
+
+    The list used to print every posted update, so "Eftersøgning af 91-årig kvinde
+    i Randers" appeared three times in one category and the same case reappeared
+    under its region — 93 rows for 61 cases. Rows now collapse on the case key the
+    digest bakes in (``case``), falling back to a normalised headline for weeks
+    published before that field existed, and the newest word for the case is the
+    one shown while ``N opdateringer`` says how many updates it took to get there.
+    Links stay dark like the briefing's index: colour is reserved for the
+    most-read block, so a 20-row list does not light up blue.
+    """
     rows = []
-    for item in items:
+    for item in _case_rows(items):
         title = html.escape(item["title"])
+        meta = (
+            f'<span class="row-meta">{item["updates"]} opdateringer</span>'
+            if item["updates"] > 1
+            else ""
+        )
+        arrow = '<span class="row-arrow" aria-hidden="true">→</span>'
         if item.get("url"):
             rows.append(
-                f'<li><a href="{html.escape(item["url"])}" target="_blank" rel="noopener">{title}</a></li>'
+                f'<li><a class="case-row" href="{html.escape(item["url"])}" '
+                f'target="_blank" rel="noopener"><span class="case-row-title">{title}</span>'
+                f"{meta}{arrow}</a></li>"
             )
         else:
-            rows.append(f"<li><span>{title}</span></li>")
+            rows.append(
+                f'<li><span class="case-row case-row-plain">'
+                f'<span class="case-row-title">{title}</span>{meta}</span></li>'
+            )
     return "\n".join(rows)
+
+
+def _case_rows(items: list[dict]) -> list[dict]:
+    """Collapse rows that describe the same case (see ``_render_cat_items``)."""
+    groups: dict[str, list[dict]] = {}
+    for item in items:
+        key = item.get("case") or case_identity.title_key(item)
+        groups.setdefault(key, []).append(item)
+
+    rows = []
+    for members in groups.values():
+        lead = next((m for m in members if m.get("primary")), None) or members[-1]
+        # Weeks published before `updates` existed still tell the truth: the number
+        # of rows we just merged is itself a lower bound on the updates.
+        updates = max(len(members), max(int(m.get("updates") or 1) for m in members))
+        rows.append({"title": lead["title"], "url": lead.get("url"), "updates": updates})
+    return rows
 
 
 def _render_accordion(groups: list[tuple[str, list[dict]]]) -> str:
     """groups: [(label, items)] in the order they should appear, already
-    filtered to non-empty groups."""
+    filtered to non-empty groups. The badge counts *cases*; when a group holds
+    more updates than cases the update count is spelled out next to it so nothing
+    about the week is hidden by the collapsing."""
     blocks = []
     for label, items in groups:
+        rows = _case_rows(items)
         items_html = _render_cat_items(items)
+        updates_note = (
+            f'<span class="cat-meta">{len(items)} opdateringer</span>'
+            if len(items) != len(rows)
+            else ""
+        )
         blocks.append(
             f'<details class="cat-item">\n'
-            f'  <summary><span class="cat-count">{len(items)}</span>'
-            f'<span class="cat-label">{html.escape(label)}</span></summary>\n'
+            f'  <summary><span class="cat-count">{len(rows)}</span>'
+            f'<span class="cat-label">{html.escape(label)}</span>{updates_note}</summary>\n'
             f'  <ul class="cat-item-list">\n    {items_html}\n  </ul>\n'
             f"</details>"
         )
     return "\n".join(blocks)
+
+
+def _render_highlights(digest: dict) -> str:
+    """The page's lead: the cases most read on X, same five the mail leads with.
+
+    Rendered only when the digest carries reach data — without view counts
+    "mest læste" would be an invention, so the section is dropped instead.
+    """
+    highlights = digest.get("highlights") or []
+    cards = []
+    for rank, item in enumerate(highlights, start=1):
+        url = html.escape(item.get("url") or "")
+        if not url:
+            continue
+        updates = (
+            f'<span class="highlight-updates">{item["updates"]} opdateringer i sagen</span>'
+            if int(item.get("updates") or 1) > 1
+            else ""
+        )
+        cards.append(
+            f'<li class="highlight-card">\n'
+            f'  <span class="highlight-rank">{rank}</span>\n'
+            f'  <div class="highlight-body">\n'
+            f'    <h3><a href="{url}" target="_blank" rel="noopener">'
+            f'{html.escape(item["title"])}</a></h3>\n'
+            f'    <p class="highlight-summary">{html.escape(item.get("summary") or "")}</p>\n'
+            f'    <p class="highlight-link"><a href="{url}" target="_blank" rel="noopener">'
+            f"Læs hele opslaget på X &rarr;</a>{updates}</p>\n"
+            f"  </div>\n"
+            f"</li>"
+        )
+    if not cards:
+        return ""
+
+    return (
+        '              <section class="digest-highlights">\n'
+        "                <h2>Ugens mest læste sager</h2>\n"
+        '                <p class="highlights-note">De sager flest læste på X i uge '
+        f'{html.escape(str(digest.get("week", "")))}</p>\n'
+        '                <ol class="highlight-list">\n                  '
+        + "\n                  ".join(cards)
+        + "\n                </ol>\n"
+        "              </section>\n"
+    )
 
 
 def _category_groups(cats: dict, category_items: dict) -> list[tuple[str, list[dict]]]:
@@ -310,6 +430,20 @@ def _render_archive_html(digest: dict) -> str:
     pager_nav = _render_pager(digest)
     signup_section = render_signup_section(" " * 14)
 
+    case_count = digest.get("case_count") or 0
+    highlights_section = _render_highlights(digest)
+    range_label = week_range_label(year, week)
+    meta_parts = [part for part in (range_label, f"{total} opdateringer") if part]
+    if case_count:
+        meta_parts.append(f"{case_count} sager")
+    meta_line = " · ".join(meta_parts)
+    breakdown_note = (
+        f"{total} opdateringer i {case_count} sager — en sag med flere opdateringer "
+        "står som én linje."
+        if case_count
+        else ""
+    )
+
     notable_rows = "\n".join(
         f'<li><a href="{html.escape(n["url"])}" target="_blank" rel="noopener">{html.escape(n["title"])}</a>'
         f'<p>{html.escape(n["summary"])}</p></li>'
@@ -335,7 +469,7 @@ def _render_archive_html(digest: dict) -> str:
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Uge {week}, {year} — PolitiUpdate</title>
-          <meta name="description" content="Ugens overblik over politiets opdateringer: {total} meddelelser i uge {week}, {year} — efterlysninger, anholdelser og øvrige sager fra hele Danmark.">
+          <meta name="description" content="Ugens overblik over politiets opdateringer: {meta_line} — efterlysninger, anholdelser og øvrige sager fra hele Danmark.">
           <link rel="canonical" href="{SITE_BASE_URL}/uge/{year}/{week}/">
           <meta property="og:type" content="article">
           <meta property="og:site_name" content="PolitiUpdate">
@@ -361,22 +495,24 @@ def _render_archive_html(digest: dict) -> str:
             <header class="digest-header">
               <a class="back-link" href="../../../">PolitiUpdate</a>
               <h1>Uge {week}, {year}</h1>
-              <p class="digest-meta">{total} Opdateringer</p>
+              <p class="digest-meta">{meta_line}</p>
             </header>
 
             <main class="digest-main">
-              <article class="digest-narrative">
+{highlights_section}              <article class="digest-narrative">
+                <h2>Ugens gang</h2>
                 <p>{narrative_html}</p>
               </article>
 {notable_section}{signup_section}
               <section class="digest-breakdown" id="stats-section">
                 <div class="stats-header">
-                  <h2>Statistik</h2>
+                  <h2>Alle ugens sager</h2>
                   <div class="sort-toggle" role="group" aria-label="Sortér efter">
                     <button type="button" class="sort-btn active" data-sort="category">Kategori</button>
                     <button type="button" class="sort-btn" data-sort="region">Region</button>
                   </div>
                 </div>
+                <p class="breakdown-note">{breakdown_note}</p>
                 <div class="cat-list" data-panel="category">
                   {category_accordion_html}
                 </div>

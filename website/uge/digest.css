@@ -439,3 +439,179 @@
     transition: none;
   }
 }
+
+/* --- Week lead: the cases most read on X ------------------------------------
+   Same block the email opens with. Colour is spent here and nowhere else on the
+   page: below it, the case index is deliberately quiet (see .case-row). */
+.digest-highlights {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), rgba(15, 23, 42, 0.78));
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 20px;
+  padding: 24px 28px;
+}
+
+.digest-highlights h2 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: #7dd3fc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.highlights-note {
+  margin: 0 0 18px;
+  color: #9fb6ca;
+  font-size: 0.9rem;
+}
+
+.highlight-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  counter-reset: none;
+}
+
+.highlight-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.highlight-rank {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.16);
+  color: #7dd3fc;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.highlight-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.highlight-body h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.highlight-body h3 a {
+  color: #dbe7f0;
+  text-decoration: none;
+}
+
+.highlight-body h3 a:hover {
+  color: #7dd3fc;
+}
+
+.highlight-summary {
+  margin: 0 0 8px;
+  color: #b6c8db;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.highlight-link {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.highlight-link a {
+  color: #7dd3fc;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.highlight-link a:hover {
+  text-decoration: underline;
+}
+
+.highlight-updates {
+  color: #7d8ea1;
+  font-size: 0.8rem;
+}
+
+/* The narrative was an unlabelled wall of prose; give it the same heading
+   treatment as the other sections so the page reads as sections at all. */
+.digest-narrative h2 {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #7dd3fc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.breakdown-note {
+  margin: 0 0 16px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.cat-meta {
+  flex: none;
+  color: #7d8ea1;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quiet case rows: the whole row is the target, the text stays dark slate and a
+   muted arrow is the only affordance — a 20-row list must not light up blue. */
+.cat-item-list .case-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  text-decoration: none;
+}
+
+.cat-item-list .case-row .case-row-title {
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+
+.cat-item-list .case-row .row-meta {
+  flex: none;
+  color: #64748b;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.cat-item-list .case-row .row-arrow {
+  flex: none;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.cat-item-list a.case-row:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #e2e8f0;
+}
+
+.cat-item-list a.case-row:hover .row-arrow {
+  color: #7dd3fc;
+}
+
+.case-row-plain {
+  cursor: default;
+}
+
