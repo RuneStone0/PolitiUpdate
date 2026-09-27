@@ -25,6 +25,7 @@ import html as _html
 from src.bot.formatter import _district_prefix as district_short_name
 from src.common import regions as region_map
 
+from . import cases
 from . import config
 
 X_TWEET_URL = "https://x.com/PolitiUpdate/status/{id}"
@@ -78,8 +79,8 @@ def dedupe_visible(posts: list[dict]) -> list[dict]:
 
 
 def title_key(post: dict) -> str:
-    """Normalised headline — the identity key of a *story* inside a listing."""
-    return " ".join((post.get("title") or "").split()).casefold()
+    """Normalised headline — a last-resort case key when a row has no page id."""
+    return cases.title_key(post)
 
 
 def display_title(title: str) -> str:
@@ -106,56 +107,36 @@ def summary(body: str, limit: int) -> str:
     return f"{cut} …"
 
 
-def index_entries(posts: list[dict]) -> list[dict]:
-    """One entry per *story* (normalised headline), in posting order.
+def index_entries(posts: list[dict], views: dict[str, int] | None = None) -> list[dict]:
+    """One entry per *case*, in posting order (see ``src/newsletter/cases``).
 
-    ``posts`` arrive oldest-first, so the surviving entry keeps the first
-    occurrence's position while its link follows the story's newest post — a
-    reader who taps "Metro-trafikken … indstillet" reaches the update that says
-    the metro runs again. ``updates`` records how many posted updates the story
-    had, so nothing is silently lost.
+    A case is the same press-release page, or the same named venue in the same
+    district — so the incident and its court outcome are one line, and a page
+    re-announced three times is one line. ``updates`` records how many posted
+    updates the case had, so nothing is silently lost: the entry shows the case's
+    newest word and says how many updates it took to get there.
     """
-    entries: list[dict] = []
-    by_key: dict[str, dict] = {}
-    for post in posts:
-        key = title_key(post)
-        entry = by_key.get(key)
-        if entry is None:
-            by_key[key] = {"post": post, "link_post": post, "updates": 1}
-            entries.append(by_key[key])
-        else:
-            entry["updates"] += 1
-            entry["link_post"] = post
-    return entries
+    return [cases.represent(cluster, views) for cluster in cases.group_by_case(posts)]
 
 
-def rank_highlights(posts: list[dict], views: dict[str, int] | None, limit: int) -> list[dict]:
-    """The ``limit`` most read *stories*, best first — one entry per headline.
+def rank_highlights(entries: list[dict], limit: int) -> list[dict]:
+    """The ``limit`` most read *cases*, best first — one entry per case.
 
-    Ranking is by total views. Measured on week 38 this matters: the raw top 5
-    was one story five times over ("FODBOLDKAMP I BRØNDBY" ×5, the same
-    press-release page re-announced). Collapsing by headline turns that into
-    five different stories, which is what "highlight the interesting ones"
-    actually means.
+    Ranking is by the case's most-viewed update, which is the only reach signal
+    we have (public X view counts). Collapsing matters twice over: on week 38 the
+    raw top 5 was one page five times ("FODBOLDKAMP I BRØNDBY" ×5), and on the
+    delivered week-39 briefing it was **three** cases in five slots (3+5 were
+    both "E. Hansens Vej, Esbjerg", 2+4 both "Brøndbyøster Station") — see
+    ``cases.group_by_case`` for the two keys that fix that.
     """
-    if not views or limit <= 0:
+    if limit <= 0:
         return []
-
-    best: dict[str, dict] = {}
-    for post in posts:
-        post_id = str(post.get("x_post_id") or "")
-        count = views.get(post_id)
-        if count is None:
-            continue
-        key = title_key(post)
-        current = best.get(key)
-        if current is None or count > current["views"]:
-            best[key] = {"post": post, "views": count}
-
-    ranked = sorted(
-        best.values(),
-        key=lambda entry: (-entry["views"], entry["post"].get("posted_at") or "", title_key(entry["post"])),
-    )
+    ranked = [entry for entry in entries if entry.get("rank_views")]
+    ranked.sort(key=lambda entry: (
+        -entry["rank_views"],
+        entry["post"].get("posted_at") or "",
+        title_key(entry["post"]),
+    ))
     return ranked[:limit]
 
 
@@ -183,11 +164,11 @@ def generate(
         }
 
     listed = dedupe_visible(posts)
-    highlights = rank_highlights(listed, views, config.NEWSLETTER_HIGHLIGHTS)
-    highlight_keys = {title_key(item["post"]) for item in highlights}
+    entries = index_entries(listed, views)
+    highlights = rank_highlights(entries, config.NEWSLETTER_HIGHLIGHTS)
+    highlight_ids = {id(item) for item in highlights}
 
-    entries = index_entries(listed)
-    rest = [entry for entry in entries if title_key(entry["post"]) not in highlight_keys]
+    rest = [entry for entry in entries if id(entry) not in highlight_ids]
     shown = rest[: config.NEWSLETTER_INDEX_LIMIT]
     more = len(rest) - len(shown)
 
@@ -213,8 +194,9 @@ def generate(
             {
                 "title": item["post"].get("title", ""),
                 "district": district_short_name(item["post"].get("district") or "") or "",
-                "views": item["views"],
+                "views": item["rank_views"],
                 "url": _tweet_url(item["post"]),
+                "updates": item["updates"],
             }
             for item in highlights
         ],
@@ -287,24 +269,27 @@ def _to_text(context: dict) -> str:
         for number, item in enumerate(highlights, start=1):
             post = item["post"]
             district = district_short_name(post.get("district") or "") or ""
+            suffix = f" ({item['updates']} opdateringer i sagen)" if item["updates"] > 1 else ""
             lines.append(f"{number}. {display_title(post.get('title', ''))}"
-                         + (f" — {district}" if district else ""))
+                         + (f" — {district}" if district else "") + suffix)
             snippet = summary(post.get("body", ""), context["summary_chars"])
             if snippet:
                 lines.append(f"   {snippet}")
             url = _tweet_url(post)
             if url:
-                lines.append(f"   {url}")
+                lines.append(f"   Læs hele opslaget på X: {url}")
             lines.append("")
 
     if shown:
         lines.append("FLERE SAGER FRA UGEN")
+        lines.append("(hvert punkt linker til det originale opslag på X)")
         for entry in shown:
             post = entry["link_post"]
             district = district_short_name(post.get("district") or "") or ""
             label = f"{district}: " if district else ""
             url = _tweet_url(post)
-            lines.append(f"- {label}{display_title(post.get('title', ''))}"
+            suffix = f"  ({entry['updates']} opdateringer)" if entry["updates"] > 1 else ""
+            lines.append(f"- {label}{display_title(post.get('title', ''))}{suffix}"
                          + (f"  {url}" if url else ""))
         lines.append("")
 
@@ -390,6 +375,16 @@ def _to_html(context: dict) -> str:
             body.append(
                 f'<div style="color:#334155;font-size:14px;line-height:1.6">{_html.escape(snippet)}</div>'
             )
+        if item["updates"] > 1:
+            body.append(
+                f'<div style="color:#64748b;font-size:12px;margin-top:6px">'
+                f'{item["updates"]} opdateringer i sagen — det seneste er vist</div>'
+            )
+        body.append(
+            f'<div style="margin-top:8px"><a href="{href}" style="color:#1d4ed8;'
+            'font-size:13px;font-weight:600;text-decoration:none">'
+            'Læs hele opslaget på X →</a></div>'
+        )
         body.append("</td></tr></table></td></tr>")
         if number < len(highlights):
             body.append(
@@ -421,7 +416,9 @@ def _to_html(context: dict) -> str:
                 '<tr><td style="padding:0 0 9px">'
                 f'<a href="{href}" style="color:#334155;font-size:14px;line-height:1.5;'
                 f'text-decoration:none">{label}{_html.escape(display_title(post.get("title", "")))}</a>'
-                "</td></tr>"
+                + (f'<span style="color:#94a3b8;font-size:12px"> · {entry["updates"]} opdateringer</span>'
+                   if entry["updates"] > 1 else "")
+                + "</td></tr>"
             )
         more_line = ""
         if more > 0:
@@ -432,8 +429,10 @@ def _to_html(context: dict) -> str:
         parts.append(
             '<tr><td style="padding:26px 24px 6px">'
             '<div style="border-top:1px solid #e8ecf1;padding-top:18px">'
-            '<h2 style="margin:0 0 12px;font-size:15px;color:#0f172a;font-weight:700">'
+            '<h2 style="margin:0 0 4px;font-size:15px;color:#0f172a;font-weight:700">'
             "Flere sager fra ugen</h2>"
+            '<p style="margin:0 0 12px;color:#64748b;font-size:12px">'
+            "Hvert punkt linker til det originale opslag på X, hvor hele meddelelsen står.</p>"
             '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
             + "".join(rows)
             + "</table>" + more_line + "</div></td></tr>"

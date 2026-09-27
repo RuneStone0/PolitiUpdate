@@ -226,8 +226,9 @@ def test_briefing_index_lists_a_story_once_and_links_its_newest_update():
     assert brief["text"].count("Metro-trafikken på Cityringen") == 1
     assert "status/2" in brief["text"] and "status/1" not in brief["text"]
     assert 'href="https://x.com/PolitiUpdate/status/2"' in brief["html"]
-    # the follow-up is not silently lost: the index entry knows it had 2 updates
-    assert "(2 opdateringer)" in brief["subject"]
+    # the follow-up is not silently lost: the index line says it took 2 updates
+    assert "(2 opdateringer)" in brief["text"]
+    assert "2 opdateringer" in brief["html"]
 
 
 def test_dedupe_visible_keys_on_what_the_reader_sees():
@@ -381,13 +382,15 @@ def test_highlight_block_leads_with_the_most_read_distinct_story():
     brief = generator.generate(region_map.REGION_HOVEDSTADEN, posts, 38, 2026, views=views)
 
     titles = [h["title"] for h in brief["highlights"]]
-    # The same headline 5× must not fill the block: one entry per story.
+    # The same headline 5× must not fill the block: one entry per case.
     assert titles == [_FOOTBALL, "Politiet indfører visitationszone ved Brøndby-FCK kamp",
                       "43-årig mand fra Silkeborg varetægtsfængslet"]
     assert brief["highlights"][0]["views"] == 172
-    # ... and the highest-viewed of the repeats is the one that links out
-    assert brief["highlights"][0]["url"].endswith("/0")
-    # a story shown as a highlight is never repeated in the index below it
+    # the entry shows the case's NEWEST update (text and link must agree), while
+    # the ranking above still comes from its most-viewed update
+    assert brief["highlights"][0]["url"].endswith("/4")
+    assert brief["highlights"][0]["updates"] == 5
+    # a case shown as a highlight is never repeated in the index below it
     index_block = brief["text"].split("FLERE SAGER FRA UGEN")[1]
     assert "Brøndby" not in index_block
     assert "Skødstrup" in index_block
