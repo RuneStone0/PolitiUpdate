@@ -45,6 +45,23 @@ BREVO_REGION_LISTS = {
 # Campaigns -> Unsubscribe pages, then copy the id from its edit URL.
 BREVO_UNSUB_PAGE_ID = os.getenv("BREVO_UNSUB_PAGE_ID", "")
 
+# The campaign footer Brevo wraps around the briefing. Left unset, Brevo expands
+# its account-level ``[DEFAULT_FOOTER]`` at delivery, and that default is written
+# in the ACCOUNT's language (our Brevo account, shared with another brand, is
+# `en`) — which is why the unsubscribe block in the delivered week-39 mail was
+# English while everything we wrote was Danish. We therefore ship our own footer,
+# in Danish, carrying Brevo's ``{{ unsubscribe }}`` placeholder verbatim (Brevo
+# resolves it at send time; it must not be escaped or renamed). The link in the
+# footer is the only unsubscribe link in the mail — the briefing's own footer
+# points down to it instead of duplicating it.
+BREVO_CAMPAIGN_FOOTER = os.getenv("BREVO_CAMPAIGN_FOOTER", (
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;'
+    'color:#64748b;padding:10px 24px 22px;text-align:center">'
+    '<a href="{{ unsubscribe }}" style="color:#64748b;text-decoration:underline">'
+    'Afmeld nyhedsbrevet</a>'
+    '</div>'
+))
+
 # Optional: override the ISO week number to generate (e.g. "36" for testing)
 NEWSLETTER_WEEK_OVERRIDE = os.getenv("NEWSLETTER_WEEK_OVERRIDE", "").strip()
 

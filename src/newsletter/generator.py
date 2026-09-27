@@ -454,7 +454,7 @@ def _to_html(context: dict) -> str:
         f'<a href="{site}" style="color:#64748b">politiupdates.dk</a>.<br>'
         "PolitiUpdate er et uofficielt, automatisk spejl af politiets pressemeddelelser. "
         "Ingen tilknytning til politiet.<br>"
-        "Afmelding: brug linket nederst i denne e-mail.</p></td></tr>"
+        "Afmelding: brug \"Afmeld nyhedsbrevet\" nederst i mailen.</p></td></tr>"
         "</table></td></tr></table></body></html>"
     )
     return "".join(parts)

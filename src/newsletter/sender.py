@@ -61,6 +61,11 @@ def campaign_payload(
     The campaign targets exactly one region list. A custom unsubscribe page is
     attached when ``BREVO_UNSUB_PAGE_ID`` is set (otherwise Brevo's default
     unsubscribe page is used).
+
+    The **footer** is ours, in Danish, and carries Brevo's ``{{ unsubscribe }}``
+    tag. Without it Brevo expands its account-level ``[DEFAULT_FOOTER]`` — which
+    is written in the account language (`en`), so the delivered week-39 mail ended
+    with an English unsubscribe block under an otherwise Danish mail.
     """
     payload = {
         "name": name or f"PolitiUpdate - {region_label} - {subject}",
@@ -69,6 +74,8 @@ def campaign_payload(
         "htmlContent": html,
         "recipients": {"listIds": [list_id]},
     }
+    if config.BREVO_CAMPAIGN_FOOTER:
+        payload["footer"] = config.BREVO_CAMPAIGN_FOOTER
     if config.BREVO_UNSUB_PAGE_ID:
         payload["unsubscriptionPageId"] = config.BREVO_UNSUB_PAGE_ID
     return payload

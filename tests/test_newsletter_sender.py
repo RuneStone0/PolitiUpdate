@@ -193,3 +193,28 @@ def test_sync_country_wide_list_uses_the_fallback_audience(set_creds):
     assert post.call_args.kwargs["json"]["contacts"] == [
         {"email": "new@x.dk", "listIds": [nconfig.BREVO_REGION_LISTS["Hele landet"]]}
     ]
+
+
+def test_campaign_footer_is_danish_and_carries_brevos_unsubscribe_tag(set_creds):
+    """Brevo expands its own ``[DEFAULT_FOOTER]`` in the ACCOUNT language.
+
+    Our Brevo account is shared and set to `en`, so the delivered week-39 mail
+    ended with an English unsubscribe block under an otherwise Danish mail (Rune,
+    2026-09-27). The payload must therefore carry our own footer, in Danish, and
+    the ``{{ unsubscribe }}`` placeholder must survive verbatim — Brevo resolves
+    it at send time, and an escaped or renamed tag arrives as literal text.
+    """
+    payload = sender.campaign_payload("Jylland", "subj", "<p>x</p>",
+                                      list_id=nconfig.BREVO_REGION_LISTS["Jylland"])
+    footer = payload["footer"]
+    assert "{{ unsubscribe }}" in footer
+    assert "Afmeld nyhedsbrevet" in footer
+    assert "[DEFAULT_FOOTER]" not in footer
+    assert "Unsubscribe" not in footer
+
+
+def test_campaign_footer_can_be_disabled_to_fall_back_to_brevo_default(set_creds, monkeypatch):
+    monkeypatch.setattr(nconfig, "BREVO_CAMPAIGN_FOOTER", "")
+    payload = sender.campaign_payload("Jylland", "subj", "<p>x</p>",
+                                      list_id=nconfig.BREVO_REGION_LISTS["Jylland"])
+    assert "footer" not in payload
