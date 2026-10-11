@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY pyproject.toml .
 COPY src/ src/
 COPY tests/ tests/
+COPY scripts/ scripts/
 # The suite includes website/ tests (share meta, sitemap, archive signup), so the
 # image must carry the static site for the docker CI job to run them.
 COPY website/ website/
