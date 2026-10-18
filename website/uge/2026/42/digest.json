@@ -1,0 +1,1731 @@
+{
+  "week": 42,
+  "year": 2026,
+  "total_posts": 122,
+  "case_count": 73,
+  "highlights": [
+    {
+      "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+      "summary": "Vi er nu færdig med vores undersøgelser på gerningsstedet og har forladt stedet. Nedergade er atter åben for færdsel. Vagtchef Henrik Krøjgaard",
+      "url": "https://x.com/PolitiUpdate/status/2110377575080219102",
+      "updates": 5,
+      "views": 111
+    },
+    {
+      "title": "Vi savner Ib",
+      "summary": "Vi savner Ib, som onsdag den 14. oktober ved ca. 9-tiden forlod sit hjem i Vanløse.",
+      "url": "https://x.com/PolitiUpdate/status/2110489677073727671",
+      "updates": 1,
+      "views": 83
+    },
+    {
+      "title": "Udenlandsk statsborger varetægtsfængslet for butikstyverier",
+      "summary": "En udenlandsk statsborger er i dag blevet varetægtsfængslet i fire uger ved Retten i Viborg.",
+      "url": "https://x.com/PolitiUpdate/status/2109646362338099349",
+      "updates": 1,
+      "views": 73
+    },
+    {
+      "title": "Grundlovsforhør ved Retten i Aarhus kl. 11.30",
+      "summary": "Den 19-årige mand blev til dagens grundlovsforhør ved Retten i Aarhus varetægtsfængslet i foreløbigt fire uger i surrogat på retspsykiatrisk afdeling. Han nægter sig skyldig.",
+      "url": "https://x.com/PolitiUpdate/status/2110707879997227314",
+      "updates": 2,
+      "views": 54
+    },
+    {
+      "title": "Vestre Landsret idømmer 61-årig behandlingsdom for bremsesabotage, stalking og falske sexannoncer",
+      "summary": "Vestre Landsret ændrer Retten i Hernings dom og idømmer en 61-årig mand en behandlingsdom for i to tilfælde at have overskåret bremserør på en bil samt for blandt andet …",
+      "url": "https://x.com/PolitiUpdate/status/2110677202505445452",
+      "updates": 1,
+      "views": 50
+    }
+  ],
+  "categories": {
+    "missing_person": 14,
+    "witness_appeal": 2,
+    "arrest": 40,
+    "other": 66
+  },
+  "narrative": "Den 87-årige Arne er blevet efterlyst, og politiet har bedt offentligheden om hjælp til at finde ham. En person er savnet efter at være kørt fra sit hjem i Strib lørdag eftermiddag, og der blev iværksat en eftersøgning ved Ribe Å. Politiet savner også Ib, mens Michel ligeledes efterlyses. En undveget domsanbragt person er efterlyst, og en savnet person i Esbjerg har været genstand for en efterlysning. I ugens løb har politiet desuden behandlet en række anholdelses- og sigtelsessager samt øvrige hændelser, herunder færdselsuheld og brande.",
+  "narrative_html": "<a href=\"https://x.com/PolitiUpdate/status/2111476511014522958\" target=\"_blank\" rel=\"noopener\">Den 87-årige Arne</a> er blevet efterlyst, og politiet har bedt offentligheden om hjælp til at finde ham. <a href=\"https://x.com/PolitiUpdate/status/2111610654327296334\" target=\"_blank\" rel=\"noopener\">En person</a> er savnet efter at være kørt fra sit hjem i Strib lørdag eftermiddag, og <a href=\"https://x.com/PolitiUpdate/status/2111799339769327750\" target=\"_blank\" rel=\"noopener\">der blev iværksat en eftersøgning ved Ribe Å</a>. <a href=\"https://x.com/PolitiUpdate/status/2110489677073727671\" target=\"_blank\" rel=\"noopener\">Politiet savner også Ib</a>, mens <a href=\"https://x.com/PolitiUpdate/status/2111215251995951177\" target=\"_blank\" rel=\"noopener\">Michel</a> ligeledes efterlyses. <a href=\"https://x.com/PolitiUpdate/status/2111001612420522457\" target=\"_blank\" rel=\"noopener\">En undveget domsanbragt person</a> er efterlyst, og <a href=\"https://x.com/PolitiUpdate/status/2109926808296841346\" target=\"_blank\" rel=\"noopener\">en savnet person i Esbjerg</a> har været genstand for en efterlysning. I ugens løb har politiet desuden behandlet en række anholdelses- og sigtelsessager samt øvrige hændelser, herunder færdselsuheld og brande.",
+  "notable": [
+    {
+      "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+      "summary": "Fyns Politi efterforsker en drabssag i Nedergade i Odense.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2110293181703331921"
+    },
+    {
+      "title": "To kinesiske mænd idømt fængsel og udvisning for smishing",
+      "summary": "To kinesiske mænd er idømt fængsel og udvisning for smishing.",
+      "category": "arrest",
+      "url": "https://x.com/PolitiUpdate/status/2111067372727705885"
+    },
+    {
+      "title": "Vestre Landsret idømmer 61-årig behandlingsdom for bremsesabotage, stalking og falske sexannoncer",
+      "summary": "Vestre Landsret idømte en 61-årig behandlingsdom for bremsesabotage, stalking og falske sexannoncer.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2110677202505445452"
+    },
+    {
+      "title": "Højesteret har afsagt dom om AI-genereret overgrebsmateriale",
+      "summary": "Højesteret har afsagt dom i en sag om AI-genereret overgrebsmateriale.",
+      "category": "other",
+      "url": "https://x.com/PolitiUpdate/status/2110679012985156060"
+    }
+  ],
+  "category_items": {
+    "missing_person": [
+      {
+        "title": "Savnet Person",
+        "url": "https://x.com/PolitiUpdate/status/2109675137826206057",
+        "case": "2109675137826206057",
+        "updates": 2
+      },
+      {
+        "title": "Savnet Person",
+        "url": "https://x.com/PolitiUpdate/status/2109678989958918422",
+        "case": "2109675137826206057",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2109908005475201437",
+        "case": "2109908005475201437",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Efterlysning af savnet i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2109926808296841346",
+        "case": "2109926808296841346",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Savnet person",
+        "url": "https://x.com/PolitiUpdate/status/2110130964244623682",
+        "case": "2110130964244623682",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Savnet person",
+        "url": "https://x.com/PolitiUpdate/status/2110458838487114198",
+        "case": "2110130964244623682",
+        "updates": 2
+      },
+      {
+        "title": "Aflysning af efterlysning vedr. voldssag i Vejle",
+        "url": "https://x.com/PolitiUpdate/status/2110629569611059325",
+        "case": "2110629569611059325",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Savnet person fundet",
+        "url": "https://x.com/PolitiUpdate/status/2110633445231837452",
+        "case": "2110633445231837452",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Efterlysning af undveget domsanbragt",
+        "url": "https://x.com/PolitiUpdate/status/2111001612420522457",
+        "case": "2111001612420522457",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111476511014522958",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Savnet kørt fra sit hjem i Strib lørdag eftermiddag",
+        "url": "https://x.com/PolitiUpdate/status/2111610654327296334",
+        "case": "2111610654327296334",
+        "updates": 2
+      },
+      {
+        "title": "Savnet kørt fra sit hjem i Strib lørdag eftermiddag",
+        "url": "https://x.com/PolitiUpdate/status/2111735860718940509",
+        "case": "2111610654327296334",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Eftersøgning ved Ribe Å",
+        "url": "https://x.com/PolitiUpdate/status/2111799339769327750",
+        "case": "2111799339769327750",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Eftersøgning ved Ribe Å",
+        "url": "https://x.com/PolitiUpdate/status/2111804226435465404",
+        "case": "2111799339769327750",
+        "updates": 2
+      }
+    ],
+    "witness_appeal": [
+      {
+        "title": "Vi savner Ib",
+        "url": "https://x.com/PolitiUpdate/status/2110489677073727671",
+        "case": "2110489677073727671",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111215251995951177",
+        "case": "2111215251995951177",
+        "updates": 3
+      }
+    ],
+    "arrest": [
+      {
+        "title": "Tilskuer sigtet for vold til håndboldkamp i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2109549283079028997",
+        "case": "2109549283079028997",
+        "updates": 2
+      },
+      {
+        "title": "Tilskuer sigtet for vold til håndboldkamp i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2109549811242578418",
+        "case": "2109549283079028997",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109554469004521819",
+        "case": "2109554469004521819",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Bøder til 59 cyklister",
+        "url": "https://x.com/PolitiUpdate/status/2109562578443870411",
+        "case": "2109562578443870411",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Idømt fængsel og udvisning for spirituskørsel og påkørsel af hus på Samsø",
+        "url": "https://x.com/PolitiUpdate/status/2109586508256883062",
+        "case": "2109586508256883062",
+        "updates": 2
+      },
+      {
+        "title": "Straksdom i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109587033157144771",
+        "case": "2109587033157144771",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Udenlandsk statsborger varetægtsfængslet for butikstyverier",
+        "url": "https://x.com/PolitiUpdate/status/2109646362338099349",
+        "case": "2109646362338099349",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2109908030632739243",
+        "case": "2109908030632739243",
+        "updates": 2
+      },
+      {
+        "title": "To anholdt efter knivstikkeri ved Eqalugalinnguit i Nuuk",
+        "url": "https://x.com/PolitiUpdate/status/2109929386841710912",
+        "case": "2109929386841710912",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Fængslet i sag om kokain",
+        "url": "https://x.com/PolitiUpdate/status/2109963306383602069",
+        "case": "2109963306383602069",
+        "updates": 2
+      },
+      {
+        "title": "Fængslet i sag om kokain",
+        "url": "https://x.com/PolitiUpdate/status/2109963573757952393",
+        "case": "2109963306383602069",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2109981808171569394",
+        "case": "2109908030632739243",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 10.00",
+        "url": "https://x.com/PolitiUpdate/status/2110266199749853375",
+        "case": "2110266199749853375",
+        "updates": 2
+      },
+      {
+        "title": "En før ustraffet mand idømt otte års fængsel for narkohandel",
+        "url": "https://x.com/PolitiUpdate/status/2110270842823418013",
+        "case": "2110270842823418013",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110276233439400233",
+        "case": "2110276233439400233",
+        "updates": 2
+      },
+      {
+        "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110293181703331921",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Straksdom i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110330417060724874",
+        "case": "2110330417060724874",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110330423998091575",
+        "case": "2110276233439400233",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Mand varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2110348452454617167",
+        "case": "2110348452454617167",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 10.00",
+        "url": "https://x.com/PolitiUpdate/status/2110354220662788394",
+        "case": "2110266199749853375",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Anholdelse",
+        "url": "https://x.com/PolitiUpdate/status/2110406096905285859",
+        "case": "2110406096905285859",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2110617713785835653",
+        "case": "2110617713785835653",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Randers kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2110635532044967941",
+        "case": "2110635532044967941",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110643399711973610",
+        "case": "2110643399711973610",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Randers kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2110705815070167088",
+        "case": "2110635532044967941",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110707879997227314",
+        "case": "2110643399711973610",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2110981535474344131",
+        "case": "2110981535474344131",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110998768061698263",
+        "case": "2110998768061698263",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111005228342644920",
+        "case": "2111005228342644920",
+        "updates": 2
+      },
+      {
+        "title": "Fire bortvist fra rasteplads",
+        "url": "https://x.com/PolitiUpdate/status/2111016849450381746",
+        "case": "2111016849450381746",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111038237519327365",
+        "case": "2111038237519327365",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2111044444288082030",
+        "case": "2110981535474344131",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Udenlandsk statsborger varetægtsfængslet med henblik på udlevering",
+        "url": "https://x.com/PolitiUpdate/status/2111061187224101113",
+        "case": "2111061187224101113",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "To kinesiske mænd idømt fængsel og udvisning for smishing",
+        "url": "https://x.com/PolitiUpdate/status/2111067372727705885",
+        "case": "2111067372727705885",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "To mænd varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2111068414634807309",
+        "case": "2111068414634807309",
+        "updates": 2
+      },
+      {
+        "title": "To mænd varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2111068684014047437",
+        "case": "2111068414634807309",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2111076139225727406",
+        "case": "2110998768061698263",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111077440890274058",
+        "case": "2111005228342644920",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111081058808861146",
+        "case": "2111038237519327365",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Salg af narkotika i Aarhus Vest",
+        "url": "https://x.com/PolitiUpdate/status/2111373145072701549",
+        "case": "2111373145072701549",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "other": [
+      {
+        "title": "Træ væltet over køreledning på Vestfyn",
+        "url": "https://x.com/PolitiUpdate/status/2109482338073854394",
+        "case": "2109482338073854394",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Søger ejer til 2 grise",
+        "url": "https://x.com/PolitiUpdate/status/2109493628586565650",
+        "case": "2109493628586565650",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vanvidskørsel endte med ubetinget fængselsdom",
+        "url": "https://x.com/PolitiUpdate/status/2109550333739651158",
+        "case": "2109550333739651158",
+        "updates": 2
+      },
+      {
+        "title": "Vanvidskørsel endte med ubetinget fængselsdom",
+        "url": "https://x.com/PolitiUpdate/status/2109550607183028476",
+        "case": "2109550333739651158",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Idømt fængsel og udvisning for spirituskørsel og påkørsel af hus på Samsø",
+        "url": "https://x.com/PolitiUpdate/status/2109585202725220462",
+        "case": "2109586508256883062",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "28-årig idømt fængsel for at billige terrorhandlinger",
+        "url": "https://x.com/PolitiUpdate/status/2109597315917070714",
+        "case": "2109597315917070714",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Hvem savner denne søde hund i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2109604515976814937",
+        "case": "2109604515976814937",
+        "updates": 2
+      },
+      {
+        "title": "Hvem savner denne søde hund i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2109687994131402829",
+        "case": "2109604515976814937",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Tre måneders fængsel for psykisk vold",
+        "url": "https://x.com/PolitiUpdate/status/2109911129925505140",
+        "case": "2109911129925505140",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Frifundet for stalking, dømt for vold og blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2109930174745850051",
+        "case": "2109930174745850051",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109978727283347932",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109985665698181402",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Brand i Vejle",
+        "url": "https://x.com/PolitiUpdate/status/2109991573513711699",
+        "case": "2109991573513711699",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109993375059595459",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Færdselsuheld på Odensevej ved Kirkeby",
+        "url": "https://x.com/PolitiUpdate/status/2110028290790740419",
+        "case": "2110028290790740419",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Odensevej ved Kirkeby",
+        "url": "https://x.com/PolitiUpdate/status/2110037813089783937",
+        "case": "2110028290790740419",
+        "updates": 2
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2110080318787273110",
+        "case": "2109978727283347932",
+        "updates": 4,
+        "primary": true
+      },
+      {
+        "title": "20 dages fængsel for blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2110256892933222549",
+        "case": "2110256892933222549",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110257428088737998",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110261542063341764",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110266974215586156",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Uddrag af døgnrapporten fra Østjyllands Politi",
+        "url": "https://x.com/PolitiUpdate/status/2110318591728034236",
+        "case": "2110318591728034236",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Kom og mød os ved Den Mobile Politistation i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2110330703162531892",
+        "case": "2110330703162531892",
+        "updates": 2
+      },
+      {
+        "title": "Kom og mød os ved Den Mobile Politistation i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2110331225122746842",
+        "case": "2110330703162531892",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Seriebutikstyv dømt igen",
+        "url": "https://x.com/PolitiUpdate/status/2110344073685172585",
+        "case": "2110344073685172585",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Hjælp politiet i sag fra Vejle: Kender du denne mand?",
+        "url": "https://x.com/PolitiUpdate/status/2110350001776087262",
+        "case": "2110350001776087262",
+        "updates": 2
+      },
+      {
+        "title": "Hjælp politiet i sag fra Vejle: Kender du denne mand?",
+        "url": "https://x.com/PolitiUpdate/status/2110350537166290987",
+        "case": "2110350001776087262",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352085908873635",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352355309036010",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352623295660125",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352891345248536",
+        "case": "2110352085908873635",
+        "updates": 4,
+        "primary": true
+      },
+      {
+        "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110377575080219102",
+        "case": "2110293181703331921",
+        "updates": 5,
+        "primary": true
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110408162293743941",
+        "case": "2110408162293743941",
+        "updates": 3
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110418200848719923",
+        "case": "2110408162293743941",
+        "updates": 3
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110457036140081535",
+        "case": "2110408162293743941",
+        "updates": 3,
+        "primary": true
+      },
+      {
+        "title": "Vestre Landsret idømmer 61-årig behandlingsdom for bremsesabotage, stalking og falske sexannoncer",
+        "url": "https://x.com/PolitiUpdate/status/2110677202505445452",
+        "case": "2110677202505445452",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Højesteret har afsagt dom om AI-genereret overgrebsmateriale",
+        "url": "https://x.com/PolitiUpdate/status/2110679012985156060",
+        "case": "2110679012985156060",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Østre Landsret skærper straf for hvidvask af over 12 mio. kr.",
+        "url": "https://x.com/PolitiUpdate/status/2110686777262604514",
+        "case": "2110686777262604514",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Mistænkeligt dødsfald",
+        "url": "https://x.com/PolitiUpdate/status/2110719969084522918",
+        "case": "2110719969084522918",
+        "updates": 2
+      },
+      {
+        "title": "Kurt på 13 år savnes",
+        "url": "https://x.com/PolitiUpdate/status/2110770143748083923",
+        "case": "2110770143748083923",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "13 årig fundet i god behold",
+        "url": "https://x.com/PolitiUpdate/status/2110795867267670198",
+        "case": "2110795867267670198",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110951681341178349",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110962225380995220",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110975864708174155",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111010648478142835",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111028952991220099",
+        "case": "2110951681341178349",
+        "updates": 6,
+        "primary": true
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111030499296854209",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Dømt for at betale med falske mønter",
+        "url": "https://x.com/PolitiUpdate/status/2111039033338167299",
+        "case": "2111039033338167299",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld E45 Nordjyske motorvej",
+        "url": "https://x.com/PolitiUpdate/status/2111048825536462865",
+        "case": "2111048825536462865",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Mistænkeligt dødsfald",
+        "url": "https://x.com/PolitiUpdate/status/2111054999782621215",
+        "case": "2110719969084522918",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "E45 ved Vodskov Nord er igen fuldt genåbnet efter færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111106792499650798",
+        "case": "2111106792499650798",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111169252208365630",
+        "case": "2111215251995951177",
+        "updates": 3
+      },
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111229912757776585",
+        "case": "2111215251995951177",
+        "updates": 3,
+        "primary": true
+      },
+      {
+        "title": "Indbrud i frisørsalon i Åbyhøj",
+        "url": "https://x.com/PolitiUpdate/status/2111375995500732599",
+        "case": "2111375995500732599",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Brand i personbiler i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2111377049990697382",
+        "case": "2111377049990697382",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Døgnets indbrud i privat beboelse",
+        "url": "https://x.com/PolitiUpdate/status/2111379642439598545",
+        "case": "2111379642439598545",
+        "updates": 2
+      },
+      {
+        "title": "Demonstrationer kan påvirke trafikken",
+        "url": "https://x.com/PolitiUpdate/status/2111404998844375363",
+        "case": "2111404998844375363",
+        "updates": 2
+      },
+      {
+        "title": "Demonstrationer kan påvirke trafikken",
+        "url": "https://x.com/PolitiUpdate/status/2111473930485776609",
+        "case": "2111404998844375363",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111503756793942035",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111596497515225412",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Døgnrapport fra Østjyllands Politi 18. oktober 2026",
+        "url": "https://x.com/PolitiUpdate/status/2111718630161535382",
+        "case": "2111379642439598545",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111724801773699526",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Vejlefjordbroen",
+        "url": "https://x.com/PolitiUpdate/status/2111778268705898898",
+        "case": "2111778268705898898",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111785724072845799",
+        "case": "2111476511014522958",
+        "updates": 5,
+        "primary": true
+      },
+      {
+        "title": "Luftalarm/Sirene i Nordfyns kommune er en fejl",
+        "url": "https://x.com/PolitiUpdate/status/2111818102749143324",
+        "case": "2111818102749143324",
+        "updates": 2
+      },
+      {
+        "title": "Luftalarm/Sirene i Nordfyns kommune er en fejl",
+        "url": "https://x.com/PolitiUpdate/status/2111821192227344507",
+        "case": "2111818102749143324",
+        "updates": 2,
+        "primary": true
+      }
+    ]
+  },
+  "region_items": {
+    "København": [
+      {
+        "title": "Savnet Person",
+        "url": "https://x.com/PolitiUpdate/status/2109675137826206057",
+        "case": "2109675137826206057",
+        "updates": 2
+      },
+      {
+        "title": "Savnet Person",
+        "url": "https://x.com/PolitiUpdate/status/2109678989958918422",
+        "case": "2109675137826206057",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Savnet person",
+        "url": "https://x.com/PolitiUpdate/status/2110130964244623682",
+        "case": "2110130964244623682",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Savnet person",
+        "url": "https://x.com/PolitiUpdate/status/2110458838487114198",
+        "case": "2110130964244623682",
+        "updates": 2
+      },
+      {
+        "title": "Savnet person fundet",
+        "url": "https://x.com/PolitiUpdate/status/2110633445231837452",
+        "case": "2110633445231837452",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Efterlysning af undveget domsanbragt",
+        "url": "https://x.com/PolitiUpdate/status/2111001612420522457",
+        "case": "2111001612420522457",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi savner Ib",
+        "url": "https://x.com/PolitiUpdate/status/2110489677073727671",
+        "case": "2110489677073727671",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Bøder til 59 cyklister",
+        "url": "https://x.com/PolitiUpdate/status/2109562578443870411",
+        "case": "2109562578443870411",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Fængslet i sag om kokain",
+        "url": "https://x.com/PolitiUpdate/status/2109963306383602069",
+        "case": "2109963306383602069",
+        "updates": 2
+      },
+      {
+        "title": "Fængslet i sag om kokain",
+        "url": "https://x.com/PolitiUpdate/status/2109963573757952393",
+        "case": "2109963306383602069",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Mand varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2110348452454617167",
+        "case": "2110348452454617167",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "To mænd varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2111068414634807309",
+        "case": "2111068414634807309",
+        "updates": 2
+      },
+      {
+        "title": "To mænd varetægtsfængslet for røveri",
+        "url": "https://x.com/PolitiUpdate/status/2111068684014047437",
+        "case": "2111068414634807309",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "20 dages fængsel for blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2110256892933222549",
+        "case": "2110256892933222549",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Mistænkeligt dødsfald",
+        "url": "https://x.com/PolitiUpdate/status/2110719969084522918",
+        "case": "2110719969084522918",
+        "updates": 2
+      },
+      {
+        "title": "Kurt på 13 år savnes",
+        "url": "https://x.com/PolitiUpdate/status/2110770143748083923",
+        "case": "2110770143748083923",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "13 årig fundet i god behold",
+        "url": "https://x.com/PolitiUpdate/status/2110795867267670198",
+        "case": "2110795867267670198",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Mistænkeligt dødsfald",
+        "url": "https://x.com/PolitiUpdate/status/2111054999782621215",
+        "case": "2110719969084522918",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Demonstrationer kan påvirke trafikken",
+        "url": "https://x.com/PolitiUpdate/status/2111404998844375363",
+        "case": "2111404998844375363",
+        "updates": 2
+      },
+      {
+        "title": "Demonstrationer kan påvirke trafikken",
+        "url": "https://x.com/PolitiUpdate/status/2111473930485776609",
+        "case": "2111404998844375363",
+        "updates": 2,
+        "primary": true
+      }
+    ],
+    "Sydjylland": [
+      {
+        "title": "Efterlysning",
+        "url": "https://x.com/PolitiUpdate/status/2109908005475201437",
+        "case": "2109908005475201437",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Efterlysning af savnet i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2109926808296841346",
+        "case": "2109926808296841346",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Eftersøgning ved Ribe Å",
+        "url": "https://x.com/PolitiUpdate/status/2111799339769327750",
+        "case": "2111799339769327750",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Eftersøgning ved Ribe Å",
+        "url": "https://x.com/PolitiUpdate/status/2111804226435465404",
+        "case": "2111799339769327750",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109554469004521819",
+        "case": "2109554469004521819",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Straksdom i Sønderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109587033157144771",
+        "case": "2109587033157144771",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110276233439400233",
+        "case": "2110276233439400233",
+        "updates": 2
+      },
+      {
+        "title": "Straksdom i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110330417060724874",
+        "case": "2110330417060724874",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør i Esbjerg",
+        "url": "https://x.com/PolitiUpdate/status/2110330423998091575",
+        "case": "2110276233439400233",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Søger ejer til 2 grise",
+        "url": "https://x.com/PolitiUpdate/status/2109493628586565650",
+        "case": "2109493628586565650",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Hvem savner denne søde hund i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2109604515976814937",
+        "case": "2109604515976814937",
+        "updates": 2
+      },
+      {
+        "title": "Hvem savner denne søde hund i Haderslev",
+        "url": "https://x.com/PolitiUpdate/status/2109687994131402829",
+        "case": "2109604515976814937",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110951681341178349",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110962225380995220",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2110975864708174155",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111010648478142835",
+        "case": "2110951681341178349",
+        "updates": 6
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111028952991220099",
+        "case": "2110951681341178349",
+        "updates": 6,
+        "primary": true
+      },
+      {
+        "title": "Alvorligt færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111030499296854209",
+        "case": "2110951681341178349",
+        "updates": 6
+      }
+    ],
+    "Sydøstjylland": [
+      {
+        "title": "Aflysning af efterlysning vedr. voldssag i Vejle",
+        "url": "https://x.com/PolitiUpdate/status/2110629569611059325",
+        "case": "2110629569611059325",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111476511014522958",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 10.00",
+        "url": "https://x.com/PolitiUpdate/status/2110266199749853375",
+        "case": "2110266199749853375",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 10.00",
+        "url": "https://x.com/PolitiUpdate/status/2110354220662788394",
+        "case": "2110266199749853375",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110998768061698263",
+        "case": "2110998768061698263",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111005228342644920",
+        "case": "2111005228342644920",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2111076139225727406",
+        "case": "2110998768061698263",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Kolding kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111077440890274058",
+        "case": "2111005228342644920",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109978727283347932",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109985665698181402",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Brand i Vejle",
+        "url": "https://x.com/PolitiUpdate/status/2109991573513711699",
+        "case": "2109991573513711699",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2109993375059595459",
+        "case": "2109978727283347932",
+        "updates": 4
+      },
+      {
+        "title": "Færdselsuheld på Østjyske Motorvej ved Skanderborg",
+        "url": "https://x.com/PolitiUpdate/status/2110080318787273110",
+        "case": "2109978727283347932",
+        "updates": 4,
+        "primary": true
+      },
+      {
+        "title": "Hjælp politiet i sag fra Vejle: Kender du denne mand?",
+        "url": "https://x.com/PolitiUpdate/status/2110350001776087262",
+        "case": "2110350001776087262",
+        "updates": 2
+      },
+      {
+        "title": "Hjælp politiet i sag fra Vejle: Kender du denne mand?",
+        "url": "https://x.com/PolitiUpdate/status/2110350537166290987",
+        "case": "2110350001776087262",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110408162293743941",
+        "case": "2110408162293743941",
+        "updates": 3
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110418200848719923",
+        "case": "2110408162293743941",
+        "updates": 3
+      },
+      {
+        "title": "Brand ved Gudsø",
+        "url": "https://x.com/PolitiUpdate/status/2110457036140081535",
+        "case": "2110408162293743941",
+        "updates": 3,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111503756793942035",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111596497515225412",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111724801773699526",
+        "case": "2111476511014522958",
+        "updates": 5
+      },
+      {
+        "title": "Vejlefjordbroen",
+        "url": "https://x.com/PolitiUpdate/status/2111778268705898898",
+        "case": "2111778268705898898",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi efterlyser 87-årige Arne",
+        "url": "https://x.com/PolitiUpdate/status/2111785724072845799",
+        "case": "2111476511014522958",
+        "updates": 5,
+        "primary": true
+      }
+    ],
+    "Fyn": [
+      {
+        "title": "Savnet kørt fra sit hjem i Strib lørdag eftermiddag",
+        "url": "https://x.com/PolitiUpdate/status/2111610654327296334",
+        "case": "2111610654327296334",
+        "updates": 2
+      },
+      {
+        "title": "Savnet kørt fra sit hjem i Strib lørdag eftermiddag",
+        "url": "https://x.com/PolitiUpdate/status/2111735860718940509",
+        "case": "2111610654327296334",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110293181703331921",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Træ væltet over køreledning på Vestfyn",
+        "url": "https://x.com/PolitiUpdate/status/2109482338073854394",
+        "case": "2109482338073854394",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Odensevej ved Kirkeby",
+        "url": "https://x.com/PolitiUpdate/status/2110028290790740419",
+        "case": "2110028290790740419",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Færdselsuheld på Odensevej ved Kirkeby",
+        "url": "https://x.com/PolitiUpdate/status/2110037813089783937",
+        "case": "2110028290790740419",
+        "updates": 2
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110257428088737998",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110261542063341764",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Vi er massivt tilstede i det centrale Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110266974215586156",
+        "case": "2110293181703331921",
+        "updates": 5
+      },
+      {
+        "title": "Fyns Politi efterforsker drabssag i Nedergade i Odense",
+        "url": "https://x.com/PolitiUpdate/status/2110377575080219102",
+        "case": "2110293181703331921",
+        "updates": 5,
+        "primary": true
+      },
+      {
+        "title": "Luftalarm/Sirene i Nordfyns kommune er en fejl",
+        "url": "https://x.com/PolitiUpdate/status/2111818102749143324",
+        "case": "2111818102749143324",
+        "updates": 2
+      },
+      {
+        "title": "Luftalarm/Sirene i Nordfyns kommune er en fejl",
+        "url": "https://x.com/PolitiUpdate/status/2111821192227344507",
+        "case": "2111818102749143324",
+        "updates": 2,
+        "primary": true
+      }
+    ],
+    "Midt/Vestsjælland": [
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111215251995951177",
+        "case": "2111215251995951177",
+        "updates": 3
+      },
+      {
+        "title": "Fire bortvist fra rasteplads",
+        "url": "https://x.com/PolitiUpdate/status/2111016849450381746",
+        "case": "2111016849450381746",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vanvidskørsel endte med ubetinget fængselsdom",
+        "url": "https://x.com/PolitiUpdate/status/2109550333739651158",
+        "case": "2109550333739651158",
+        "updates": 2
+      },
+      {
+        "title": "Vanvidskørsel endte med ubetinget fængselsdom",
+        "url": "https://x.com/PolitiUpdate/status/2109550607183028476",
+        "case": "2109550333739651158",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Tre måneders fængsel for psykisk vold",
+        "url": "https://x.com/PolitiUpdate/status/2109911129925505140",
+        "case": "2109911129925505140",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Frifundet for stalking, dømt for vold og blufærdighedskrænkelse",
+        "url": "https://x.com/PolitiUpdate/status/2109930174745850051",
+        "case": "2109930174745850051",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Seriebutikstyv dømt igen",
+        "url": "https://x.com/PolitiUpdate/status/2110344073685172585",
+        "case": "2110344073685172585",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352085908873635",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352355309036010",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352623295660125",
+        "case": "2110352085908873635",
+        "updates": 4
+      },
+      {
+        "title": "Dømt for psykisk vold mod kæreste",
+        "url": "https://x.com/PolitiUpdate/status/2110352891345248536",
+        "case": "2110352085908873635",
+        "updates": 4,
+        "primary": true
+      },
+      {
+        "title": "Dømt for at betale med falske mønter",
+        "url": "https://x.com/PolitiUpdate/status/2111039033338167299",
+        "case": "2111039033338167299",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111169252208365630",
+        "case": "2111215251995951177",
+        "updates": 3
+      },
+      {
+        "title": "Vi søger Michel",
+        "url": "https://x.com/PolitiUpdate/status/2111229912757776585",
+        "case": "2111215251995951177",
+        "updates": 3,
+        "primary": true
+      }
+    ],
+    "Østjylland": [
+      {
+        "title": "Tilskuer sigtet for vold til håndboldkamp i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2109549283079028997",
+        "case": "2109549283079028997",
+        "updates": 2
+      },
+      {
+        "title": "Tilskuer sigtet for vold til håndboldkamp i Aarhus",
+        "url": "https://x.com/PolitiUpdate/status/2109549811242578418",
+        "case": "2109549283079028997",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Idømt fængsel og udvisning for spirituskørsel og påkørsel af hus på Samsø",
+        "url": "https://x.com/PolitiUpdate/status/2109586508256883062",
+        "case": "2109586508256883062",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2109908030632739243",
+        "case": "2109908030632739243",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2109981808171569394",
+        "case": "2109908030632739243",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Anholdelse",
+        "url": "https://x.com/PolitiUpdate/status/2110406096905285859",
+        "case": "2110406096905285859",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2110617713785835653",
+        "case": "2110617713785835653",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Randers kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2110635532044967941",
+        "case": "2110635532044967941",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110643399711973610",
+        "case": "2110643399711973610",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Randers kl. 10.30",
+        "url": "https://x.com/PolitiUpdate/status/2110705815070167088",
+        "case": "2110635532044967941",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 11.30",
+        "url": "https://x.com/PolitiUpdate/status/2110707879997227314",
+        "case": "2110643399711973610",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2110981535474344131",
+        "case": "2110981535474344131",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111038237519327365",
+        "case": "2111038237519327365",
+        "updates": 2
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 9.30",
+        "url": "https://x.com/PolitiUpdate/status/2111044444288082030",
+        "case": "2110981535474344131",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "To kinesiske mænd idømt fængsel og udvisning for smishing",
+        "url": "https://x.com/PolitiUpdate/status/2111067372727705885",
+        "case": "2111067372727705885",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Grundlovsforhør ved Retten i Aarhus kl. 13.00",
+        "url": "https://x.com/PolitiUpdate/status/2111081058808861146",
+        "case": "2111038237519327365",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Salg af narkotika i Aarhus Vest",
+        "url": "https://x.com/PolitiUpdate/status/2111373145072701549",
+        "case": "2111373145072701549",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Idømt fængsel og udvisning for spirituskørsel og påkørsel af hus på Samsø",
+        "url": "https://x.com/PolitiUpdate/status/2109585202725220462",
+        "case": "2109586508256883062",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Uddrag af døgnrapporten fra Østjyllands Politi",
+        "url": "https://x.com/PolitiUpdate/status/2110318591728034236",
+        "case": "2110318591728034236",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Kom og mød os ved Den Mobile Politistation i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2110330703162531892",
+        "case": "2110330703162531892",
+        "updates": 2
+      },
+      {
+        "title": "Kom og mød os ved Den Mobile Politistation i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2110331225122746842",
+        "case": "2110330703162531892",
+        "updates": 2,
+        "primary": true
+      },
+      {
+        "title": "Indbrud i frisørsalon i Åbyhøj",
+        "url": "https://x.com/PolitiUpdate/status/2111375995500732599",
+        "case": "2111375995500732599",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Brand i personbiler i Risskov",
+        "url": "https://x.com/PolitiUpdate/status/2111377049990697382",
+        "case": "2111377049990697382",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Døgnets indbrud i privat beboelse",
+        "url": "https://x.com/PolitiUpdate/status/2111379642439598545",
+        "case": "2111379642439598545",
+        "updates": 2
+      },
+      {
+        "title": "Døgnrapport fra Østjyllands Politi 18. oktober 2026",
+        "url": "https://x.com/PolitiUpdate/status/2111718630161535382",
+        "case": "2111379642439598545",
+        "updates": 2,
+        "primary": true
+      }
+    ],
+    "Midt/Vestjylland": [
+      {
+        "title": "Udenlandsk statsborger varetægtsfængslet for butikstyverier",
+        "url": "https://x.com/PolitiUpdate/status/2109646362338099349",
+        "case": "2109646362338099349",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "Udenlandsk statsborger varetægtsfængslet med henblik på udlevering",
+        "url": "https://x.com/PolitiUpdate/status/2111061187224101113",
+        "case": "2111061187224101113",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "28-årig idømt fængsel for at billige terrorhandlinger",
+        "url": "https://x.com/PolitiUpdate/status/2109597315917070714",
+        "case": "2109597315917070714",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Grønlands": [
+      {
+        "title": "To anholdt efter knivstikkeri ved Eqalugalinnguit i Nuuk",
+        "url": "https://x.com/PolitiUpdate/status/2109929386841710912",
+        "case": "2109929386841710912",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Kbh Vestegn": [
+      {
+        "title": "En før ustraffet mand idømt otte års fængsel for narkohandel",
+        "url": "https://x.com/PolitiUpdate/status/2110270842823418013",
+        "case": "2110270842823418013",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Statsadv. Viborg": [
+      {
+        "title": "Vestre Landsret idømmer 61-årig behandlingsdom for bremsesabotage, stalking og falske sexannoncer",
+        "url": "https://x.com/PolitiUpdate/status/2110677202505445452",
+        "case": "2110677202505445452",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Rigsadvokaten": [
+      {
+        "title": "Højesteret har afsagt dom om AI-genereret overgrebsmateriale",
+        "url": "https://x.com/PolitiUpdate/status/2110679012985156060",
+        "case": "2110679012985156060",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Statsadvokaten": [
+      {
+        "title": "Østre Landsret skærper straf for hvidvask af over 12 mio. kr.",
+        "url": "https://x.com/PolitiUpdate/status/2110686777262604514",
+        "case": "2110686777262604514",
+        "updates": 1,
+        "primary": true
+      }
+    ],
+    "Nordjylland": [
+      {
+        "title": "Færdselsuheld E45 Nordjyske motorvej",
+        "url": "https://x.com/PolitiUpdate/status/2111048825536462865",
+        "case": "2111048825536462865",
+        "updates": 1,
+        "primary": true
+      },
+      {
+        "title": "E45 ved Vodskov Nord er igen fuldt genåbnet efter færdselsuheld",
+        "url": "https://x.com/PolitiUpdate/status/2111106792499650798",
+        "case": "2111106792499650798",
+        "updates": 1,
+        "primary": true
+      }
+    ]
+  },
+  "prev_week": {
+    "year": 2026,
+    "week": 41
+  },
+  "next_week": null,
+  "generated_at": "2026-10-18T16:00:58.735406+00:00"
+}
