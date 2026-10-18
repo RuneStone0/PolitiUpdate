@@ -1,11 +1,14 @@
-"""Commit the weekly archive pages to the repo via the GitHub Contents API.
+"""Commit the weekly archive pages to the repo via the GitHub API.
 
-Creates/updates three files per run:
+Publishes, in a SINGLE commit (Git Data API — see ``_commit_files``):
   website/uge/{year}/{week}/index.html   — static archive page
   website/uge/{year}/{week}/digest.json  — baked-in data (no runtime fetch)
+  website/uge/{prev}/…                   — forward link on the previous week
   website/sitemap.xml                    — keeps this week discoverable
 
-Pushing to main triggers the GitHub Actions Pages deploy automatically.
+One commit means one push, one CI run and one Pages deploy — and no
+intermediate commit in which a published week page is missing from the sitemap
+(that used to make every digest run push 3 red builds).
 Requires a PAT with 'contents: write' scope (GITHUB_COMMIT_TOKEN env var).
 """
 
@@ -227,6 +230,93 @@ def _put_file(path: str, content: str, message: str) -> None:
     resp = requests.put(url, headers=_headers(), json=body, timeout=30)
     resp.raise_for_status()
     logger.info("Committed %s", path)
+
+
+def _commit_files(files: dict, message: str, branch: str = "main") -> str:
+    """Commit several files as ONE commit, via the Git Data API.
+
+    A week's publish touches up to five files (the page, its data, the previous
+    week's forward link, the sitemap, the archive index). The Contents API can
+    only write one file per commit, so publishing them one by one produced a
+    chain of intermediate commits that each pushed to `main` and each ran the
+    full Test workflow — and every commit except the last was RED by
+    construction, because it added a week page the sitemap did not list yet
+    (`tests/test_sitemap.py::test_sitemap_lists_every_published_week_page`).
+
+    Measured 2026-10-18: one digest run = 5 pushes = 3 failed Test runs
+    (`unit` + `docker`, both running the same sitemap test) and the same every
+    Sunday since the sitemap gate landed. The publish is atomic here instead:
+    one commit, one push, one CI run, and no window in which a week page is
+    published but unindexed.
+
+    Returns the new commit SHA. Retries once when `main` moved between reading
+    the head and updating the ref (a non-fast-forward update is rejected).
+    """
+    if not files:
+        return ""
+
+    repo = f"{GITHUB_API}/repos/{config.GITHUB_REPO}"
+    headers = _headers()
+    last_error: Exception | None = None
+
+    for attempt in (1, 2):
+        try:
+            ref = requests.get(f"{repo}/git/ref/heads/{branch}", headers=headers, timeout=30)
+            ref.raise_for_status()
+            head_sha = ref.json()["object"]["sha"]
+
+            head = requests.get(f"{repo}/git/commits/{head_sha}", headers=headers, timeout=30)
+            head.raise_for_status()
+            base_tree = head.json()["tree"]["sha"]
+
+            tree = requests.post(
+                f"{repo}/git/trees",
+                headers=headers,
+                json={
+                    "base_tree": base_tree,
+                    "tree": [
+                        {"path": path, "mode": "100644", "type": "blob", "content": content}
+                        for path, content in files.items()
+                    ],
+                },
+                timeout=60,
+            )
+            tree.raise_for_status()
+
+            commit = requests.post(
+                f"{repo}/git/commits",
+                headers=headers,
+                json={
+                    "message": message,
+                    "tree": tree.json()["sha"],
+                    "parents": [head_sha],
+                },
+                timeout=30,
+            )
+            commit.raise_for_status()
+            new_sha = commit.json()["sha"]
+
+            update = requests.patch(
+                f"{repo}/git/refs/heads/{branch}",
+                headers=headers,
+                json={"sha": new_sha, "force": False},
+                timeout=30,
+            )
+            if update.status_code in (409, 422) and attempt == 1:
+                logger.warning("%s moved while publishing — retrying", branch)
+                continue
+            update.raise_for_status()
+        except requests.RequestException as exc:
+            last_error = exc
+            raise
+        for path in files:
+            logger.info("Committed %s", path)
+        logger.info(
+            "Single commit %s on %s carries %d file(s)", new_sha[:8], branch, len(files)
+        )
+        return new_sha
+
+    raise last_error if last_error else RuntimeError(f"Could not update {branch}")
 
 
 DANISH_MONTHS = (
@@ -534,24 +624,35 @@ def _render_archive_html(digest: dict) -> str:
     """)
 
 
-def _backfill_next_link(prev_info: dict, year: int, week: int) -> None:
-    """After publishing a new week, retroactively point the previous week's
-    page forward to it, so pagination works in both directions over time."""
+def _next_link_files(prev_info: dict, year: int, week: int) -> dict:
+    """Files needed to point the previous week's page forward to this one.
+
+    Empty when there is no previous digest to link from (or it cannot be read),
+    so the caller's atomic commit simply carries fewer files.
+    """
     prev_year, prev_week = prev_info["year"], prev_info["week"]
     prev_digest = _fetch_digest_json(prev_year, prev_week)
     if not prev_digest:
-        return
+        return {}
 
     prev_digest["next_week"] = {"year": year, "week": week}
     base = f"website/uge/{prev_year}/{prev_week}"
-    commit_msg = f"feat(digest): link uge {prev_week}/{prev_year} forward to {week}/{year}"
-    _put_file(
-        f"{base}/digest.json",
-        json.dumps(prev_digest, indent=2, ensure_ascii=False),
-        commit_msg,
-    )
-    _put_file(f"{base}/index.html", _render_archive_html(prev_digest), commit_msg)
-    logger.info("Backfilled next-week link on %s/%s", prev_week, prev_year)
+    return {
+        f"{base}/digest.json": json.dumps(prev_digest, indent=2, ensure_ascii=False),
+        f"{base}/index.html": _render_archive_html(prev_digest),
+    }
+
+
+def _backfill_next_link(prev_info: dict, year: int, week: int) -> None:
+    """After publishing a new week, retroactively point the previous week's
+    page forward to it, so pagination works in both directions over time."""
+    files = _next_link_files(prev_info, year, week)
+    if not files:
+        return
+    commit_msg = f"feat(digest): link uge {prev_info['week']}/{prev_info['year']} forward to {week}/{year}"
+    for path, content in files.items():
+        _put_file(path, content, commit_msg)
+    logger.info("Backfilled next-week link on %s/%s", prev_info["week"], prev_info["year"])
 
 
 def _fetch_file_text(path: str) -> str | None:
@@ -660,6 +761,16 @@ def merge_week_into_sitemap(
     return render_sitemap(weeks, head_blocks), weeks, head_blocks
 
 
+def _sitemap_files(digest: dict) -> dict:
+    """The sitemap rewrite this week needs, or ``{}`` when it is already listed."""
+    existing = _fetch_file_text(SITEMAP_PATH)
+    content, _weeks, _head = merge_week_into_sitemap(existing, digest)
+    if existing is not None and content == existing:
+        logger.info("Sitemap already lists week %s/%s", digest["week"], digest["year"])
+        return {}
+    return {SITEMAP_PATH: content}
+
+
 def update_sitemap(digest: dict) -> bool:
     """List this week's archive page in ``website/sitemap.xml`` (commit if changed).
 
@@ -671,23 +782,28 @@ def update_sitemap(digest: dict) -> bool:
             "GITHUB_COMMIT_TOKEN is not set. Create a PAT with 'contents: write' scope."
         )
 
-    existing = _fetch_file_text(SITEMAP_PATH)
-    content, _weeks, _head = merge_week_into_sitemap(existing, digest)
-    if existing is not None and content == existing:
-        logger.info("Sitemap already lists week %s/%s", digest["week"], digest["year"])
+    files = _sitemap_files(digest)
+    if not files:
         return False
 
     _put_file(
         SITEMAP_PATH,
-        content,
+        files[SITEMAP_PATH],
         f"feat(digest): list week {digest['week']}/{digest['year']} in sitemap",
     )
     logger.info("Sitemap updated with week %s/%s", digest["week"], digest["year"])
     return True
 
 
-def commit_archive(digest: dict) -> None:
-    """Commit the archive HTML and JSON for the given week to the repo."""
+def commit_archive(digest: dict) -> str:
+    """Publish a week's archive — page, data, forward link, sitemap — in ONE commit.
+
+    Every file a week needs is assembled first and committed atomically, so
+    `main` never carries a published week page that the sitemap does not list
+    (which is what made 3 of every 4 digest pushes fail CI: each intermediate
+    commit pushed on its own and ran the sitemap gate against an incomplete
+    tree). Returns the commit SHA (empty when there was nothing to write).
+    """
     if not config.GITHUB_COMMIT_TOKEN:
         raise RuntimeError(
             "GITHUB_COMMIT_TOKEN is not set. Create a PAT with 'contents: write' scope."
@@ -699,24 +815,41 @@ def commit_archive(digest: dict) -> None:
     commit_msg = f"feat(digest): add week {week}/{year} archive"
 
     digest_without_posts = {k: v for k, v in digest.items() if k != "posts_by_category"}
-    _put_file(
-        f"{base}/digest.json",
-        json.dumps(digest_without_posts, indent=2, ensure_ascii=False),
-        commit_msg,
-    )
-    _put_file(f"{base}/index.html", _render_archive_html(digest), commit_msg)
-    logger.info("Archive for week %s/%s committed to repo", week, year)
+    files = {
+        f"{base}/digest.json": json.dumps(
+            digest_without_posts, indent=2, ensure_ascii=False
+        ),
+        f"{base}/index.html": _render_archive_html(digest),
+    }
+    details: list[str] = []
 
     prev_info = digest.get("prev_week")
     if prev_info:
         try:
-            _backfill_next_link(prev_info, year, week)
+            previous = _next_link_files(prev_info, year, week)
         except Exception:
             logger.exception("Failed to backfill next-week link on prior page")
+            previous = {}
+        if previous:
+            files.update(previous)
+            details.append(
+                f"link uge {prev_info['week']}/{prev_info['year']} forward to {week}/{year}"
+            )
 
     # A published week that is not in the sitemap is a week search engines are
     # never told about, so this is part of publishing, not a follow-up task.
     try:
-        update_sitemap(digest)
+        sitemap = _sitemap_files(digest)
     except Exception:
         logger.exception("Failed to list week %s/%s in the sitemap", week, year)
+        sitemap = {}
+    if sitemap:
+        files.update(sitemap)
+        details.append(f"list week {week}/{year} in sitemap")
+
+    if details:
+        commit_msg += "\n\n" + "\n".join(f"- {detail}" for detail in details)
+
+    sha = _commit_files(files, commit_msg)
+    logger.info("Archive for week %s/%s committed to repo in one commit", week, year)
+    return sha

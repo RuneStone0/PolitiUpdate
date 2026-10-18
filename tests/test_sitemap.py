@@ -209,18 +209,133 @@ def test_update_sitemap_requires_a_token(monkeypatch) -> None:
         publisher.update_sitemap(_digest())
 
 
-def test_commit_archive_lists_the_week_in_the_sitemap(monkeypatch) -> None:
+def test_commit_archive_publishes_the_week_and_the_sitemap_in_one_commit(monkeypatch) -> None:
     monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
-    with mock.patch.object(publisher, "_put_file") as put:
-        with mock.patch.object(publisher, "update_sitemap") as update:
-            publisher.commit_archive(_digest())
-    update.assert_called_once()
-    assert put.call_count == 2  # digest.json + index.html
+    existing = publisher.render_sitemap({(2026, 36): "2026-09-06"})
+    monkeypatch.setattr(publisher, "_fetch_file_text", lambda path: existing)
+    with mock.patch.object(publisher, "_commit_files") as commit:
+        publisher.commit_archive(_digest())
+    assert commit.call_count == 1, "one push, one CI run"
+    files, message = commit.call_args.args
+    assert set(files) == {
+        "website/uge/2026/37/digest.json",
+        "website/uge/2026/37/index.html",
+        "website/sitemap.xml",
+    }
+    assert f"{publisher.SITE_BASE_URL}/uge/2026/37/" in files["website/sitemap.xml"]
+    assert "37" in message
+
+
+def test_commit_archive_never_pushes_a_week_the_sitemap_does_not_list(monkeypatch) -> None:
+    """The red-CI cause: an intermediate commit with the page but not the sitemap.
+
+    The two must travel together, because the CI gate
+    (``test_sitemap_lists_every_published_week_page``) runs on every push.
+    """
+    monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
+    monkeypatch.setattr(publisher, "_fetch_file_text", lambda path: None)
+    with mock.patch.object(publisher, "_commit_files") as commit:
+        publisher.commit_archive(_digest())
+    files = commit.call_args.args[0]
+    page = "website/uge/2026/37/index.html"
+    if page in files:
+        assert "website/sitemap.xml" in files
+
+
+def test_commit_archive_carries_the_previous_week_forward_link(monkeypatch) -> None:
+    monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
+    monkeypatch.setattr(publisher, "_fetch_file_text", lambda path: None)
+    monkeypatch.setattr(
+        publisher,
+        "_fetch_digest_json",
+        lambda year, week: {"week": week, "year": year, "total_posts": 10, "categories": {}},
+    )
+    with mock.patch.object(publisher, "_commit_files") as commit:
+        publisher.commit_archive(_digest(prev_week={"year": 2026, "week": 36}))
+    files = commit.call_args.args[0]
+    assert "website/uge/2026/36/index.html" in files
+    assert "website/uge/2026/36/digest.json" in files
+    assert "link uge 36/2026 forward to 37/2026" in commit.call_args.args[1]
 
 
 def test_a_sitemap_failure_never_breaks_the_digest_run(monkeypatch) -> None:
     monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
-    with mock.patch.object(publisher, "_put_file") as put:
-        with mock.patch.object(publisher, "update_sitemap", side_effect=RuntimeError("boom")):
+    with mock.patch.object(publisher, "_commit_files") as commit:
+        with mock.patch.object(publisher, "_sitemap_files", side_effect=RuntimeError("boom")):
             publisher.commit_archive(_digest())  # must not raise
-    assert put.call_count == 2
+    files = commit.call_args.args[0]
+    assert "website/uge/2026/37/index.html" in files
+    assert "website/sitemap.xml" not in files
+
+
+def test_commit_files_writes_every_file_in_one_commit(monkeypatch) -> None:
+    """The Git Data API mechanics: one tree, one commit, one ref update."""
+    monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
+    calls: list[tuple[str, str, dict]] = []
+
+    def fake_request(method, url, **kwargs):
+        calls.append((method, url, kwargs.get("json") or {}))
+        resp = mock.Mock(status_code=200)
+        if url.endswith("/git/ref/heads/main"):
+            resp.json.return_value = {"object": {"sha": "head123"}}
+        elif url.endswith("/git/commits/head123"):
+            resp.json.return_value = {"tree": {"sha": "treebase"}}
+        elif url.endswith("/git/trees"):
+            resp.json.return_value = {"sha": "treenew"}
+        elif url.endswith("/git/commits"):
+            resp.json.return_value = {"sha": "commitnew"}
+        else:
+            resp.json.return_value = {}
+        resp.raise_for_status.return_value = None
+        return resp
+
+    with mock.patch.object(publisher.requests, "get", lambda url, **kw: fake_request("GET", url, **kw)), \
+         mock.patch.object(publisher.requests, "post", lambda url, **kw: fake_request("POST", url, **kw)), \
+         mock.patch.object(publisher.requests, "patch", lambda url, **kw: fake_request("PATCH", url, **kw)):
+        sha = publisher._commit_files({"a.txt": "A", "b/c.txt": "C"}, "msg")
+
+    assert sha == "commitnew"
+    methods = [m for m, _u, _j in calls]
+    assert methods == ["GET", "GET", "POST", "POST", "PATCH"]
+    tree_body = [j for m, u, j in calls if u.endswith("/git/trees")][0]
+    assert tree_body["base_tree"] == "treebase"
+    assert [entry["path"] for entry in tree_body["tree"]] == ["a.txt", "b/c.txt"]
+    assert [entry["content"] for entry in tree_body["tree"]] == ["A", "C"]
+    commit_body = [j for m, u, j in calls if u.endswith("/git/commits")][0]
+    assert commit_body["parents"] == ["head123"]
+    assert commit_body["tree"] == "treenew"
+    ref_body = [j for m, u, j in calls if u.endswith("/git/refs/heads/main")][0]
+    assert ref_body == {"sha": "commitnew", "force": False}
+
+
+def test_commit_files_retries_when_main_moved(monkeypatch) -> None:
+    monkeypatch.setattr(publisher.config, "GITHUB_COMMIT_TOKEN", "fake-token")
+    patches = {"n": 0}
+
+    def fake_request(method, url, **kwargs):
+        resp = mock.Mock(status_code=200)
+        if url.endswith("/git/ref/heads/main"):
+            resp.json.return_value = {"object": {"sha": "head123"}}
+        elif url.endswith("/git/commits/head123"):
+            resp.json.return_value = {"tree": {"sha": "treebase"}}
+        elif url.endswith("/git/trees"):
+            resp.json.return_value = {"sha": "treenew"}
+        elif url.endswith("/git/commits"):
+            resp.json.return_value = {"sha": "commitnew"}
+        elif url.endswith("/git/refs/heads/main"):
+            patches["n"] += 1
+            resp.status_code = 422 if patches["n"] == 1 else 200
+            resp.json.return_value = {}
+        resp.raise_for_status.return_value = None
+        return resp
+
+    with mock.patch.object(publisher.requests, "get", lambda url, **kw: fake_request("GET", url, **kw)), \
+         mock.patch.object(publisher.requests, "post", lambda url, **kw: fake_request("POST", url, **kw)), \
+         mock.patch.object(publisher.requests, "patch", lambda url, **kw: fake_request("PATCH", url, **kw)):
+        assert publisher._commit_files({"a.txt": "A"}, "msg") == "commitnew"
+
+    assert patches["n"] == 2, "a rejected non-fast-forward update must be retried once"
+
+
+def test_commit_files_with_nothing_to_write_does_nothing() -> None:
+    assert publisher._commit_files({}, "msg") == ""
